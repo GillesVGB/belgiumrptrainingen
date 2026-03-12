@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="nl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainingen - Belgium Roleplay</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* Header */
+        header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .logo i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--gray-light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--light);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 4rem 0;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .page-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .page-header p {
+            color: var(--gray);
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Filter Section */
+        .filter-section {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            color: var(--gray-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .filter-select {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.25rem;
+            color: white;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--light);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Training Cards */
+        .trainings-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .training-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .training-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .training-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--light);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-not_started { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .status-in_progress { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .status-completed { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .status-delayed { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+        
+        .training-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .detail-item i {
+            color: var(--primary);
+        }
+        
+        .training-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+        
+        /* Loading */
+        .loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Footer */
+        footer {
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 0;
+            margin-top: 5rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+        
+        .footer-section h3 {
+            color: var(--light);
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+        }
+        
+        .footer-section p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .footer-section ul li a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-section ul li a:hover {
+            color: var(--primary);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            transition: all 0.3s;
+        }
+        
+        .social-links a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .page-header h1 {
+                font-size: 2.25rem;
+            }
+            
+            .trainings-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Belgium Roleplay</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/trainingen.html" class="active"><i class="fas fa-graduation-cap"></i> Trainingen</a></li>
+                    <li><a href="/admin/dashboard.html"><i class="fas fa-user-shield"></i> Admin</a></li>
+                    <li><a href="https://github.com/GillesVGB/bredathenetherlands" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1><i class="fas fa-graduation-cap"></i> Trainingen Overzicht</h1>
+                <p>Bekijk en filter alle geplande trainingen. Real-time updates via Discord bot.</p>
+            </div>
+            
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label for="statusFilter"><i class="fas fa-filter"></i> Status</label>
+                        <select id="statusFilter" class="filter-select" onchange="filterTrainings()">
+                            <option value="all">Alle Statussen</option>
+                            <option value="not_started">Nog niet gestart</option>
+                            <option value="in_progress">Bezig</option>
+                            <option value="completed">Afgelopen</option>
+                            <option value="cancelled">Geannuleerd</option>
+                            <option value="delayed">Uitgesteld</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="dateFilter"><i class="far fa-calendar"></i> Datum</label>
+                        <select id="dateFilter" class="filter-select" onchange="filterTrainings()">
+                            <option value="all">Alle Datums</option>
+                            <option value="upcoming">Toekomstig</option>
+                            <option value="past">Verleden</option>
+                            <option value="today">Vandaag</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="trainerFilter"><i class="fas fa-user"></i> Trainer</label>
+                        <select id="trainerFilter" class="filter-select" onchange="filterTrainings()">
+                            <option value="all">Alle Trainers</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Overview -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="stat-number" id="totalTrainings">0</div>
+                    <div class="stat-label">Totaal Trainingen</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, var(--success) 0%, #0d9665 100%);">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="stat-number" id="upcomingTrainings">0</div>
+                    <div class="stat-label">Komend</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, var(--info) 0%, #2563eb 100%);">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                    <div class="stat-number" id="inProgressTrainings">0</div>
+                    <div class="stat-label">Bezig</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-number" id="completedTrainings">0</div>
+                    <div class="stat-label">Voltooid</div>
+                </div>
+            </div>
+            
+            <!-- Training Cards -->
+            <div id="trainings-container" class="trainings-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Trainingen laden...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Training Management</h3>
+                    <p>Real-time training management met Discord bot integratie.</p>
+                    <div class="social-links">
+                        <a href="https://discord.gg/breda" target="_blank" title="Discord">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="https://github.com/GillesVGB/bredathenetherlands" target="_blank" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Discord Commands</h3>
+                    <ul>
+                        <li><code>/training</code> - Voeg training toe</li>
+                        <li><code>/verwijdertraining</code> - Verwijder training</li>
+                        <li><code>/veranderstatustraining</code> - Verander status</li>
+                        <li><code>/trainingen</code> - Toon alle trainingen</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Snelle Links</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/trainingen.html">Trainingen</a></li>
+                        <li><a href="/admin/dashboard.html">Admin Dashboard</a></li>
+                        <li><a href="/admin/beheer-trainingen.html">Training Beheer</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 Belgium The Netherlands Roleplay. Alle rechten voorbehouden.</p>
+                <p>Moderne training management systeem v2.0</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let allTrainings = [];
+        let trainers = new Set();
+        
+        // Load trainings
+        async function loadTrainings() {
+            try {
+                const response = await fetch('/api/trainingen');
+                allTrainings = await response.json();
+                
+                updateStats();
+                updateTrainerFilter();
+                filterTrainings();
+                
+            } catch (error) {
+                console.error('Fout bij laden trainingen:', error);
+                document.getElementById('trainings-container').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Fout bij laden</h3>
+                        <p>Kon trainingen niet laden. Probeer het later opnieuw.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const total = allTrainings.length;
+            const upcoming = allTrainings.filter(t => t.status === 'not_started' || t.status === 'delayed').length;
+            const inProgress = allTrainings.filter(t => t.status === 'in_progress').length;
+            const completed = allTrainings.filter(t => t.status === 'completed').length;
+            
+            document.getElementById('totalTrainings').textContent = total;
+            document.getElementById('upcomingTrainings').textContent = upcoming;
+            document.getElementById('inProgressTrainings').textContent = inProgress;
+            document.getElementById('completedTrainings').textContent = completed;
+        }
+        
+        // Update trainer filter options
+        function updateTrainerFilter() {
+            trainers.clear();
+            allTrainings.forEach(t => trainers.add(t.trainer));
+            
+            const select = document.getElementById('trainerFilter');
+            select.innerHTML = '<option value="all">Alle Trainers</option>';
+            
+            Array.from(trainers).sort().forEach(trainer => {
+                const option = document.createElement('option');
+                option.value = trainer;
+                option.textContent = trainer;
+                select.appendChild(option);
+            });
+        }
+        
+        // Filter trainings based on selections
+        function filterTrainings() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const trainerFilter = document.getElementById('trainerFilter').value;
+            
+            let filtered = [...allTrainings];
+            
+            // Filter by status
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(t => t.status === statusFilter);
+            }
+            
+            // Filter by date
+            if (dateFilter !== 'all') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                filtered = filtered.filter(t => {
+                    const [day, month, year] = t.datum.split('/').map(Number);
+                    const trainingDate = new Date(year, month - 1, day);
+                    
+                    if (dateFilter === 'upcoming') {
+                        return trainingDate >= today;
+                    } else if (dateFilter === 'past') {
+                        return trainingDate < today;
+                    } else if (dateFilter === 'today') {
+                        return trainingDate.getTime() === today.getTime();
+                    }
+                    return true;
+                });
+            }
+            
+            // Filter by trainer
+            if (trainerFilter !== 'all') {
+                filtered = filtered.filter(t => t.trainer === trainerFilter);
+            }
+            
+            // Sort by date
+            filtered.sort((a, b) => {
+                try {
+                    const [dagA, maandA, jaarA] = a.datum.split('/').map(Number);
+                    const [dagB, maandB, jaarB] = b.datum.split('/').map(Number);
+                    const datumA = new Date(jaarA, maandA - 1, dagA);
+                    const datumB = new Date(jaarB, maandB - 1, dagB);
+                    return datumA - datumB;
+                } catch {
+                    return 0;
+                }
+            });
+            
+            displayTrainings(filtered);
+        }
+        
+        // Display filtered trainings
+        function displayTrainings(trainings) {
+            const container = document.getElementById('trainings-container');
+            
+            if (trainings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Geen trainingen gevonden</h3>
+                        <p>Er zijn geen trainingen die aan de filtercriteria voldoen.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            trainings.forEach(training => {
+                html += `
+                    <div class="training-card">
+                        <div class="training-header">
+                            <div class="training-title">${training.onderwerp}</div>
+                            <span class="status-badge status-${training.status}">
+                                ${training.status_text}
+                            </span>
+                        </div>
+                        
+                        <div class="training-details">
+                            <div class="detail-item">
+                                <i class="far fa-calendar"></i>
+                                <span>${training.datum}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="far fa-clock"></i>
+                                <span>${training.tijd}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-user"></i>
+                                <span>${training.trainer}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-hashtag"></i>
+                                <span>ID: ${training.id}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="training-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-user-plus"></i>
+                                <span>${training.toegevoegd_door || 'Systeem'}</span>
+                            </div>
+                            ${training.van_discord ? `
+                                <div class="meta-item">
+                                    <i class="fab fa-discord"></i>
+                                    <span>Via Discord</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTrainings();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(loadTrainings, 30000);
+        });
+    </script>
+</body>
+</html>
