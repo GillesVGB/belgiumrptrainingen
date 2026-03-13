@@ -171,4 +171,4 @@ app.listen(3000, () => {
 // ===========================================
 // START BOT (VERVANG TOKEN)
 // ===========================================
-client.login("MTIxMjE0NDE4MTE5MjA0MDUyOA.Go-XLu.B4_-b49tBM0Upe-JT9ZXk78kSrRJnpoEpDsh0w");
+client.login(process.env.DISCORD_TOKEN);
