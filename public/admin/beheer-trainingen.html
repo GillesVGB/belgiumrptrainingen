@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainingen Beheer - Admin - Breda Roleplay</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <style>
+        /* Admin specifieke stijlen */
+        :root {
+            --primary: #1a237e;
+            --primary-dark: #283593;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* Header */
+        header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo i {
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: white;
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        /* Admin Content */
+        .admin-content {
+            padding: 2rem 0;
+            min-height: 70vh;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .page-header h1 {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .header-actions a {
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .header-actions a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.25rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        /* Actions Bar */
+        .actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .actions-bar h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 35, 126, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #0d9488 100%);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #b91c1c 100%);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+        
+        /* Filter Section */
+        .filter-section {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .filter-select, .filter-input {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: inherit;
+        }
+        
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Table */
+        .table-container {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: rgba(26, 35, 126, 0.5);
+        }
+        
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: white;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0;
+        }
+        
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .discord-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: #5865F2;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-not_started { background: rgba(59, 130, 246, 0.3); color: #60a5fa; }
+        .status-in_progress { background: rgba(245, 158, 11, 0.3); color: #fbbf24; }
+        .status-completed { background: rgba(16, 185, 129, 0.3); color: #34d399; }
+        .status-cancelled { background: rgba(239, 68, 68, 0.3); color: #f87171; }
+        .status-delayed { background: rgba(139, 92, 246, 0.3); color: #a78bfa; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+        }
+        
+        .edit-btn {
+            background: var(--warning);
+        }
+        
+        .edit-btn:hover {
+            background: #e07b0b;
+            transform: scale(1.1);
+        }
+        
+        .delete-btn {
+            background: var(--danger);
+        }
+        
+        .delete-btn:hover {
+            background: #b91c1c;
+            transform: scale(1.1);
+        }
+        
+        /* Login Required */
+        .login-required {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            margin: 3rem auto;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .login-required i {
+            font-size: 4rem;
+            color: var(--danger);
+            margin-bottom: 1rem;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #94a3b8;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Footer */
+        footer {
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            text-align: center;
+            color: #94a3b8;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .actions-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Breda Roleplay Admin</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/trainingen.html"><i class="fas fa-graduation-cap"></i> Trainingen</a></li>
+                    <li><a href="/admin/dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="/admin/beheer-trainingen.html" class="active"><i class="fas fa-cog"></i> Beheer</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="admin-content">
+            <!-- Login Check -->
+            <div id="loginCheck" class="loading" style="display: block;">
+                <div class="spinner"></div>
+                <p>Controleren login status...</p>
+            </div>
+            
+            <!-- Login Required -->
+            <div id="loginRequired" class="login-required" style="display: none;">
+                <i class="fas fa-lock"></i>
+                <h2>Login Vereist</h2>
+                <p>Je moet ingelogd zijn om trainingen te beheren.</p>
+                <button onclick="netlifyIdentity.open()" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Inloggen
+                </button>
+            </div>
+            
+            <!-- Admin Content -->
+            <div id="adminContent" style="display: none;">
+                <div class="page-header">
+                    <h1><i class="fas fa-graduation-cap"></i> Trainingen Beheer</h1>
+                    <p>Beheer alle trainingen van Breda The Netherlands Roleplay</p>
+                    <div class="header-actions">
+                        <a href="/admin/dashboard.html">
+                            <i class="fas fa-arrow-left"></i> Terug naar Dashboard
+                        </a>
+                        <a href="/trainingen.html" target="_blank">
+                            <i class="fas fa-eye"></i> Bekijk Publieke Pagina
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-number" id="totalTrainings">0</div>
+                        <div class="stat-label">Totaal Trainingen</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #0d9488 100%);">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="stat-number" id="activeTrainings">0</div>
+                        <div class="stat-label">Actief</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-number" id="upcomingTrainings">0</div>
+                        <div class="stat-label">Komend</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);">
+                            <i class="fab fa-discord"></i>
+                        </div>
+                        <div class="stat-number" id="discordTrainings">0</div>
+                        <div class="stat-label">Via Discord</div>
+                    </div>
+                </div>
+                
+                <!-- Actions Bar -->
+                <div class="actions-bar">
+                    <h2><i class="fas fa-list"></i> Alle Trainingen</h2>
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="refreshData()" class="btn btn-success">
+                            <i class="fas fa-sync-alt"></i> Vernieuwen
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <div class="filter-grid">
+                        <div class="filter-group">
+                            <label for="statusFilter"><i class="fas fa-filter"></i> Filter op status</label>
+                            <select id="statusFilter" class="filter-select" onchange="filterTrainings()">
+                                <option value="all">Alle statussen</option>
+                                <option value="not_started">🟦 Nog niet gestart</option>
+                                <option value="in_progress">🟨 Bezig</option>
+                                <option value="completed">🟩 Afgerond</option>
+                                <option value="cancelled">🟥 Geannuleerd</option>
+                                <option value="delayed">🟪 Uitgesteld</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="dienstFilter"><i class="fas fa-filter"></i> Filter op dienst</label>
+                            <select id="dienstFilter" class="filter-select" onchange="filterTrainings()">
+                                <option value="all">Alle diensten</option>
+                                <option value="politie">🚔 Politie</option>
+                                <option value="ambulance">🚑 Ambulance</option>
+                                <option value="brandweer">🚒 Brandweer</option>
+                                <option value="handhaving">🔧 Handhaving</option>
+                                <option value="algemeen">👮 Algemeen</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="searchInput"><i class="fas fa-search"></i> Zoeken</label>
+                            <input type="text" id="searchInput" class="filter-input" placeholder="Zoek op titel, trainer..." onkeyup="filterTrainings()">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Training Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Onderwerp</th>
+                                <th>Dienst</th>
+                                <th>Datum/Tijd</th>
+                                <th>Trainer</th>
+                                <th>Status</th>
+                                <th>Deelnemers</th>
+                                <th>Bron</th>
+                                <th>Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trainingsTable">
+                            <tr>
+                                <td colspan="9" class="loading">
+                                    <div class="spinner" style="margin: 1rem auto;"></div>
+                                    <p>Trainingen laden...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Info Box -->
+                <div style="background: rgba(16, 185, 129, 0.1); padding: 1.5rem; border-radius: 1rem; border-left: 4px solid #10b981;">
+                    <h3 style="display: flex; align-items: center; gap: 0.5rem; color: #10b981; margin-bottom: 0.5rem;">
+                        <i class="fas fa-info-circle"></i> Informatie
+                    </h3>
+                    <p style="color: #94a3b8;">Trainingen worden automatisch gesynchroniseerd met Discord. Wijzigingen zijn direct zichtbaar op de website en in Roblox (binnen 60 seconden).</p>
+                    <p style="color: #94a3b8; margin-top: 0.5rem;"><i class="fas fa-trash"></i> <strong>Let op:</strong> Verwijderde trainingen kunnen niet worden hersteld.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Breda The Netherlands Roleplay - Admin Panel</p>
+            <p style="font-size: 0.9rem; opacity: 0.7;">Training Management Systeem v2.0</p>
+        </div>
+    </footer>
+
+    <script>
+        // Globale variabelen
+        let allTrainings = [];
+        let currentUser = null;
+        
+        // ===========================================
+        // LOGIN CHECK
+        // ===========================================
+        function checkLogin() {
+            const loginCheck = document.getElementById('loginCheck');
+            const loginRequired = document.getElementById('loginRequired');
+            const adminContent = document.getElementById('adminContent');
+            
+            if (!window.netlifyIdentity) {
+                console.error('Netlify Identity niet geladen');
+                loginCheck.style.display = 'none';
+                loginRequired.style.display = 'block';
+                return;
+            }
+            
+            netlifyIdentity.on('init', user => {
+                loginCheck.style.display = 'none';
+                
+                if (user) {
+                    currentUser = user;
+                    adminContent.style.display = 'block';
+                    loadTrainings();
+                    setupRealtimeUpdates();
+                } else {
+                    loginRequired.style.display = 'block';
+                }
+            });
+            
+            netlifyIdentity.on('login', user => {
+                currentUser = user;
+                adminContent.style.display = 'block';
+                loginRequired.style.display = 'none';
+                loadTrainings();
+            });
+            
+            netlifyIdentity.on('logout', () => {
+                currentUser = null;
+                adminContent.style.display = 'none';
+                loginRequired.style.display = 'block';
+            });
+            
+            netlifyIdentity.init();
+        }
+        
+        // ===========================================
+        // TRAININGEN LADEN
+        // ===========================================
+        async function loadTrainings() {
+            try {
+                const response = await fetch('/api/trainingen');
+                allTrainings = await response.json();
+                
+                updateStats();
+                filterTrainings();
+                updateLastUpdate();
+                
+            } catch (error) {
+                console.error('Fout bij laden:', error);
+                document.getElementById('trainingsTable').innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Fout bij laden trainingen: ${error.message}</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // ===========================================
+        // STATISTIEKEN BIJWERKEN
+        // ===========================================
+        function updateStats() {
+            const total = allTrainings.length;
+            const active = allTrainings.filter(t => t.status === 'in_progress').length;
+            const upcoming = allTrainings.filter(t => t.status === 'not_started' || t.status === 'delayed').length;
+            const discord = allTrainings.filter(t => t.van_discord).length;
+            
+            document.getElementById('totalTrainings').textContent = total;
+            document.getElementById('activeTrainings').textContent = active;
+            document.getElementById('upcomingTrainings').textContent = upcoming;
+            document.getElementById('discordTrainings').textContent = discord;
+        }
+        
+        // ===========================================
+        // FILTEREN
+        // ===========================================
+        function filterTrainings() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dienstFilter = document.getElementById('dienstFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = [...allTrainings];
+            
+            // Filter op status
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(t => t.status === statusFilter);
+            }
+            
+            // Filter op dienst
+            if (dienstFilter !== 'all') {
+                filtered = filtered.filter(t => t.dienst === dienstFilter);
+            }
+            
+            // Zoeken
+            if (searchTerm) {
+                filtered = filtered.filter(t => 
+                    (t.onderwerp && t.onderwerp.toLowerCase().includes(searchTerm)) ||
+                    (t.trainer && t.trainer.toLowerCase().includes(searchTerm)) ||
+                    (t.id && t.id.includes(searchTerm))
+                );
+            }
+            
+            // Sorteer op datum (nieuwste eerst)
+            filtered.sort((a, b) => {
+                return new Date(b.aangemaakt || 0) - new Date(a.aangemaakt || 0);
+            });
+            
+            displayTrainings(filtered);
+        }
+        
+        // ===========================================
+        // TRAININGEN TONEN
+        // ===========================================
+        function displayTrainings(trainings) {
+            const tableBody = document.getElementById('trainingsTable');
+            
+            if (trainings.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Geen trainingen gevonden</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            trainings.forEach(training => {
+                const statusIcons = {
+                    'not_started': '🟦',
+                    'in_progress': '🟨',
+                    'completed': '🟩',
+                    'cancelled': '🟥',
+                    'delayed': '🟪'
+                };
+                
+                const dienstIcons = {
+                    'politie': '🚔',
+                    'ambulance': '🚑',
+                    'brandweer': '🚒',
+                    'handhaving': '🔧',
+                    'algemeen': '👮'
+                };
+                
+                html += `
+                    <tr>
+                        <td><code style="background: rgba(0,0,0,0.3); padding: 0.25rem 0.5rem; border-radius: 0.25rem;">${training.id}</code></td>
+                        <td><strong>${training.onderwerp || 'Onbekend'}</strong></td>
+                        <td>${dienstIcons[training.dienst] || '📌'} ${training.dienst || 'Onbekend'}</td>
+                        <td>${training.datum || '??'} ${training.tijd || ''}</td>
+                        <td>👤 ${training.trainer || 'Onbekend'}</td>
+                        <td><span class="status-badge status-${training.status}">${statusIcons[training.status] || ''} ${training.status_text || training.status}</span></td>
+                        <td>👥 ${training.aangemeld?.length || 0}/${training.maxDeelnemers || '?'}</td>
+                        <td>${training.van_discord ? '<span class="discord-badge"><i class="fab fa-discord"></i> Discord</span>' : '📝 Handmatig'}</td>
+                        <td class="action-buttons">
+                            <button class="action-btn delete-btn" onclick="adminDeleteTraining('${training.id}')" title="Verwijder training">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+        
+        // ===========================================
+        // ADMIN: TRAINING VERWIJDEREN
+        // ===========================================
+        async function adminDeleteTraining(id) {
+            if (!currentUser) {
+                alert('❌ Je moet ingelogd zijn!');
+                netlifyIdentity.open();
+                return;
+            }
+            
+            if (!confirm('⚠️ Weet je zeker dat je deze training wilt verwijderen?\n\nDit kan niet ongedaan worden gemaakt!')) {
+                return;
+            }
+            
+            try {
+                const token = await currentUser.jwt();
+                
+                const response = await fetch(`/api/trainingen/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('✅ Training succesvol verwijderd!');
+                    loadTrainings(); // Herlaad de lijst
+                } else {
+                    const error = await response.text();
+                    alert('❌ Fout bij verwijderen: ' + error);
+                }
+            } catch (error) {
+                alert('❌ Fout: ' + error.message);
+            }
+        }
+        
+        // ===========================================
+        // DATA VERNIEUWEN
+        // ===========================================
+        function refreshData() {
+            loadTrainings();
+        }
+        
+        // ===========================================
+        // LAATSTE UPDATE TIJD
+        // ===========================================
+        function updateLastUpdate() {
+            // Optioneel: toon laatste update tijd
+        }
+        
+        // ===========================================
+        // REAL-TIME UPDATES
+        // ===========================================
+        function setupRealtimeUpdates() {
+            // Update elke 30 seconden
+            setInterval(() => {
+                if (document.getElementById('adminContent').style.display === 'block') {
+                    loadTrainings();
+                }
+            }, 30000);
+        }
+        
+        // ===========================================
+        // INITIALISEER
+        // ===========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLogin();
+        });
+    </script>
+</body>
+</html>
