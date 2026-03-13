@@ -629,7 +629,7 @@
         // Load trainings
         async function loadTrainings() {
             try {
-                const response = await fetch('/api/trainingen');
+                const response = await fetch(`${API_URL}/trainingen`)
                 allTrainings = await response.json();
                 
                 updateStats();

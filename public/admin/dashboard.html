@@ -1,11 +1,183 @@
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-<script>
-  // Redirect naar login als niet ingelogd
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on('init', user => {
-      if (!user) {
-        window.netlifyIdentity.open();
-      }
-    });
-  }
-</script>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Breda Roleplay</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #6366f1;
+        }
+        .login-required {
+            text-align: center;
+            padding: 50px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 10px;
+            border: 1px solid #ef4444;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background: #1a237e;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loginCheck" style="text-align: center; padding: 50px;">
+            <div class="spinner" style="width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top-color: #1a237e; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;"></div>
+            <p>Controleren login status...</p>
+        </div>
+        
+        <div id="loginRequired" style="display: none;" class="login-required">
+            <i class="fas fa-lock" style="font-size: 3rem; margin-bottom: 20px;"></i>
+            <h2>Login Vereist</h2>
+            <p>Je moet ingelogd zijn om het dashboard te bekijken.</p>
+            <button onclick="netlifyIdentity.open()" class="btn">
+                <i class="fas fa-sign-in-alt"></i> Inloggen
+            </button>
+        </div>
+        
+        <div id="adminContent" style="display: none;">
+            <div class="header">
+                <h1><i class="fas fa-user-shield"></i> Admin Dashboard</h1>
+                <p>Welkom, <span id="userEmail"></span>!</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <i class="fas fa-calendar"></i>
+                    <div class="stat-number" id="totalTrainings">0</div>
+                    <div>Totaal Trainingen</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="stat-number" id="activeTrainings">0</div>
+                    <div>Actief</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fab fa-discord"></i>
+                    <div class="stat-number" id="discordTrainings">0</div>
+                    <div>Via Discord</div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <a href="/admin/beheer-trainingen.html" style="background: #1a237e; color: white; padding: 20px; border-radius: 10px; text-decoration: none; text-align: center;">
+                    <i class="fas fa-cog" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <h3>Trainingen Beheren</h3>
+                    <p>Voeg toe, wijzig of verwijder trainingen</p>
+                </a>
+                <a href="/trainingen.html" style="background: #10b981; color: white; padding: 20px; border-radius: 10px; text-decoration: none; text-align: center;">
+                    <i class="fas fa-eye" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <h3>Bekijk Website</h3>
+                    <p>Bekijk de publieke trainingen pagina</p>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    
+    <script>
+        let currentUser = null;
+        
+        function checkLogin() {
+            const loginCheck = document.getElementById('loginCheck');
+            const loginRequired = document.getElementById('loginRequired');
+            const adminContent = document.getElementById('adminContent');
+            
+            if (!window.netlifyIdentity) {
+                loginCheck.style.display = 'none';
+                loginRequired.style.display = 'block';
+                return;
+            }
+            
+            netlifyIdentity.on('init', user => {
+                loginCheck.style.display = 'none';
+                
+                if (user) {
+                    currentUser = user;
+                    adminContent.style.display = 'block';
+                    document.getElementById('userEmail').textContent = user.email;
+                    loadStats();
+                } else {
+                    loginRequired.style.display = 'block';
+                }
+            });
+            
+            netlifyIdentity.on('login', user => {
+                currentUser = user;
+                adminContent.style.display = 'block';
+                loginRequired.style.display = 'none';
+                document.getElementById('userEmail').textContent = user.email;
+                loadStats();
+            });
+            
+            netlifyIdentity.on('logout', () => {
+                currentUser = null;
+                adminContent.style.display = 'none';
+                loginRequired.style.display = 'block';
+            });
+            
+            netlifyIdentity.init();
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/trainingen');
+                const trainings = await response.json();
+                
+                document.getElementById('totalTrainings').textContent = trainings.length;
+                document.getElementById('activeTrainings').textContent = trainings.filter(t => t.status === 'in_progress').length;
+                document.getElementById('discordTrainings').textContent = trainings.filter(t => t.van_discord).length;
+            } catch (error) {
+                console.error('Fout:', error);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', checkLogin);
+    </script>
+</body>
+</html>

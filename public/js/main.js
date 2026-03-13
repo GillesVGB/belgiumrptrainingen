@@ -1,12 +1,13 @@
 // API basis URL
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000/api'
-    : 'https://JOUW-NETLIFY-URL.netlify.app/api'; // Verander dit later
+    : 'https://belgiumrptrainingen.netlify.app/api'; // Je Netlify URL
 
 // Laad trainingen
 async function loadTrainings() {
     try {
-        const response = await fetch('/api/trainingen');
+        // GEBRUIK API_URL hier!
+        const response = await fetch(`${API_URL}/trainingen`);
         const trainingen = await response.json();
         return trainingen;
     } catch (error) {
@@ -17,8 +18,8 @@ async function loadTrainings() {
 
 // Toon notificatie
 function showNotification(message, type = 'info') {
-    // Implementeer notificaties
     console.log(`[${type}] ${message}`);
+    // Je kunt hier later een mooie popup maken
 }
 
 // Format datum
@@ -32,3 +33,8 @@ window.trainingApp = {
     showNotification,
     formatDate
 };
+
+// Automatisch trainingen laden bij start
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ Training app geladen, API URL:', API_URL);
+});
