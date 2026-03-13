@@ -1,7 +1,7 @@
 // API basis URL
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000/api'
-    : 'https://belgiumrptrainingen.netlify.app/api'; // Je Netlify URL
+    : 'https://belgium-roleplay.netlify.app/.netlify/functions/api';
 
 // Laad trainingen
 async function loadTrainings() {

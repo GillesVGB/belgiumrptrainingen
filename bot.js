@@ -15,7 +15,7 @@ async function sendToNetlify(training) {
     try {
         console.log('📤 Verstuur naar Netlify:', training.onderwerp);
         
-        const response = await fetch('https://belgiumrptrainingen.netlify.app/.netlify/functions/api', {
+const response = await fetch('https://belgium-roleplay.netlify.app/.netlify/functions/api', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
