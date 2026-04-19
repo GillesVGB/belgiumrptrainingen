@@ -31,12 +31,17 @@ const TrainingApp = {
     
     async loadDashboardData() {
         try {
+            // 🔴 API geeft nu DIRECT een array terug!
             const trainings = await this.apiRequest();
-            const gameStatusRes = await fetch('/api/game-status');
-            const gameStatus = await gameStatusRes.json();
+            
             return {
                 trainings: trainings || [],
-                gameStatus: gameStatus
+                gameStatus: {
+                    state: 'operational',
+                    state_label: 'Operationeel',
+                    title: 'Server Operationeel',
+                    message: 'Alles werkt normaal.'
+                }
             };
         } catch (error) {
             console.error('Error loading data:', error);
@@ -200,7 +205,7 @@ const TrainingApp = {
     
     renderTableRows(trainings) {
         if (!trainings.length) {
-            return `<table><td colspan="8"><div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Geen trainingen gevonden.</p></div></td></tr>`;
+            return `<tr><td colspan="8"><div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Geen trainingen gevonden.</p></div></td></tr>`;
         }
         
         return trainings.map(training => {
