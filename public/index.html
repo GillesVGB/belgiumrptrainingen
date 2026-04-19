@@ -162,6 +162,9 @@
         .footer__inner {
             text-align: center;
         }
+        .nav-group .auth-link {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -185,10 +188,6 @@
                         <a class="nav-link" href="/admin/dashboard.html">
                             <i class="fa-solid fa-user-shield"></i>
                             Admin
-                        </a>
-                        <a class="auth-link" href="#" id="authLink">
-                            <i class="fa-solid fa-user-shield"></i>
-                            <span id="authText">Inloggen</span>
                         </a>
                     </div>
                 </nav>
@@ -273,42 +272,6 @@
     </div>
 
     <script>
-        // ============================================
-        // NETLIFY AUTH - LOGIN/LOGOUT
-        // ============================================
-        (function() {
-            if (!window.netlifyIdentity) return;
-            
-            const authLink = document.getElementById('authLink');
-            const authText = document.getElementById('authText');
-            
-            if (!authLink) return;
-            
-            function updateAuthButton() {
-                const user = window.netlifyIdentity.currentUser();
-                
-                if (user) {
-                    authText.textContent = 'Uitloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.logout();
-                        window.location.href = '/';
-                    };
-                } else {
-                    authText.textContent = 'Inloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.location.href = '/admin/login.html';
-                    };
-                }
-            }
-            
-            updateAuthButton();
-            window.netlifyIdentity.on('init', updateAuthButton);
-            window.netlifyIdentity.on('login', function() { updateAuthButton(); window.location.reload(); });
-            window.netlifyIdentity.on('logout', function() { updateAuthButton(); window.location.reload(); });
-        })();
-
         // ============================================
         // API CONFIGURATIE
         // ============================================
