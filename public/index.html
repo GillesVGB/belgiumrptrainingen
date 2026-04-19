@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
@@ -8,362 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Sora', 'Rajdhani', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #f8fafc;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
-        
-        .site-header {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .site-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-        
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-        }
-        
-        .brand-mark {
-            font-size: 2rem;
-        }
-        
-        .brand-copy strong {
-            color: white;
-            font-size: 1.2rem;
-        }
-        
-        .brand-copy span {
-            color: #94a3b8;
-            font-size: 0.8rem;
-            display: block;
-        }
-        
-        .nav-group {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-        .nav-link {
-            color: #94a3b8;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-        }
-        
-        .nav-link:hover {
-            color: white;
-            background: rgba(99,102,241,0.1);
-        }
-        
-        .auth-link {
-            color: #94a3b8;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .auth-link:hover {
-            color: white;
-            background: rgba(99,102,241,0.1);
-        }
-        
-        .hero {
-            padding: 4rem 0;
-            text-align: center;
-        }
-        
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #6366f1 0%, #10b981 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .lead {
-            color: #94a3b8;
-            max-width: 600px;
-            margin: 0 auto 2rem;
-        }
-        
-        .cta-row {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
-        }
-        
-        .button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .button-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            color: white;
-        }
-        
-        .button-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(99,102,241,0.4);
-        }
-        
-        .button-secondary {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .button-secondary:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-        
-        .button-ghost {
-            background: transparent;
-            color: #94a3b8;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .button-ghost:hover {
-            color: white;
-            border-color: #6366f1;
-        }
-        
-        .signal-strip {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .signal-card {
-            text-align: center;
-        }
-        
-        .signal-card span {
-            color: #94a3b8;
-            font-size: 0.8rem;
-        }
-        
-        .signal-card strong {
-            color: white;
-            font-size: 1.5rem;
-            display: block;
-        }
-        
-        .section {
-            padding: 3rem 0;
-        }
-        
-        .section-heading {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .section-heading h2 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .section-heading p {
-            color: #94a3b8;
-        }
-        
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .feature-card {
-            background: rgba(30,41,59,0.7);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: #6366f1;
-        }
-        
-        .feature-card .kicker {
-            color: #6366f1;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .feature-card h3 {
-            margin-bottom: 0.5rem;
-        }
-        
-        .feature-card p {
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-        
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-        
-        .training-card {
-            background: rgba(30,41,59,0.7);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s;
-        }
-        
-        .training-card:hover {
-            transform: translateY(-2px);
-            border-color: #6366f1;
-        }
-        
-        .training-card__top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .training-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin: 1rem 0;
-        }
-        
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: #94a3b8;
-        }
-        
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .pill-service-politie { background: rgba(37,99,235,0.2); color: #60a5fa; }
-        .pill-service-ambulance { background: rgba(239,68,68,0.2); color: #f87171; }
-        .pill-service-brandweer { background: rgba(249,115,22,0.2); color: #fbbf24; }
-        .pill-status-aangekondigd { background: rgba(59,130,246,0.2); color: #60a5fa; }
-        .pill-status-inloop { background: rgba(16,185,129,0.2); color: #34d399; }
-        .pill-status-bezig { background: rgba(245,158,11,0.2); color: #fbbf24; }
-        
-        .badge-muted {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            margin-top: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #94a3b8;
-        }
-        
-        .footer {
-            background: rgba(15,23,42,0.95);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 2rem 0;
-            margin-top: 3rem;
-            text-align: center;
-            color: #94a3b8;
-        }
-        
-        .footer__inner {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .site-nav {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            .card-grid {
-                grid-template-columns: 1fr;
-            }
-            .footer__inner {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-    </style>
+    <script src="/js/main.js" defer></script>
 </head>
 <body>
     <div class="page-shell">
@@ -387,7 +34,7 @@
                             <i class="fa-solid fa-user-shield"></i>
                             Admin
                         </a>
-                        <a class="auth-link" id="authLink">
+                        <a class="auth-link" href="#" id="authLink">
                             <i class="fa-solid fa-user-shield"></i>
                             <span id="authText">Inloggen</span>
                         </a>
@@ -490,14 +137,276 @@
     </div>
 
     <script>
-        // ============================================
-        // API CONFIGURATIE
-        // ============================================
+        // NETLIFY AUTH - Login/Logout fix
+        (function() {
+            if (!window.netlifyIdentity) return;
+            const authLink = document.getElementById('authLink');
+            const authText = document.getElementById('authText');
+            
+            function updateAuth() {
+                const user = window.netlifyIdentity.currentUser();
+                if (user) {
+                    authText.textContent = 'Uitloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.logout();
+                        window.location.href = '/';
+                    };
+                } else {
+                    authText.textContent = 'Inloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.open();
+                    };
+                }
+            }
+            
+            window.netlifyIdentity.on('init', updateAuth);
+            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.reload(); });
+            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
+            updateAuth();
+        })();
+
+        // DATA LADEN
+        document.addEventListener('DOMContentLoaded', async () => {
+            const trainingsGrid = document.getElementById('homeTrainingsGrid');
+
+            try {
+                const data = await TrainingApp.loadDashboardData();
+                const trainings = TrainingApp.sortTrainings(data.trainings || []);
+                const relevantTrainings = trainings
+                    .filter((training) => ['aangekondigd', 'inloop', 'bezig'].includes(training.status))
+                    .slice(0, 3);
+
+                document.getElementById('homeUpcomingCount').textContent = String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length);
+                document.getElementById('homeActiveCount').textContent = String(trainings.filter((training) => training.status === 'bezig').length);
+
+                if (!relevantTrainings.length) {
+                    trainingsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <p>Er staan momenteel geen komende trainingen ingepland.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                trainingsGrid.innerHTML = relevantTrainings.map((training) => TrainingApp.renderTrainingCard(training)).join('');
+            } catch (error) {
+                console.error(error);
+                trainingsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <p>Kon de trainingen niet laden.</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belgium Roleplay | Operations & Training Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <style>
+        .hero-grid {
+            display: block;
+            text-align: center;
+        }
+        .signal-strip {
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="container">
+                <nav class="site-nav">
+                    <a class="brand" href="/">
+                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="brand-copy">
+                            <strong>Belgium Roleplay</strong>
+                            <span>Operations Center</span>
+                        </span>
+                    </a>
+
+                    <div class="nav-group">
+                        <a class="nav-link" href="/trainingen.html">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            Trainingen
+                        </a>
+                        <a class="nav-link" href="/admin/dashboard.html">
+                            <i class="fa-solid fa-user-shield"></i>
+                            Admin
+                        </a>
+                        <a class="auth-link" href="#" id="authLink">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span id="authText">Inloggen</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <section class="hero">
+                    <div class="hero-grid">
+                        <div class="hero-copy">
+                            <div class="eyebrow">
+                                <i class="fa-solid fa-satellite-dish"></i>
+                                Live trainingen en beheer
+                            </div>
+                            <h1>Trainingen en operationeel beheer</h1>
+                            <p class="lead">
+                                Deze omgeving bundelt je trainingen en adminbeheer in een heldere commandocentrale.
+                            </p>
+
+                            <div class="cta-row">
+                                <a class="button button-primary" href="/trainingen.html">
+                                    <i class="fa-solid fa-list-check"></i>
+                                    Bekijk trainingen
+                                </a>
+                                <a class="button button-secondary" href="/admin/dashboard.html">
+                                    <i class="fa-solid fa-gauge-high"></i>
+                                    Open admin
+                                </a>
+                            </div>
+
+                            <div class="signal-strip">
+                                <div class="signal-card">
+                                    <span>Komende trainingen</span>
+                                    <strong id="homeUpcomingCount">-</strong>
+                                </div>
+                                <div class="signal-card">
+                                    <span>Actieve sessies</span>
+                                    <strong id="homeActiveCount">-</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Waarom deze layout werkt</h2>
+                            <p class="section-copy">
+                                Duidelijk overzicht van alle trainingen voor hulpdiensten.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="feature-grid">
+                        <article class="feature-card">
+                            <div class="kicker"><i class="fa-solid fa-graduation-cap"></i> Trainingen</div>
+                            <h3>Altijd een helder overzicht</h3>
+                            <p>Komende opleidingen staan centraal, met duidelijke statussen.</p>
+                        </article>
+                        <article class="feature-card">
+                            <div class="kicker"><i class="fa-solid fa-user-shield"></i> Admin</div>
+                            <h3>Beheer zonder omwegen</h3>
+                            <p>Admins kunnen trainingen aanpassen, verwijderen en nieuwe inplannen.</p>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Komende trainingen</h2>
+                            <p class="section-copy">De eerstvolgende operationele sessies voor je teams.</p>
+                        </div>
+                        <a class="button button-ghost" href="/trainingen.html">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            Volledig overzicht
+                        </a>
+                    </div>
+
+                    <div class="card-grid" id="homeTrainingsGrid">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            <p>Trainingen laden...</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container footer__inner">
+                <span>Belgium Roleplay Training Systeem</span>
+                <span>Trainingen en admin in een uniforme commandolaag.</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ALLEEN LOGIN/LOGOUT - REST WERKT VANZELF
+        (function() {
+            // Wacht tot Netlify Identity geladen is
+            if (!window.netlifyIdentity) {
+                console.log('Netlify Identity niet geladen');
+                return;
+            }
+            
+            const authLink = document.getElementById('authLink');
+            const authText = document.getElementById('authText');
+            
+            if (!authLink) return;
+            
+            function updateAuthButton() {
+                const user = window.netlifyIdentity.currentUser();
+                
+                if (user) {
+                    // Ingelogd - toon Uitloggen
+                    authText.textContent = 'Uitloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.logout();
+                        window.location.href = '/';
+                    };
+                    authLink.style.cursor = 'pointer';
+                } else {
+                    // Niet ingelogd - toon Inloggen
+                    authText.textContent = 'Inloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.location.href = '/admin/login.html';
+                    };
+                    authLink.style.cursor = 'pointer';
+                }
+            }
+            
+            // Initial update
+            updateAuthButton();
+            
+            // Listen for auth changes
+            window.netlifyIdentity.on('init', updateAuthButton);
+            window.netlifyIdentity.on('login', function() {
+                updateAuthButton();
+                window.location.reload();
+            });
+            window.netlifyIdentity.on('logout', function() {
+                updateAuthButton();
+                window.location.reload();
+            });
+        })();
+        
+        // De rest van je code (trainingen laden) blijft zoals het is
+        // API URL
         const API_URL = '/.netlify/functions/api';
         
-        // ============================================
-        // HELPER FUNCTIES
-        // ============================================
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -506,35 +415,6 @@
         function formatDateLabel(datum, tijd) {
             if (!datum) return 'Datum onbekend';
             return `${datum} om ${tijd || '??:??'}`;
-        }
-        
-        function sortTrainings(trainings) {
-            return [...trainings].sort((a, b) => {
-                const dateA = parseDate(a.datum, a.tijd);
-                const dateB = parseDate(b.datum, b.tijd);
-                return dateB - dateA;
-            });
-        }
-        
-        function parseDate(datum, tijd) {
-            if (!datum) return 0;
-            const parts = datum.split(/[-/]/);
-            let day, month, year;
-            if (parts.length === 3) {
-                if (parts[0].length === 4) {
-                    year = parseInt(parts[0]);
-                    month = parseInt(parts[1]) - 1;
-                    day = parseInt(parts[2]);
-                } else {
-                    day = parseInt(parts[0]);
-                    month = parseInt(parts[1]) - 1;
-                    year = parseInt(parts[2]);
-                }
-            } else {
-                return 0;
-            }
-            const [hour, minute] = (tijd || '00:00').split(':');
-            return new Date(year, month, day, hour, minute).getTime();
         }
         
         function getStatusMeta(status) {
@@ -618,88 +498,24 @@
             `;
         }
         
-        // ============================================
-        // NETLIFY AUTH - LOGIN/LOGOUT (WERKEND!)
-        // ============================================
-        (function() {
-            // Wacht tot Netlify Identity geladen is
-            if (!window.netlifyIdentity) {
-                console.log('Netlify Identity niet geladen');
-                return;
-            }
-            
-            const authLink = document.getElementById('authLink');
-            const authText = document.getElementById('authText');
-            
-            if (!authLink) return;
-            
-            function updateAuthButton() {
-                const user = window.netlifyIdentity.currentUser();
-                console.log('User status:', user ? 'ingelogd' : 'uitgelogd');
-                
-                if (user) {
-                    // Ingelogd - toon Uitloggen
-                    authText.textContent = 'Uitloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.logout();
-                        window.location.href = '/';
-                    };
-                } else {
-                    // Niet ingelogd - toon Inloggen
-                    authText.textContent = 'Inloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.location.href = '/admin/login.html';
-                    };
-                }
-            }
-            
-            // Initial update
-            updateAuthButton();
-            
-            // Listen for auth changes
-            window.netlifyIdentity.on('init', updateAuthButton);
-            window.netlifyIdentity.on('login', function() {
-                updateAuthButton();
-                window.location.reload();
-            });
-            window.netlifyIdentity.on('logout', function() {
-                updateAuthButton();
-                window.location.reload();
-            });
-        })();
-        
-        // ============================================
-        // DATA LADEN VAN API
-        // ============================================
-        async function loadDashboardData() {
-            try {
-                const response = await fetch(API_URL);
-                const trainings = await response.json();
-                return { trainings: Array.isArray(trainings) ? trainings : [] };
-            } catch (error) {
-                console.error('Error loading data:', error);
-                return { trainings: [] };
-            }
-        }
-        
-        // ============================================
-        // PAGINA INIT
-        // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
             const trainingsGrid = document.getElementById('homeTrainingsGrid');
 
             try {
-                const data = await loadDashboardData();
-                const trainings = sortTrainings(data.trainings || []);
-                const relevantTrainings = trainings
-                    .filter((training) => ['aangekondigd', 'inloop', 'bezig'].includes(training.status))
+                const response = await fetch(API_URL);
+                const trainings = await response.json();
+                const trainingsArray = Array.isArray(trainings) ? trainings : [];
+                
+                const upcomingCount = trainingsArray.filter(t => t.status === 'aangekondigd' || t.status === 'inloop').length;
+                const activeCount = trainingsArray.filter(t => t.status === 'bezig').length;
+                
+                document.getElementById('homeUpcomingCount').textContent = upcomingCount;
+                document.getElementById('homeActiveCount').textContent = activeCount;
+                
+                const relevantTrainings = trainingsArray
+                    .filter(t => ['aangekondigd', 'inloop', 'bezig'].includes(t.status))
                     .slice(0, 3);
-
-                document.getElementById('homeUpcomingCount').textContent = String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length);
-                document.getElementById('homeActiveCount').textContent = String(trainings.filter((training) => training.status === 'bezig').length);
-
+                
                 if (!relevantTrainings.length) {
                     trainingsGrid.innerHTML = `
                         <div class="empty-state">
@@ -709,16 +525,11 @@
                     `;
                     return;
                 }
-
-                trainingsGrid.innerHTML = relevantTrainings.map((training) => renderTrainingCard(training)).join('');
+                
+                trainingsGrid.innerHTML = relevantTrainings.map(t => renderTrainingCard(t)).join('');
             } catch (error) {
                 console.error(error);
-                trainingsGrid.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <p>Kon de trainingen niet laden.</p>
-                    </div>
-                `;
+                trainingsGrid.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Kon de trainingen niet laden.</p></div>`;
             }
         });
     </script>
