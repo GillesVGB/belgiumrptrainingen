@@ -50,6 +50,85 @@ const COLORS = {
 };
 
 // ===========================================
+// DIENSTEN MAPPING
+// ===========================================
+const DIENSTEN_MAP = {
+    'lokale_politie': { label: '🚓 Lokale Politie', value: 'lokale_politie' },
+    'federale_politie': { label: '⭐ Federale Politie', value: 'federale_politie' },
+    'militaire_politie': { label: '⚔️ Militaire Politie', value: 'militaire_politie' },
+    'ambulance': { label: '🚑 Ambulance', value: 'ambulance' },
+    'brandweer': { label: '🔥 Brandweer', value: 'brandweer' }
+};
+
+// ===========================================
+// WEBHOOK FUNCTIE
+// ===========================================
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || '';
+
+async function sendDiscordWebhook(gameStatus) {
+    if (!DISCORD_WEBHOOK_URL) {
+        console.log('⚠️ Geen DISCORD_WEBHOOK_URL gevonden in .env');
+        return false;
+    }
+
+    let color = 0x00ff00;
+    let statusEmoji = '✅';
+    
+    switch (gameStatus.state) {
+        case 'operational':
+            color = 0x00ff00;
+            statusEmoji = '✅';
+            break;
+        case 'alert':
+            color = 0xffaa00;
+            statusEmoji = '⚠️';
+            break;
+        case 'maintenance':
+            color = 0x0099ff;
+            statusEmoji = '🔧';
+            break;
+        case 'outage':
+            color = 0xff0000;
+            statusEmoji = '❌';
+            break;
+    }
+
+    const embed = {
+        title: `${statusEmoji} ${gameStatus.title || 'Game Status Update'}`,
+        description: gameStatus.message || 'Er is een statusupdate voor de server.',
+        color: color,
+        fields: [],
+        timestamp: new Date().toISOString(),
+        footer: { text: 'Belgium Roleplay • Training Systeem' }
+    };
+
+    if (gameStatus.serverName) {
+        embed.fields.push({ name: '🖥️ Server', value: gameStatus.serverName, inline: true });
+    }
+    if (gameStatus.playersOnline !== undefined) {
+        embed.fields.push({ name: '👥 Spelers', value: `${gameStatus.playersOnline}/${gameStatus.maxPlayers || '?'}`, inline: true });
+    }
+    if (gameStatus.joinCode) {
+        embed.fields.push({ name: '🔑 Join Code', value: `\`${gameStatus.joinCode}\``, inline: true });
+    }
+    if (gameStatus.imageUrl) {
+        embed.image = { url: gameStatus.imageUrl };
+    }
+
+    try {
+        const response = await fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ embeds: [embed], username: 'BRP Game Status' })
+        });
+        return response.ok;
+    } catch (error) {
+        console.error('❌ Webhook error:', error.message);
+        return false;
+    }
+}
+
+// ===========================================
 // SYNC NAAR NETLIFY
 // ===========================================
 async function syncToNetlify() {
@@ -72,17 +151,18 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
 
     // TRAINING AANMAKEN
-    if (interaction.commandName === 'training') {
+    if (interaction.commandName === 'training-create') {
         const dienst = interaction.options.getString('dienst');
         const datum = interaction.options.getString('datum');
         const tijd = interaction.options.getString('tijd');
         const onderwerp = interaction.options.getString('onderwerp');
         const trainer = interaction.options.getString('trainer');
-        const maxDeelnemers = interaction.options.getInteger('max_deelnemers');
+        const maxDeelnemers = interaction.options.getInteger('max');
         
         const training = {
             id: Date.now().toString(),
             dienst: dienst,
+            dienst_label: DIENSTEN_MAP[dienst]?.label || dienst,
             datum: datum,
             tijd: tijd,
             onderwerp: onderwerp,
@@ -90,8 +170,8 @@ client.on('interactionCreate', async interaction => {
             host: interaction.user.username,
             hostId: interaction.user.id,
             maxDeelnemers: maxDeelnemers,
-            status: 'not_started',
-            status_text: 'Nog niet gestart',
+            status: 'aangekondigd',
+            status_text: '📢 Aangekondigd',
             aangemeld: [],
             van_discord: true,
             toegevoegd_door: interaction.user.username,
@@ -107,34 +187,66 @@ client.on('interactionCreate', async interaction => {
             .setColor(COLORS.success)
             .setDescription(`**${onderwerp}** is succesvol toegevoegd.`)
             .addFields(
-                { name: '📌 Dienst', value: `\`${dienst}\``, inline: true },
+                { name: '📌 Dienst', value: DIENSTEN_MAP[dienst]?.label || dienst, inline: true },
                 { name: '👤 Trainer', value: trainer, inline: true },
                 { name: '📅 Datum/Tijd', value: `${datum} om ${tijd}`, inline: true },
                 { name: '👥 Max deelnemers', value: `${maxDeelnemers}`, inline: true },
-                { name: '🆔 ID', value: `\`${training.id}\``, inline: true }
+                { name: '🆔 ID', value: `\`${training.id}\``, inline: true },
+                { name: '📊 Status', value: '📢 Aangekondigd', inline: true }
             )
             .setTimestamp();
 
         await interaction.reply({ embeds: [embed] });
     }
 
+    // STATUS VERANDEREN
+    else if (interaction.commandName === 'training-status') {
+        const id = interaction.options.getString('id');
+        const nieuweStatus = interaction.options.getString('status');
+        
+        const training = trainingen.find(t => t.id === id);
+        
+        if (!training) {
+            return interaction.reply(`❌ Training met ID \`${id}\` niet gevonden.`);
+        }
+        
+        const statusTeksten = {
+            'aangekondigd': '📢 Aangekondigd',
+            'inloop': '🚪 Inloop',
+            'bezig': '🔄 Bezig',
+            'afgerond': '✅ Afgerond',
+            'geannuleerd': '❌ Geannuleerd',
+            'uitgesteld': '⏰ Uitgesteld'
+        };
+        
+        training.status = nieuweStatus;
+        training.status_text = statusTeksten[nieuweStatus];
+        
+        bewaarTrainingen(trainingen);
+        await syncToNetlify();
+        
+        const embed = new EmbedBuilder()
+            .setTitle('✅ Status Gewijzigd!')
+            .setColor(COLORS.success)
+            .setDescription(`Status van **${training.onderwerp}** is bijgewerkt.`)
+            .addFields(
+                { name: '📌 Training', value: training.onderwerp, inline: true },
+                { name: '🎯 Nieuwe status', value: statusTeksten[nieuweStatus], inline: true }
+            )
+            .setTimestamp();
+        
+        await interaction.reply({ embeds: [embed] });
+    }
+
     // ALLE TRAININGEN BEKIJKEN
-    else if (interaction.commandName === 'trainingen') {
+    else if (interaction.commandName === 'training-list') {
         if (trainingen.length === 0) {
             return interaction.reply('📭 Geen trainingen gevonden.');
         }
         
-        const statusIcons = {
-            'not_started': '🟦',
-            'in_progress': '🟨',
-            'completed': '🟩',
-            'cancelled': '🟥',
-            'delayed': '🟪'
-        };
-        
         let beschrijving = '';
         trainingen.slice(-8).reverse().forEach((t) => {
-            beschrijving += `${statusIcons[t.status] || '📌'} **${t.onderwerp}**\n`;
+            beschrijving += `${t.status_text || '📌'} **${t.onderwerp}**\n`;
             beschrijving += `└ 🆔 \`${t.id}\` | 📅 ${t.datum} om ${t.tijd} | 👤 ${t.trainer}\n\n`;
         });
         
@@ -148,56 +260,8 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ embeds: [embed] });
     }
 
-    // STATUS VERANDEREN
-    else if (interaction.commandName === 'veranderstatus') {
-        const id = interaction.options.getString('id');
-        const nieuweStatus = interaction.options.getString('status');
-        
-        const training = trainingen.find(t => t.id === id);
-        
-        if (!training) {
-            return interaction.reply(`❌ Training met ID \`${id}\` niet gevonden.`);
-        }
-        
-        const statusTeksten = {
-            'not_started': 'Nog niet gestart',
-            'in_progress': 'Bezig',
-            'completed': 'Afgerond',
-            'cancelled': 'Geannuleerd',
-            'delayed': 'Uitgesteld'
-        };
-        
-        const statusIcons = {
-            'not_started': '🟦',
-            'in_progress': '🟨',
-            'completed': '🟩',
-            'cancelled': '🟥',
-            'delayed': '🟪'
-        };
-        
-        const oudeStatus = training.status_text;
-        training.status = nieuweStatus;
-        training.status_text = statusTeksten[nieuweStatus];
-        
-        bewaarTrainingen(trainingen);
-        await syncToNetlify();
-        
-        const embed = new EmbedBuilder()
-            .setTitle('✅ Status Gewijzigd!')
-            .setColor(COLORS.success)
-            .setDescription(`Status van **${training.onderwerp}** is bijgewerkt.`)
-            .addFields(
-                { name: '📌 Training', value: training.onderwerp, inline: true },
-                { name: '📊 Oude status', value: `${statusIcons[training.status]} ${oudeStatus}`, inline: true },
-                { name: '🎯 Nieuwe status', value: `${statusIcons[nieuweStatus]} ${training.status_text}`, inline: true }
-            )
-            .setTimestamp();
-        
-        await interaction.reply({ embeds: [embed] });
-    }
-
     // TRAINING VERWIJDEREN
-    else if (interaction.commandName === 'verwijdertraining') {
+    else if (interaction.commandName === 'training-delete') {
         const id = interaction.options.getString('id');
         
         const index = trainingen.findIndex(t => t.id === id);
@@ -227,8 +291,8 @@ client.on('interactionCreate', async interaction => {
             .setColor(COLORS.training)
             .setDescription('Beschikbare commando\'s:')
             .addFields(
-                { name: '📝 Trainingen', value: '`/training` - Nieuwe training maken\n`/trainingen` - Alle trainingen bekijken', inline: false },
-                { name: '🎯 Status', value: '`/veranderstatus` - Status wijzigen\n`/verwijdertraining` - Training verwijderen', inline: false },
+                { name: '📝 Trainingen', value: '`/training-create` - Nieuwe training maken\n`/training-list` - Alle trainingen bekijken', inline: false },
+                { name: '🎯 Status', value: '`/training-status` - Status wijzigen\n`/training-delete` - Training verwijderen', inline: false },
                 { name: '📊 Informatie', value: '`/stats` - Bot statistieken\n`/help` - Dit overzicht', inline: false }
             )
             .setTimestamp();
@@ -239,20 +303,20 @@ client.on('interactionCreate', async interaction => {
     // STATISTIEKEN
     else if (interaction.commandName === 'stats') {
         const total = trainingen.length;
-        const notStarted = trainingen.filter(t => t.status === 'not_started').length;
-        const inProgress = trainingen.filter(t => t.status === 'in_progress').length;
-        const completed = trainingen.filter(t => t.status === 'completed').length;
-        const cancelled = trainingen.filter(t => t.status === 'cancelled').length;
+        const aangekondigd = trainingen.filter(t => t.status === 'aangekondigd').length;
+        const inloop = trainingen.filter(t => t.status === 'inloop').length;
+        const bezig = trainingen.filter(t => t.status === 'bezig').length;
+        const afgerond = trainingen.filter(t => t.status === 'afgerond').length;
         
         const embed = new EmbedBuilder()
             .setTitle('📊 Bot Statistieken')
             .setColor(COLORS.info)
             .addFields(
                 { name: '📋 Totaal trainingen', value: `${total}`, inline: true },
-                { name: '🟦 Nog niet gestart', value: `${notStarted}`, inline: true },
-                { name: '🟨 Bezig', value: `${inProgress}`, inline: true },
-                { name: '🟩 Afgerond', value: `${completed}`, inline: true },
-                { name: '🟥 Geannuleerd', value: `${cancelled}`, inline: true }
+                { name: '📢 Aangekondigd', value: `${aangekondigd}`, inline: true },
+                { name: '🚪 Inloop', value: `${inloop}`, inline: true },
+                { name: '🔄 Bezig', value: `${bezig}`, inline: true },
+                { name: '✅ Afgerond', value: `${afgerond}`, inline: true }
             )
             .setTimestamp();
         
@@ -269,32 +333,31 @@ client.once('ready', async () => {
     
     const commands = [
         {
-            name: 'training',
+            name: 'training-create',
             description: 'Maak een nieuwe training aan',
             options: [
                 {
                     name: 'dienst',
-                    description: 'Welke dienst?',
+                    description: 'Hulpdienst',
                     type: 3,
                     required: true,
                     choices: [
-                        { name: '🚔 Politie', value: 'politie' },
+                        { name: '🚓 Lokale Politie', value: 'lokale_politie' },
+                        { name: '⭐ Federale Politie', value: 'federale_politie' },
+                        { name: '⚔️ Militaire Politie', value: 'militaire_politie' },
                         { name: '🚑 Ambulance', value: 'ambulance' },
-                        { name: '🚒 Brandweer', value: 'brandweer' },
-                        { name: '🔧 Handhaving', value: 'handhaving' },
-                        { name: '👮 Algemeen', value: 'algemeen' }
+                        { name: '🔥 Brandweer', value: 'brandweer' }
                     ]
                 },
-                { name: 'datum', description: 'Datum (DD/MM/YYYY)', type: 3, required: true },
+                { name: 'datum', description: 'Datum (DD-MM-YYYY)', type: 3, required: true },
                 { name: 'tijd', description: 'Tijd (HH:MM)', type: 3, required: true },
                 { name: 'onderwerp', description: 'Onderwerp training', type: 3, required: true },
                 { name: 'trainer', description: 'Naam trainer', type: 3, required: true },
-                { name: 'max_deelnemers', description: 'Max aantal deelnemers', type: 4, required: true, min_value: 1, max_value: 50 }
+                { name: 'max', description: 'Max aantal deelnemers', type: 4, required: true, min_value: 1, max_value: 50 }
             ]
         },
-        { name: 'trainingen', description: 'Bekijk alle trainingen' },
         {
-            name: 'veranderstatus',
+            name: 'training-status',
             description: 'Verander status van training',
             options: [
                 { name: 'id', description: 'ID van training', type: 3, required: true },
@@ -304,43 +367,36 @@ client.once('ready', async () => {
                     type: 3,
                     required: true,
                     choices: [
-                        { name: '🟦 Nog niet gestart', value: 'not_started' },
-                        { name: '🟨 Bezig', value: 'in_progress' },
-                        { name: '🟩 Afgerond', value: 'completed' },
-                        { name: '🟥 Geannuleerd', value: 'cancelled' },
-                        { name: '🟪 Uitgesteld', value: 'delayed' }
+                        { name: '📢 Aangekondigd', value: 'aangekondigd' },
+                        { name: '🚪 Inloop', value: 'inloop' },
+                        { name: '🔄 Bezig', value: 'bezig' },
+                        { name: '✅ Afgerond', value: 'afgerond' },
+                        { name: '❌ Geannuleerd', value: 'geannuleerd' },
+                        { name: '⏰ Uitgesteld', value: 'uitgesteld' }
                     ]
                 }
             ]
         },
-        { name: 'verwijdertraining', description: 'Verwijder een training', options: [{ name: 'id', description: 'ID van training', type: 3, required: true }] },
+        { name: 'training-list', description: 'Bekijk alle trainingen' },
+        { name: 'training-delete', description: 'Verwijder een training', options: [{ name: 'id', description: 'ID van training', type: 3, required: true }] },
         { name: 'help', description: 'Bekijk alle commands' },
         { name: 'stats', description: 'Bekijk bot statistieken' }
     ];
     
     await client.application.commands.set(commands);
     console.log('✅ Commands geregistreerd!');
+    console.log('📋 /training-create, /training-status, /training-list, /training-delete, /help, /stats');
 });
 
 // ===========================================
-// API VOOR WEBSITE (Lokale bot)
+// API VOOR WEBSITE
 // ===========================================
 // GET - Haal alle trainingen op
 app.get('/api/trainingen', (req, res) => {
     res.json(trainingen);
 });
 
-// GET - Haal specifieke training op
-app.get('/api/training/:id', (req, res) => {
-    const training = trainingen.find(t => t.id === req.params.id);
-    if (training) {
-        res.json(training);
-    } else {
-        res.status(404).json({ error: 'Training niet gevonden' });
-    }
-});
-
-// POST - Nieuwe training
+// POST - Nieuwe training via website
 app.post('/api/training', (req, res) => {
     const training = req.body;
     if (!training.id) training.id = Date.now().toString();
@@ -381,11 +437,40 @@ app.delete('/api/training', (req, res) => {
     }
 });
 
+// POST - Game status met webhook
+app.post('/api/game-status', async (req, res) => {
+    try {
+        const gameStatus = req.body;
+        gameStatus.updatedAt = new Date().toISOString();
+        
+        const webhookSent = await sendDiscordWebhook(gameStatus);
+        
+        res.json({ 
+            success: true, 
+            gameStatus: gameStatus,
+            webhookSent: webhookSent 
+        });
+    } catch (error) {
+        console.error('❌ Fout bij game status:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET - Huidige game status
+app.get('/api/game-status', (req, res) => {
+    res.json({
+        state: 'operational',
+        state_label: 'Operationeel',
+        title: 'Server Operationeel',
+        message: 'Alles werkt normaal.',
+        lastUpdated: new Date().toISOString()
+    });
+});
+
 // Start server
 app.listen(3000, () => {
     console.log('🌐 Website: http://localhost:3000');
     console.log('📡 API: http://localhost:3000/api/trainingen');
-    console.log('🗑️ DELETE: http://localhost:3000/api/training?id=ID');
 });
 
 // ===========================================

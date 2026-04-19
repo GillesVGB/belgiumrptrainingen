@@ -11,6 +11,76 @@
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script src="/js/main.js" defer></script>
+    <style>
+        /* Extra styling voor grotere formuliervelden */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        .field-full {
+            grid-column: span 2;
+        }
+        .input, .select, .textarea {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 1rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        .textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .training-card {
+            padding: 1.5rem;
+            min-width: 320px;
+        }
+        .training-card h3 {
+            font-size: 1.2rem;
+            margin: 0.75rem 0 0.5rem;
+            line-height: 1.3;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .training-card__top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .field-full {
+                grid-column: span 1;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="page-shell">
@@ -101,28 +171,29 @@
                                 <div class="field">
                                     <label for="dienst">Dienst</label>
                                     <select class="select" id="dienst" required>
-                                        <option value="politie">Politie</option>
-                                        <option value="ambulance">Ambulance</option>
-                                        <option value="brandweer">Brandweer</option>
-                                        <option value="handhaving">Handhaving</option>
-                                        <option value="algemeen">Algemeen</option>
+                                        <option value="lokale_politie">🚓 Lokale Politie</option>
+                                        <option value="federale_politie">⭐ Federale Politie</option>
+                                        <option value="militaire_politie">⚔️ Militaire Politie</option>
+                                        <option value="ambulance">🚑 Ambulance</option>
+                                        <option value="brandweer">🔥 Brandweer</option>
                                     </select>
                                 </div>
 
                                 <div class="field">
                                     <label for="status">Status</label>
                                     <select class="select" id="status" required>
-                                        <option value="not_started">Nog niet gestart</option>
-                                        <option value="in_progress">Bezig</option>
-                                        <option value="completed">Afgerond</option>
-                                        <option value="cancelled">Geannuleerd</option>
-                                        <option value="delayed">Uitgesteld</option>
+                                        <option value="aangekondigd">📢 Aangekondigd</option>
+                                        <option value="inloop">🚪 Inloop</option>
+                                        <option value="bezig">🔄 Bezig</option>
+                                        <option value="afgerond">✅ Afgerond</option>
+                                        <option value="geannuleerd">❌ Geannuleerd</option>
+                                        <option value="uitgesteld">⏰ Uitgesteld</option>
                                     </select>
                                 </div>
 
                                 <div class="field">
                                     <label for="datum">Datum</label>
-                                    <input class="input" id="datum" type="text" placeholder="DD/MM/YYYY" required>
+                                    <input class="input" id="datum" type="text" placeholder="DD-MM-YYYY" required>
                                 </div>
 
                                 <div class="field">
@@ -151,8 +222,8 @@
                                 </div>
 
                                 <div class="field field-full">
-                                    <label for="notitie">Korte notitie</label>
-                                    <textarea class="textarea" id="notitie" placeholder="Korte briefing, benodigd materiaal of extra context"></textarea>
+                                    <label for="notitie">Korte notitie / Beschrijving</label>
+                                    <textarea class="textarea" id="notitie" placeholder="Korte briefing, benodigd materiaal of extra context..."></textarea>
                                 </div>
                             </div>
 
@@ -213,7 +284,7 @@
                                         <input class="input" id="gameJoinCode" type="text" placeholder="ABCD-1234">
                                     </div>
 
-                                    <div class="field">
+                                    <div class="field field-full">
                                         <label for="gameImageUrl">Optionele afbeelding URL</label>
                                         <input class="input" id="gameImageUrl" type="url" placeholder="https://...">
                                     </div>
@@ -222,15 +293,11 @@
                                         <label for="gameMessage">Bericht</label>
                                         <textarea class="textarea" id="gameMessage" placeholder="Omschrijf de wijziging, timing en eventuele instructies voor spelers"></textarea>
                                     </div>
-
-                                    <div class="field field-full">
-                                        <label for="gameWebhookUrl">Webhook URL (optioneel override)</label>
-                                        <input class="input" id="gameWebhookUrl" type="url" placeholder="Laat leeg om DISCORD_WEBHOOK_URL uit de omgeving te gebruiken">
-                                    </div>
                                 </div>
 
                                 <div class="inline-note">
-                                    Laat de webhook URL leeg als je al een omgevingsvariabele gebruikt. Die override wordt niet permanent opgeslagen.
+                                    <i class="fa-solid fa-info-circle"></i>
+                                    De webhook URL wordt uit de omgevingsvariabele DISCORD_WEBHOOK_URL gehaald.
                                 </div>
 
                                 <div class="cta-row" style="margin-top: 1rem;">
@@ -264,11 +331,12 @@
                             </div>
                             <select class="select" id="manageStatusFilter">
                                 <option value="all">Alle statussen</option>
-                                <option value="not_started">Nog niet gestart</option>
-                                <option value="in_progress">Bezig</option>
-                                <option value="completed">Afgerond</option>
-                                <option value="cancelled">Geannuleerd</option>
-                                <option value="delayed">Uitgesteld</option>
+                                <option value="aangekondigd">📢 Aangekondigd</option>
+                                <option value="inloop">🚪 Inloop</option>
+                                <option value="bezig">🔄 Bezig</option>
+                                <option value="afgerond">✅ Afgerond</option>
+                                <option value="geannuleerd">❌ Geannuleerd</option>
+                                <option value="uitgesteld">⏰ Uitgesteld</option>
                             </select>
                         </div>
 
@@ -327,8 +395,8 @@
             function resetTrainingForm() {
                 trainingForm.reset();
                 document.getElementById('trainingId').value = '';
-                document.getElementById('dienst').value = 'politie';
-                document.getElementById('status').value = 'not_started';
+                document.getElementById('dienst').value = 'lokale_politie';
+                document.getElementById('status').value = 'aangekondigd';
                 document.getElementById('maxDeelnemers').value = '10';
                 document.getElementById('aangemeldCount').value = '0';
             }
@@ -349,14 +417,14 @@
             function populateTrainingForm(training) {
                 document.getElementById('trainingId').value = training.id;
                 document.getElementById('onderwerp').value = training.onderwerp || '';
-                document.getElementById('dienst').value = training.dienst || 'politie';
-                document.getElementById('status').value = training.status || 'not_started';
+                document.getElementById('dienst').value = training.dienst || 'lokale_politie';
+                document.getElementById('status').value = training.status || 'aangekondigd';
                 document.getElementById('datum').value = training.datum || '';
                 document.getElementById('tijd').value = training.tijd || '';
                 document.getElementById('trainer').value = training.trainer || '';
                 document.getElementById('locatie').value = training.locatie || '';
                 document.getElementById('maxDeelnemers').value = training.maxDeelnemers || 10;
-                document.getElementById('aangemeldCount').value = Array.isArray(training.aangemeld) ? training.aangemeld.length : 0;
+                document.getElementById('aangemeldCount').value = Array.isArray(training.aangemeld) ? training.aangemeld.length : (training.aangemeldCount || 0);
                 document.getElementById('notitie').value = training.notitie || '';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
@@ -367,12 +435,13 @@
                     onderwerp: document.getElementById('onderwerp').value.trim(),
                     dienst: document.getElementById('dienst').value,
                     status: document.getElementById('status').value,
+                    status_text: document.getElementById('status').selectedOptions[0]?.text || '',
                     datum: document.getElementById('datum').value.trim(),
                     tijd: document.getElementById('tijd').value.trim(),
                     trainer: document.getElementById('trainer').value.trim(),
                     locatie: document.getElementById('locatie').value.trim(),
-                    maxDeelnemers: document.getElementById('maxDeelnemers').value,
-                    aangemeldCount: document.getElementById('aangemeldCount').value,
+                    maxDeelnemers: parseInt(document.getElementById('maxDeelnemers').value) || 10,
+                    aangemeldCount: parseInt(document.getElementById('aangemeldCount').value) || 0,
                     notitie: document.getElementById('notitie').value.trim(),
                     toegevoegd_door: window.netlifyIdentity?.currentUser?.()?.email || 'admin'
                 };
@@ -398,8 +467,8 @@
                                         <i class="fa-regular fa-folder-open"></i>
                                         <p>Geen trainingen gevonden voor deze filters.</p>
                                     </div>
-                                </td>
-                            </tr>
+                                 </td>
+                             </tr>
                         `
                     );
                     return;
@@ -409,21 +478,21 @@
                     .map((training) => {
                         const status = TrainingApp.getStatusMeta(training.status);
                         const service = TrainingApp.getServiceMeta(training.dienst);
-                        const deelnemers = Array.isArray(training.aangemeld) ? training.aangemeld.length : 0;
+                        const deelnemers = Array.isArray(training.aangemeld) ? training.aangemeld.length : (training.aangemeldCount || 0);
 
                         return `
                             <tr>
                                 <td><code>${TrainingApp.escapeHtml(training.id)}</code></td>
                                 <td>
                                     <strong>${TrainingApp.escapeHtml(training.onderwerp || 'Training')}</strong>
-                                    <div class="table-note">${TrainingApp.escapeHtml(training.notitie || '')}</div>
-                                </td>
+                                    <div class="table-note">${TrainingApp.escapeHtml((training.notitie || '').substring(0, 60))}${training.notitie && training.notitie.length > 60 ? '...' : ''}</div>
+                                 </td>
                                 <td>
                                     <span class="pill ${service.pillClass}">
                                         <i class="fa-solid ${service.icon}"></i>
                                         ${TrainingApp.escapeHtml(service.label)}
                                     </span>
-                                </td>
+                                 </td>
                                 <td>${TrainingApp.escapeHtml(TrainingApp.formatDateLabel(training.datum, training.tijd))}</td>
                                 <td>${TrainingApp.escapeHtml(training.trainer || '-')}</td>
                                 <td>
@@ -431,8 +500,8 @@
                                         <i class="fa-solid ${status.icon}"></i>
                                         ${TrainingApp.escapeHtml(training.status_text || status.label)}
                                     </span>
-                                </td>
-                                <td>${TrainingApp.escapeHtml(String(deelnemers))}/${TrainingApp.escapeHtml(String(training.maxDeelnemers || '-'))}</td>
+                                 </td>
+                                <td>${deelnemers}/${training.maxDeelnemers || '-'}</td>
                                 <td>
                                     <div class="table-actions">
                                         <button class="button button-small button-secondary" type="button" data-edit-id="${TrainingApp.escapeHtml(training.id)}">
@@ -444,8 +513,8 @@
                                             Verwijderen
                                         </button>
                                     </div>
-                                </td>
-                            </tr>
+                                 </td>
+                             </tr>
                         `;
                     })
                     .join('');
@@ -486,52 +555,43 @@
                 }
             }
 
-     async function publishGameStatus(event) {
-    event.preventDefault();
+            async function publishGameStatus(event) {
+                event.preventDefault();
 
-    try {
-        const gameStatusData = {
-            state: document.getElementById('gameState').value,
-            title: document.getElementById('gameTitle').value.trim() || 'Server update',
-            message: document.getElementById('gameMessage').value.trim(),
-            serverName: document.getElementById('gameServerName').value.trim(),
-            playersOnline: parseInt(document.getElementById('gamePlayersOnline').value) || undefined,
-            maxPlayers: parseInt(document.getElementById('gameMaxPlayers').value) || undefined,
-            joinCode: document.getElementById('gameJoinCode').value.trim(),
-            imageUrl: document.getElementById('gameImageUrl').value.trim(),
-            updatedBy: window.netlifyIdentity?.currentUser?.()?.email || 'admin',
-            updatedAt: new Date().toISOString()
-        };
-        
-        // Verstuur naar je bot API
-        const response = await fetch('/api/game-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(gameStatusData)
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            if (result.webhookSent) {
-                TrainingApp.showToast('Game status gepubliceerd en webhook verstuurd naar Discord!', 'success');
-            } else {
-                TrainingApp.showToast('Game status opgeslagen, maar webhook niet verstuurd. Check je .env bestand.', 'warning');
+                try {
+                    const response = await fetch('/api/game-status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: document.getElementById('gameTitle').value.trim() || 'Server update',
+                            state: document.getElementById('gameState').value,
+                            serverName: document.getElementById('gameServerName').value.trim(),
+                            playersOnline: parseInt(document.getElementById('gamePlayersOnline').value) || undefined,
+                            maxPlayers: parseInt(document.getElementById('gameMaxPlayers').value) || undefined,
+                            joinCode: document.getElementById('gameJoinCode').value.trim(),
+                            imageUrl: document.getElementById('gameImageUrl').value.trim(),
+                            message: document.getElementById('gameMessage').value.trim(),
+                            updatedBy: window.netlifyIdentity?.currentUser?.()?.email || 'admin'
+                        })
+                    });
+                    
+                    const result = await response.json();
+
+                    if (result.success) {
+                        fillGameStatusForm(result.gameStatus);
+                        if (result.webhookSent) {
+                            TrainingApp.showToast('Game status gepubliceerd en webhook verstuurd naar Discord!', 'success');
+                        } else {
+                            TrainingApp.showToast('Game status opgeslagen. Webhook niet verstuurd (check .env).', 'warning');
+                        }
+                    } else {
+                        throw new Error('Opslaan mislukt');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    TrainingApp.showToast(error.message || 'Kon de game status niet publiceren.', 'error');
+                }
             }
-            
-            // Clear form
-            document.getElementById('gameWebhookUrl').value = '';
-            
-            // Refresh preview
-            TrainingApp.fillElement(document.getElementById('gameStatusPreview'), TrainingApp.renderGameStatusCard(gameStatusData));
-        } else {
-            throw new Error('Opslaan mislukt');
-        }
-    } catch (error) {
-        console.error(error);
-        TrainingApp.showToast(error.message || 'Kon de game status niet publiceren.', 'error');
-    }
-}
 
             async function deleteTraining(id) {
                 if (!window.confirm('Weet je zeker dat je deze training wilt verwijderen?')) {
