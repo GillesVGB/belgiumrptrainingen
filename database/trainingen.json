@@ -1,0 +1,19 @@
+[
+  {
+    "id": "1776633552489",
+    "dienst": "ambulance",
+    "datum": "aa",
+    "tijd": "aa",
+    "onderwerp": "aa",
+    "trainer": "aa",
+    "host": "kwniwie",
+    "hostId": "960090714950225970",
+    "maxDeelnemers": 1,
+    "status": "not_started",
+    "status_text": "Nog niet gestart",
+    "aangemeld": [],
+    "van_discord": true,
+    "toegevoegd_door": "kwniwie",
+    "aangemaakt": "2026-04-19T21:19:12.489Z"
+  }
+]

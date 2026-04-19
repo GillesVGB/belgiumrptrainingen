@@ -486,40 +486,52 @@
                 }
             }
 
-            async function publishGameStatus(event) {
-                event.preventDefault();
+     async function publishGameStatus(event) {
+    event.preventDefault();
 
-                try {
-                    const result = await TrainingApp.apiRequest({
-                        method: 'POST',
-                        data: {
-                            action: 'publish_game_status',
-                            title: document.getElementById('gameTitle').value.trim() || 'Server update',
-                            state: document.getElementById('gameState').value,
-                            serverName: document.getElementById('gameServerName').value.trim(),
-                            playersOnline: document.getElementById('gamePlayersOnline').value,
-                            maxPlayers: document.getElementById('gameMaxPlayers').value,
-                            joinCode: document.getElementById('gameJoinCode').value.trim(),
-                            imageUrl: document.getElementById('gameImageUrl').value.trim(),
-                            message: document.getElementById('gameMessage').value.trim(),
-                            webhookUrl: document.getElementById('gameWebhookUrl').value.trim(),
-                            updatedBy: window.netlifyIdentity?.currentUser?.()?.email || 'admin'
-                        }
-                    });
-
-                    fillGameStatusForm(result.gameStatus);
-                    document.getElementById('gameWebhookUrl').value = '';
-
-                    if (result.webhookSent) {
-                        TrainingApp.showToast('Game status gepubliceerd en webhook verstuurd.', 'success');
-                    } else {
-                        TrainingApp.showToast('Game status opgeslagen. Geen webhook verstuurd.', 'info');
-                    }
-                } catch (error) {
-                    console.error(error);
-                    TrainingApp.showToast(error.message || 'Kon de game status niet publiceren.', 'error');
-                }
+    try {
+        const gameStatusData = {
+            state: document.getElementById('gameState').value,
+            title: document.getElementById('gameTitle').value.trim() || 'Server update',
+            message: document.getElementById('gameMessage').value.trim(),
+            serverName: document.getElementById('gameServerName').value.trim(),
+            playersOnline: parseInt(document.getElementById('gamePlayersOnline').value) || undefined,
+            maxPlayers: parseInt(document.getElementById('gameMaxPlayers').value) || undefined,
+            joinCode: document.getElementById('gameJoinCode').value.trim(),
+            imageUrl: document.getElementById('gameImageUrl').value.trim(),
+            updatedBy: window.netlifyIdentity?.currentUser?.()?.email || 'admin',
+            updatedAt: new Date().toISOString()
+        };
+        
+        // Verstuur naar je bot API
+        const response = await fetch('/api/game-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(gameStatusData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            if (result.webhookSent) {
+                TrainingApp.showToast('Game status gepubliceerd en webhook verstuurd naar Discord!', 'success');
+            } else {
+                TrainingApp.showToast('Game status opgeslagen, maar webhook niet verstuurd. Check je .env bestand.', 'warning');
             }
+            
+            // Clear form
+            document.getElementById('gameWebhookUrl').value = '';
+            
+            // Refresh preview
+            TrainingApp.fillElement(document.getElementById('gameStatusPreview'), TrainingApp.renderGameStatusCard(gameStatusData));
+        } else {
+            throw new Error('Opslaan mislukt');
+        }
+    } catch (error) {
+        console.error(error);
+        TrainingApp.showToast(error.message || 'Kon de game status niet publiceren.', 'error');
+    }
+}
 
             async function deleteTraining(id) {
                 if (!window.confirm('Weet je zeker dat je deze training wilt verwijderen?')) {
