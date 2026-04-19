@@ -1,210 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Belgium Roleplay | Operations & Training Center</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <script src="/js/main.js" defer></script>
-</head>
-<body>
-    <div class="page-shell">
-        <header class="site-header">
-            <div class="container">
-                <nav class="site-nav">
-                    <a class="brand" href="/">
-                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
-                        <span class="brand-copy">
-                            <strong>Belgium Roleplay</strong>
-                            <span>Operations Center</span>
-                        </span>
-                    </a>
-
-                    <div class="nav-group">
-                        <a class="nav-link" href="/trainingen.html">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            Trainingen
-                        </a>
-                        <a class="nav-link" href="/admin/dashboard.html">
-                            <i class="fa-solid fa-user-shield"></i>
-                            Admin
-                        </a>
-                        <a class="auth-link" href="#" id="authLink">
-                            <i class="fa-solid fa-user-shield"></i>
-                            <span id="authText">Inloggen</span>
-                        </a>
-                    </div>
-                </nav>
-            </div>
-        </header>
-
-        <main class="main-content">
-            <div class="container">
-                <section class="hero">
-                    <div class="hero-grid">
-                        <div class="hero-copy">
-                            <div class="eyebrow">
-                                <i class="fa-solid fa-satellite-dish"></i>
-                                Live trainingen en beheer
-                            </div>
-                            <h1>Trainingen en operationeel beheer</h1>
-                            <p class="lead">
-                                Deze omgeving bundelt je trainingen en adminbeheer in een heldere commandocentrale.
-                            </p>
-
-                            <div class="cta-row">
-                                <a class="button button-primary" href="/trainingen.html">
-                                    <i class="fa-solid fa-list-check"></i>
-                                    Bekijk trainingen
-                                </a>
-                                <a class="button button-secondary" href="/admin/dashboard.html">
-                                    <i class="fa-solid fa-gauge-high"></i>
-                                    Open admin
-                                </a>
-                            </div>
-
-                            <div class="signal-strip">
-                                <div class="signal-card">
-                                    <span>Komende trainingen</span>
-                                    <strong id="homeUpcomingCount">-</strong>
-                                </div>
-                                <div class="signal-card">
-                                    <span>Actieve sessies</span>
-                                    <strong id="homeActiveCount">-</strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="section">
-                    <div class="section-heading">
-                        <div>
-                            <h2>Waarom deze layout werkt</h2>
-                            <p class="section-copy">
-                                Duidelijk overzicht van alle trainingen voor hulpdiensten.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="feature-grid">
-                        <article class="feature-card">
-                            <div class="kicker"><i class="fa-solid fa-graduation-cap"></i> Trainingen</div>
-                            <h3>Altijd een helder overzicht</h3>
-                            <p>Komende opleidingen staan centraal, met duidelijke statussen.</p>
-                        </article>
-                        <article class="feature-card">
-                            <div class="kicker"><i class="fa-solid fa-user-shield"></i> Admin</div>
-                            <h3>Beheer zonder omwegen</h3>
-                            <p>Admins kunnen trainingen aanpassen, verwijderen en nieuwe inplannen.</p>
-                        </article>
-                    </div>
-                </section>
-
-                <section class="section">
-                    <div class="section-heading">
-                        <div>
-                            <h2>Komende trainingen</h2>
-                            <p class="section-copy">De eerstvolgende operationele sessies voor je teams.</p>
-                        </div>
-                        <a class="button button-ghost" href="/trainingen.html">
-                            <i class="fa-solid fa-arrow-right"></i>
-                            Volledig overzicht
-                        </a>
-                    </div>
-
-                    <div class="card-grid" id="homeTrainingsGrid">
-                        <div class="empty-state">
-                            <i class="fa-solid fa-spinner fa-spin"></i>
-                            <p>Trainingen laden...</p>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
-
-        <footer class="footer">
-            <div class="container footer__inner">
-                <span>Belgium Roleplay Training Systeem</span>
-                <span>Trainingen en admin in een uniforme commandolaag.</span>
-            </div>
-        </footer>
-    </div>
-
-    <script>
-        // NETLIFY AUTH - Login/Logout fix
-        (function() {
-            if (!window.netlifyIdentity) return;
-            const authLink = document.getElementById('authLink');
-            const authText = document.getElementById('authText');
-            
-            function updateAuth() {
-                const user = window.netlifyIdentity.currentUser();
-                if (user) {
-                    authText.textContent = 'Uitloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.logout();
-                        window.location.href = '/';
-                    };
-                } else {
-                    authText.textContent = 'Inloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.open();
-                    };
-                }
-            }
-            
-            window.netlifyIdentity.on('init', updateAuth);
-            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.reload(); });
-            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
-            updateAuth();
-        })();
-
-        // DATA LADEN
-        document.addEventListener('DOMContentLoaded', async () => {
-            const trainingsGrid = document.getElementById('homeTrainingsGrid');
-
-            try {
-                const data = await TrainingApp.loadDashboardData();
-                const trainings = TrainingApp.sortTrainings(data.trainings || []);
-                const relevantTrainings = trainings
-                    .filter((training) => ['aangekondigd', 'inloop', 'bezig'].includes(training.status))
-                    .slice(0, 3);
-
-                document.getElementById('homeUpcomingCount').textContent = String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length);
-                document.getElementById('homeActiveCount').textContent = String(trainings.filter((training) => training.status === 'bezig').length);
-
-                if (!relevantTrainings.length) {
-                    trainingsGrid.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fa-regular fa-calendar-check"></i>
-                            <p>Er staan momenteel geen komende trainingen ingepland.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                trainingsGrid.innerHTML = relevantTrainings.map((training) => TrainingApp.renderTrainingCard(training)).join('');
-            } catch (error) {
-                console.error(error);
-                trainingsGrid.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <p>Kon de trainingen niet laden.</p>
-                    </div>
-                `;
-            }
-        });
-    </script>
-</body>
-</html> -->
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -218,12 +11,156 @@
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
+        .hero {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
         .hero-grid {
             display: block;
             text-align: center;
+            width: 100%;
+        }
+        .hero-copy {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .lead {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            color: var(--text-muted);
+        }
+        .cta-row {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
         }
         .signal-strip {
+            display: flex;
             justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+        .signal-card {
+            text-align: center;
+        }
+        .signal-card span {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .signal-card strong {
+            color: white;
+            font-size: 2rem;
+            display: block;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .training-card {
+            background: rgba(30,41,59,0.7);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .training-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        .training-card__top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .training-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .pill-service-politie { background: rgba(37,99,235,0.2); color: #60a5fa; }
+        .pill-service-ambulance { background: rgba(239,68,68,0.2); color: #f87171; }
+        .pill-service-brandweer { background: rgba(249,115,22,0.2); color: #fbbf24; }
+        .pill-status-aangekondigd { background: rgba(59,130,246,0.2); color: #60a5fa; }
+        .pill-status-inloop { background: rgba(16,185,129,0.2); color: #34d399; }
+        .pill-status-bezig { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .badge-muted {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        .section-heading {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .section-heading h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .section-heading p {
+            color: var(--text-muted);
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        .footer__inner {
+            text-align: center;
         }
     </style>
 </head>
@@ -299,66 +236,48 @@
 
                 <section class="section">
                     <div class="section-heading">
-                        <div>
-                            <h2>Waarom deze layout werkt</h2>
-                            <p class="section-copy">
-                                Duidelijk overzicht van alle trainingen voor hulpdiensten.
-                            </p>
-                        </div>
+                        <h2>Komende trainingen</h2>
+                        <p>De eerstvolgende operationele sessies voor je teams</p>
                     </div>
-
-                    <div class="feature-grid">
-                        <article class="feature-card">
-                            <div class="kicker"><i class="fa-solid fa-graduation-cap"></i> Trainingen</div>
-                            <h3>Altijd een helder overzicht</h3>
-                            <p>Komende opleidingen staan centraal, met duidelijke statussen.</p>
-                        </article>
-                        <article class="feature-card">
-                            <div class="kicker"><i class="fa-solid fa-user-shield"></i> Admin</div>
-                            <h3>Beheer zonder omwegen</h3>
-                            <p>Admins kunnen trainingen aanpassen, verwijderen en nieuwe inplannen.</p>
-                        </article>
-                    </div>
-                </section>
-
-                <section class="section">
-                    <div class="section-heading">
-                        <div>
-                            <h2>Komende trainingen</h2>
-                            <p class="section-copy">De eerstvolgende operationele sessies voor je teams.</p>
-                        </div>
-                        <a class="button button-ghost" href="/trainingen.html">
-                            <i class="fa-solid fa-arrow-right"></i>
-                            Volledig overzicht
-                        </a>
-                    </div>
-
                     <div class="card-grid" id="homeTrainingsGrid">
                         <div class="empty-state">
                             <i class="fa-solid fa-spinner fa-spin"></i>
                             <p>Trainingen laden...</p>
                         </div>
                     </div>
+                    <div class="cta-row" style="margin-top: 2rem;">
+                        <a class="button button-ghost" href="/trainingen.html">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            Alle trainingen bekijken
+                        </a>
+                    </div>
                 </section>
             </div>
         </main>
 
         <footer class="footer">
-            <div class="container footer__inner">
-                <span>Belgium Roleplay Training Systeem</span>
-                <span>Trainingen en admin in een uniforme commandolaag.</span>
+            <div class="container">
+                <div class="footer-links">
+                    <a href="https://discord.gg/TpAvvVQDu6" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-discord"></i> Discord
+                    </a>
+                    <a href="/trainingen.html">Trainingen</a>
+                    <a href="/admin/dashboard.html">Admin</a>
+                </div>
+                <div class="footer__inner">
+                    <span>Belgium Roleplay Training Systeem</span>
+                    <span>Trainingen en admin in een uniforme commandolaag.</span>
+                </div>
             </div>
         </footer>
     </div>
 
     <script>
-        // ALLEEN LOGIN/LOGOUT - REST WERKT VANZELF
+        // ============================================
+        // NETLIFY AUTH - LOGIN/LOGOUT
+        // ============================================
         (function() {
-            // Wacht tot Netlify Identity geladen is
-            if (!window.netlifyIdentity) {
-                console.log('Netlify Identity niet geladen');
-                return;
-            }
+            if (!window.netlifyIdentity) return;
             
             const authLink = document.getElementById('authLink');
             const authText = document.getElementById('authText');
@@ -369,42 +288,30 @@
                 const user = window.netlifyIdentity.currentUser();
                 
                 if (user) {
-                    // Ingelogd - toon Uitloggen
                     authText.textContent = 'Uitloggen';
                     authLink.onclick = function(e) {
                         e.preventDefault();
                         window.netlifyIdentity.logout();
                         window.location.href = '/';
                     };
-                    authLink.style.cursor = 'pointer';
                 } else {
-                    // Niet ingelogd - toon Inloggen
                     authText.textContent = 'Inloggen';
                     authLink.onclick = function(e) {
                         e.preventDefault();
                         window.location.href = '/admin/login.html';
                     };
-                    authLink.style.cursor = 'pointer';
                 }
             }
             
-            // Initial update
             updateAuthButton();
-            
-            // Listen for auth changes
             window.netlifyIdentity.on('init', updateAuthButton);
-            window.netlifyIdentity.on('login', function() {
-                updateAuthButton();
-                window.location.reload();
-            });
-            window.netlifyIdentity.on('logout', function() {
-                updateAuthButton();
-                window.location.reload();
-            });
+            window.netlifyIdentity.on('login', function() { updateAuthButton(); window.location.reload(); });
+            window.netlifyIdentity.on('logout', function() { updateAuthButton(); window.location.reload(); });
         })();
-        
-        // De rest van je code (trainingen laden) blijft zoals het is
-        // API URL
+
+        // ============================================
+        // API CONFIGURATIE
+        // ============================================
         const API_URL = '/.netlify/functions/api';
         
         function escapeHtml(str) {
