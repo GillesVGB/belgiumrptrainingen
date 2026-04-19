@@ -1,6 +1,6 @@
-// js/main.js
+// js/main.js - CORRECTE VERSIE
 const TrainingApp = {
-    API_URL: '/api/trainingen',
+    API_URL: '/.netlify/functions/api',
     
     async apiRequest(options = {}) {
         const { method = 'GET', data = null, endpoint = '' } = options;
@@ -11,11 +11,13 @@ const TrainingApp = {
             headers: { 'Content-Type': 'application/json' }
         };
         
+        // 🔴 FIX: Voor DELETE, voeg ID toe aan de URL
         if (method === 'DELETE' && data && data.id) {
-            url = `/api/training?id=${data.id}`;
-        } else if (data && (method === 'POST' || method === 'PUT')) {
+            url = `${this.API_URL}?id=${data.id}`;
+        } 
+        // 🔴 FIX: Voor POST en PUT, stuur data in body
+        else if (data && (method === 'POST' || method === 'PUT')) {
             fetchOptions.body = JSON.stringify(data);
-            url = '/api/training';
         }
         
         const response = await fetch(url, fetchOptions);
@@ -31,7 +33,7 @@ const TrainingApp = {
     
     async loadDashboardData() {
         try {
-            // 🔴 API geeft nu DIRECT een array terug!
+            // API geeft nu DIRECT een array terug!
             const trainings = await this.apiRequest();
             
             return {
@@ -49,6 +51,7 @@ const TrainingApp = {
         }
     },
     
+    // De rest van je code blijft hetzelfde...
     sortTrainings(trainings) {
         return [...trainings].sort((a, b) => {
             const dateA = this.parseDate(a.datum, a.tijd);
