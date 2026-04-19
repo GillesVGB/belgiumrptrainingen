@@ -11,96 +11,6 @@
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script src="/js/main.js" defer></script>
-    <style>
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-            gap: 1.5rem;
-        }
-        .training-card {
-            padding: 1.5rem;
-            background: var(--bg-surface);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            transition: all 0.2s;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        .training-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            border-color: var(--primary);
-        }
-        .training-card h3 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin: 0.75rem 0 0.5rem;
-            line-height: 1.3;
-        }
-        .training-card__top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin: 1rem 0;
-        }
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            background: var(--bg-elevated);
-            padding: 0.5rem 0.75rem;
-            border-radius: 12px;
-        }
-        .inline-note {
-            background: rgba(88, 101, 242, 0.1);
-            padding: 0.75rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin: 0.75rem 0;
-        }
-        .badge-muted {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .toolbar {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
-        }
-        .toolbar-grow {
-            flex: 1;
-            min-width: 200px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .card-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="page-shell">
@@ -165,39 +75,53 @@
                             <span class="stat-label">Bezig</span>
                             <strong class="stat-value" id="statsActive">0</strong>
                         </article>
+                        <article class="stat-card">
+                            <div class="stat-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
+                            <span class="stat-label">Game state</span>
+                            <strong class="stat-value" id="statsGameState">Operationeel</strong>
+                        </article>
                     </div>
                 </section>
 
-                <section class="section">
-                    <div class="toolbar">
-                        <div class="toolbar-grow">
-                            <input class="input" id="trainingSearch" type="search" placeholder="🔍 Zoek op onderwerp, trainer of ID...">
+                <section class="section split-layout">
+                    <div>
+                        <div class="toolbar">
+                            <div class="toolbar-grow">
+                                <input class="input" id="trainingSearch" type="search" placeholder="Zoek op onderwerp, trainer of ID">
+                            </div>
+                            <select class="select" id="statusFilter">
+                                <option value="all">Alle statussen</option>
+                                <option value="aangekondigd">📢 Aangekondigd</option>
+                                <option value="inloop">🚪 Inloop</option>
+                                <option value="bezig">🔄 Bezig</option>
+                                <option value="afgerond">✅ Afgerond</option>
+                                <option value="geannuleerd">❌ Geannuleerd</option>
+                                <option value="uitgesteld">⏰ Uitgesteld</option>
+                            </select>
+                            <select class="select" id="serviceFilter">
+                                <option value="all">Alle diensten</option>
+                                <option value="lokale_politie">🚓 Lokale Politie</option>
+                                <option value="federale_politie">⭐ Federale Politie</option>
+                                <option value="militaire_politie">⚔️ Militaire Politie</option>
+                                <option value="ambulance">🚑 Ambulance</option>
+                                <option value="brandweer">🔥 Brandweer</option>
+                            </select>
                         </div>
-                        <select class="select" id="statusFilter">
-                            <option value="all">Alle statussen</option>
-                            <option value="aangekondigd">📢 Aangekondigd</option>
-                            <option value="inloop">🚪 Inloop</option>
-                            <option value="bezig">🔄 Bezig</option>
-                            <option value="afgerond">✅ Afgerond</option>
-                            <option value="geannuleerd">❌ Geannuleerd</option>
-                            <option value="uitgesteld">⏰ Uitgesteld</option>
-                        </select>
-                        <select class="select" id="serviceFilter">
-                            <option value="all">Alle diensten</option>
-                            <option value="lokale_politie">🚓 Lokale Politie</option>
-                            <option value="federale_politie">⭐ Federale Politie</option>
-                            <option value="militaire_politie">⚔️ Militaire Politie</option>
-                            <option value="ambulance">🚑 Ambulance</option>
-                            <option value="brandweer">🔥 Brandweer</option>
-                        </select>
+
+                        <div class="card-grid" id="trainingGrid">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                <p>Trainingen laden...</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="card-grid" id="trainingGrid">
+                    <aside class="status-board" id="trainingStatusBoard">
                         <div class="empty-state">
                             <i class="fa-solid fa-spinner fa-spin"></i>
-                            <p>Trainingen laden...</p>
+                            <p>Live status laden...</p>
                         </div>
-                    </div>
+                    </aside>
                 </section>
             </div>
         </main>
@@ -205,23 +129,22 @@
         <footer class="footer">
             <div class="container footer__inner">
                 <span>Publiek overzicht</span>
-                <span>Live gekoppeld aan de trainingsgegevens van het systeem.</span>
+                <span>Live gekoppeld aan de training- en statusgegevens van het systeem.</span>
             </div>
         </footer>
     </div>
 
     <script>
-        // Auth link updaten
-        function updateAuthLink() {
-            const authText = document.getElementById('authText');
+        // NETLIFY AUTH
+        (function() {
+            if (!window.netlifyIdentity) return;
             const authLink = document.getElementById('authLink');
+            const authText = document.getElementById('authText');
             
-            if (window.netlifyIdentity) {
+            function updateAuth() {
                 const user = window.netlifyIdentity.currentUser();
-                
                 if (user) {
                     authText.textContent = 'Uitloggen';
-                    authLink.href = '#';
                     authLink.onclick = function(e) {
                         e.preventDefault();
                         window.netlifyIdentity.logout();
@@ -229,28 +152,23 @@
                     };
                 } else {
                     authText.textContent = 'Inloggen';
-                    authLink.href = '/admin/login.html';
-                    authLink.onclick = null;
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.open();
+                    };
                 }
             }
-        }
-        
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on('init', updateAuthLink);
-            window.netlifyIdentity.on('login', () => {
-                updateAuthLink();
-                window.location.reload();
-            });
-            window.netlifyIdentity.on('logout', () => {
-                updateAuthLink();
-                window.location.reload();
-            });
-        }
-        updateAuthLink();
+            
+            window.netlifyIdentity.on('init', updateAuth);
+            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.reload(); });
+            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
+            updateAuth();
+        })();
 
-        // Trainingen laden
+        // DATA LADEN
         document.addEventListener('DOMContentLoaded', async () => {
             const grid = document.getElementById('trainingGrid');
+            const statusBoard = document.getElementById('trainingStatusBoard');
             const searchInput = document.getElementById('trainingSearch');
             const statusFilter = document.getElementById('statusFilter');
             const serviceFilter = document.getElementById('serviceFilter');
@@ -278,12 +196,7 @@
                 });
 
                 if (!filtered.length) {
-                    grid.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fa-regular fa-folder-open"></i>
-                            <p>Geen trainingen gevonden voor deze filters.</p>
-                        </div>
-                    `;
+                    grid.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Geen trainingen gevonden voor deze filters.</p></div>`;
                     return;
                 }
 
@@ -299,14 +212,12 @@
                 trainings = TrainingApp.sortTrainings(data.trainings || []);
                 updateStats();
                 renderFilteredTrainings();
+                TrainingApp.fillElement(statusBoard, TrainingApp.renderGameStatusCard(data.gameStatus));
+                document.getElementById('statsGameState').textContent = data.gameStatus?.state_label || 'Operationeel';
             } catch (error) {
                 console.error(error);
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <p>Kon de trainingen niet laden.</p>
-                    </div>
-                `;
+                grid.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Kon de trainingen niet laden.</p></div>`;
+                statusBoard.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Kon de game status niet laden.</p></div>`;
             }
         });
     </script>

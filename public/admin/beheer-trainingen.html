@@ -11,37 +11,6 @@
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script src="/js/main.js" defer></script>
-    <style>
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-        .field-full {
-            grid-column: span 2;
-        }
-        .input, .select, .textarea {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            font-size: 1rem;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text);
-        }
-        .textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .field-full {
-                grid-column: span 1;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="page-shell">
@@ -79,7 +48,7 @@
                 <section id="manageLoginGate" class="login-gate hidden">
                     <i class="fa-solid fa-lock"></i>
                     <h2>Log in om trainingen te beheren</h2>
-                    <p class="section-copy">Na login kan je trainingen aanpassen of verwijderen.</p>
+                    <p class="section-copy">Na login kan je trainingen aanpassen of verwijderen en game-statusupdates uitsturen.</p>
                     <div class="cta-row" style="justify-content: center;">
                         <a class="button button-primary" href="/admin/login.html">
                             <i class="fa-solid fa-right-to-bracket"></i>
@@ -93,11 +62,11 @@
                         <div>
                             <div class="eyebrow">
                                 <i class="fa-solid fa-pen-to-square"></i>
-                                Trainingen beheer
+                                Trainingen en game status
                             </div>
-                            <h1 class="page-title">Trainingen beheren</h1>
+                            <h1 class="page-title">Volledig beheer vanuit een scherm</h1>
                             <p class="page-copy">
-                                Voeg trainingen toe, pas ze aan of verwijder ze.
+                                Voeg trainingen toe, pas ze aan of verwijder ze. Daarnaast kan je hier meteen een game change als Discord embed publiceren.
                             </p>
                         </div>
                         <div class="cta-row">
@@ -112,7 +81,7 @@
                         </div>
                     </div>
 
-                    <section class="section">
+                    <section class="section split-layout">
                         <form class="form-shell" id="trainingForm">
                             <div class="section-heading">
                                 <div>
@@ -183,8 +152,8 @@
                                 </div>
 
                                 <div class="field field-full">
-                                    <label for="notitie">Korte notitie / Beschrijving</label>
-                                    <textarea class="textarea" id="notitie" placeholder="Korte briefing, benodigd materiaal of extra context..."></textarea>
+                                    <label for="notitie">Korte notitie</label>
+                                    <textarea class="textarea" id="notitie" placeholder="Korte briefing, benodigd materiaal of extra context"></textarea>
                                 </div>
                             </div>
 
@@ -199,6 +168,87 @@
                                 </button>
                             </div>
                         </form>
+
+                        <div class="form-shell">
+                            <div class="section-heading">
+                                <div>
+                                    <h2>Game status publiceren</h2>
+                                    <p class="section-copy">Deze update wordt opgeslagen op de site en kan via webhook als embed naar Discord worden verstuurd.</p>
+                                </div>
+                            </div>
+
+                            <form id="gameStatusForm">
+                                <div class="form-grid">
+                                    <div class="field field-full">
+                                        <label for="gameTitle">Titel</label>
+                                        <input class="input" id="gameTitle" type="text" placeholder="Bijv. Server restart om 20:30">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameState">Status</label>
+                                        <select class="select" id="gameState">
+                                            <option value="operational">Operationeel</option>
+                                            <option value="alert">Verhoogde paraatheid</option>
+                                            <option value="maintenance">Onderhoud</option>
+                                            <option value="outage">Offline</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameServerName">Servernaam</label>
+                                        <input class="input" id="gameServerName" type="text" placeholder="Belgium Roleplay Main">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gamePlayersOnline">Spelers online</label>
+                                        <input class="input" id="gamePlayersOnline" type="number" min="0" placeholder="42">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameMaxPlayers">Max spelers</label>
+                                        <input class="input" id="gameMaxPlayers" type="number" min="1" placeholder="64">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameJoinCode">Join code</label>
+                                        <input class="input" id="gameJoinCode" type="text" placeholder="ABCD-1234">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameImageUrl">Optionele afbeelding URL</label>
+                                        <input class="input" id="gameImageUrl" type="url" placeholder="https://...">
+                                    </div>
+
+                                    <div class="field field-full">
+                                        <label for="gameMessage">Bericht</label>
+                                        <textarea class="textarea" id="gameMessage" placeholder="Omschrijf de wijziging, timing en eventuele instructies voor spelers"></textarea>
+                                    </div>
+
+                                    <div class="field field-full">
+                                        <label for="gameWebhookUrl">Webhook URL (optioneel override)</label>
+                                        <input class="input" id="gameWebhookUrl" type="url" placeholder="Laat leeg om DISCORD_WEBHOOK_URL uit de omgeving te gebruiken">
+                                    </div>
+                                </div>
+
+                                <div class="inline-note">
+                                    Laat de webhook URL leeg als je al een omgevingsvariabele gebruikt. Die override wordt niet permanent opgeslagen.
+                                </div>
+
+                                <div class="cta-row" style="margin-top: 1rem;">
+                                    <button class="button button-primary" type="submit">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                        Publiceer game status
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="status-board" id="gameStatusPreview" style="margin-top: 1rem; padding: 0;">
+                                <div class="empty-state">
+                                    <i class="fa-solid fa-spinner fa-spin"></i>
+                                    <p>Preview laden...</p>
+                                </div>
+                            </div>
+                        </div>
                     </section>
 
                     <section class="section table-shell">
@@ -258,23 +308,22 @@
         <footer class="footer">
             <div class="container footer__inner">
                 <span>Beheercentrum</span>
-                <span>Trainingen beheren vanuit een centrale plek.</span>
+                <span>Trainingen en game-status vanuit dezelfde operationele workflow.</span>
             </div>
         </footer>
     </div>
 
     <script>
-        // Auth link updaten
-        function updateAuthLink() {
-            const authText = document.getElementById('authText');
+        // NETLIFY AUTH
+        (function() {
+            if (!window.netlifyIdentity) return;
             const authLink = document.getElementById('authLink');
+            const authText = document.getElementById('authText');
             
-            if (window.netlifyIdentity) {
+            function updateAuth() {
                 const user = window.netlifyIdentity.currentUser();
-                
                 if (user) {
                     authText.textContent = 'Uitloggen';
-                    authLink.href = '#';
                     authLink.onclick = function(e) {
                         e.preventDefault();
                         window.netlifyIdentity.logout();
@@ -282,35 +331,31 @@
                     };
                 } else {
                     authText.textContent = 'Inloggen';
-                    authLink.href = '/admin/login.html';
-                    authLink.onclick = null;
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.open();
+                    };
                 }
             }
-        }
-        
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on('init', updateAuthLink);
-            window.netlifyIdentity.on('login', () => {
-                updateAuthLink();
-                window.location.reload();
-            });
-            window.netlifyIdentity.on('logout', () => {
-                updateAuthLink();
-                window.location.reload();
-            });
-        }
-        updateAuthLink();
+            
+            window.netlifyIdentity.on('init', updateAuth);
+            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.reload(); });
+            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
+            updateAuth();
+        })();
 
-        // Beheer functionaliteit
+        // BEHEER FUNCTIES
         document.addEventListener('DOMContentLoaded', () => {
             const loginGate = document.getElementById('manageLoginGate');
             const manageContent = document.getElementById('manageContent');
             const trainingForm = document.getElementById('trainingForm');
+            const gameStatusForm = document.getElementById('gameStatusForm');
             const manageTable = document.getElementById('manageTrainingsTable');
             const manageSearch = document.getElementById('manageSearch');
             const manageStatusFilter = document.getElementById('manageStatusFilter');
 
             let trainings = [];
+            let currentGameStatus = null;
 
             function resetTrainingForm() {
                 trainingForm.reset();
@@ -319,6 +364,19 @@
                 document.getElementById('status').value = 'aangekondigd';
                 document.getElementById('maxDeelnemers').value = '10';
                 document.getElementById('aangemeldCount').value = '0';
+            }
+
+            function fillGameStatusForm(gameStatus) {
+                currentGameStatus = gameStatus;
+                document.getElementById('gameTitle').value = gameStatus?.title || '';
+                document.getElementById('gameState').value = gameStatus?.state || 'operational';
+                document.getElementById('gameServerName').value = gameStatus?.serverName || 'Belgium Roleplay';
+                document.getElementById('gamePlayersOnline').value = gameStatus?.playersOnline || '';
+                document.getElementById('gameMaxPlayers').value = gameStatus?.maxPlayers || '';
+                document.getElementById('gameJoinCode').value = gameStatus?.joinCode || '';
+                document.getElementById('gameImageUrl').value = gameStatus?.imageUrl || '';
+                document.getElementById('gameMessage').value = gameStatus?.message || '';
+                TrainingApp.fillElement(document.getElementById('gameStatusPreview'), TrainingApp.renderGameStatusCard(gameStatus));
             }
 
             function populateTrainingForm(training) {
@@ -365,16 +423,10 @@
                 });
 
                 if (!filtered.length) {
-                    manageTable.innerHTML = `
-                        <tr>
-                            <td colspan="8">
-                                <div class="empty-state">
-                                    <i class="fa-regular fa-folder-open"></i>
-                                    <p>Geen trainingen gevonden voor deze filters.</p>
-                                </div>
-                              </td>
-                        </tr>
-                    `;
+                    TrainingApp.fillElement(
+                        manageTable,
+                        `<tr><td colspan="8"><div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Geen trainingen gevonden voor deze filters.</p></div></td></tr>`
+                    );
                     return;
                 }
 
@@ -386,53 +438,38 @@
                     return `
                         <tr>
                             <td><code>${TrainingApp.escapeHtml(training.id)}</code></td>
-                            <td>
-                                <strong>${TrainingApp.escapeHtml(training.onderwerp || 'Training')}</strong>
-                                <div class="table-note">${TrainingApp.escapeHtml((training.notitie || '').substring(0, 60))}${training.notitie && training.notitie.length > 60 ? '...' : ''}</div>
-                             </td>
-                            <td>
-                                <span class="pill ${service.pillClass}">
-                                    <i class="fa-solid ${service.icon}"></i>
-                                    ${TrainingApp.escapeHtml(service.label)}
-                                </span>
-                             </td>
+                            <td><strong>${TrainingApp.escapeHtml(training.onderwerp || 'Training')}</strong><div class="table-note">${TrainingApp.escapeHtml((training.notitie || '').substring(0, 60))}${training.notitie && training.notitie.length > 60 ? '...' : ''}</div></td>
+                            <td><span class="pill ${service.pillClass}"><i class="fa-solid ${service.icon}"></i> ${TrainingApp.escapeHtml(service.label)}</span></td>
                             <td>${TrainingApp.escapeHtml(TrainingApp.formatDateLabel(training.datum, training.tijd))}</td>
                             <td>${TrainingApp.escapeHtml(training.trainer || '-')}</td>
-                            <td>
-                                <span class="pill ${status.pillClass}">
-                                    <i class="fa-solid ${status.icon}"></i>
-                                    ${TrainingApp.escapeHtml(training.status_text || status.label)}
-                                </span>
-                             </td>
+                            <td><span class="pill ${status.pillClass}"><i class="fa-solid ${status.icon}"></i> ${TrainingApp.escapeHtml(training.status_text || status.label)}</span></td>
                             <td>${deelnemers}/${training.maxDeelnemers || '-'}</td>
                             <td>
                                 <div class="table-actions">
                                     <button class="button button-small button-secondary" type="button" data-edit-id="${TrainingApp.escapeHtml(training.id)}">
-                                        <i class="fa-solid fa-pen"></i>
-                                        Aanpassen
+                                        <i class="fa-solid fa-pen"></i> Aanpassen
                                     </button>
                                     <button class="button button-small button-danger" type="button" data-delete-id="${TrainingApp.escapeHtml(training.id)}">
-                                        <i class="fa-solid fa-trash"></i>
-                                        Verwijderen
+                                        <i class="fa-solid fa-trash"></i> Verwijderen
                                     </button>
                                 </div>
-                             </td>
+                            </td>
                         </tr>
                     `;
                 }).join('');
 
-                manageTable.innerHTML = rows;
+                TrainingApp.fillElement(manageTable, rows);
             }
 
             async function loadManageData() {
                 const data = await TrainingApp.loadDashboardData();
                 trainings = data.trainings || [];
+                fillGameStatusForm(data.gameStatus);
                 renderManageTable();
             }
 
             async function saveTraining(event) {
                 event.preventDefault();
-
                 const payload = getTrainingPayload();
 
                 try {
@@ -456,11 +493,42 @@
                 }
             }
 
-            async function deleteTraining(id) {
-                if (!window.confirm('Weet je zeker dat je deze training wilt verwijderen?')) {
-                    return;
-                }
+            async function publishGameStatus(event) {
+                event.preventDefault();
+                try {
+                    const result = await TrainingApp.apiRequest({
+                        method: 'POST',
+                        data: {
+                            action: 'publish_game_status',
+                            title: document.getElementById('gameTitle').value.trim() || 'Server update',
+                            state: document.getElementById('gameState').value,
+                            serverName: document.getElementById('gameServerName').value.trim(),
+                            playersOnline: parseInt(document.getElementById('gamePlayersOnline').value) || undefined,
+                            maxPlayers: parseInt(document.getElementById('gameMaxPlayers').value) || undefined,
+                            joinCode: document.getElementById('gameJoinCode').value.trim(),
+                            imageUrl: document.getElementById('gameImageUrl').value.trim(),
+                            message: document.getElementById('gameMessage').value.trim(),
+                            webhookUrl: document.getElementById('gameWebhookUrl').value.trim(),
+                            updatedBy: window.netlifyIdentity?.currentUser?.()?.email || 'admin'
+                        }
+                    });
 
+                    fillGameStatusForm(result.gameStatus);
+                    document.getElementById('gameWebhookUrl').value = '';
+
+                    if (result.webhookSent) {
+                        TrainingApp.showToast('Game status gepubliceerd en webhook verstuurd.', 'success');
+                    } else {
+                        TrainingApp.showToast('Game status opgeslagen. Geen webhook verstuurd.', 'info');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    TrainingApp.showToast(error.message || 'Kon de game status niet publiceren.', 'error');
+                }
+            }
+
+            async function deleteTraining(id) {
+                if (!confirm('Weet je zeker dat je deze training wilt verwijderen?')) return;
                 try {
                     await TrainingApp.apiRequest({ method: 'DELETE', data: { id } });
                     trainings = trainings.filter((training) => training.id !== id);
@@ -475,6 +543,7 @@
             manageSearch.addEventListener('input', renderManageTable);
             manageStatusFilter.addEventListener('change', renderManageTable);
             trainingForm.addEventListener('submit', saveTraining);
+            gameStatusForm.addEventListener('submit', publishGameStatus);
             document.getElementById('resetTrainingButton').addEventListener('click', resetTrainingForm);
 
             manageTable.addEventListener('click', (event) => {
@@ -483,14 +552,9 @@
 
                 if (editButton) {
                     const training = trainings.find((entry) => entry.id === editButton.dataset.editId);
-                    if (training) {
-                        populateTrainingForm(training);
-                    }
+                    if (training) populateTrainingForm(training);
                 }
-
-                if (deleteButton) {
-                    deleteTraining(deleteButton.dataset.deleteId);
-                }
+                if (deleteButton) deleteTraining(deleteButton.dataset.deleteId);
             });
 
             function openManageView() {
@@ -510,21 +574,15 @@
                 return;
             }
 
-            window.netlifyIdentity.on('init', (user) => {
-                if (user) {
-                    openManageView();
-                } else {
-                    showLoginGate();
-                }
-            });
+            const currentUser = window.netlifyIdentity.currentUser();
+            if (currentUser) {
+                openManageView();
+            } else {
+                showLoginGate();
+            }
 
             window.netlifyIdentity.on('login', openManageView);
             window.netlifyIdentity.on('logout', showLoginGate);
-
-            const currentUser = window.netlifyIdentity.currentUser?.();
-            if (currentUser) {
-                openManageView();
-            }
         });
     </script>
 </body>

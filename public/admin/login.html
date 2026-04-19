@@ -14,6 +14,35 @@
 </head>
 <body>
     <div class="page-shell">
+        <header class="site-header">
+            <div class="container">
+                <nav class="site-nav">
+                    <a class="brand" href="/">
+                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="brand-copy">
+                            <strong>Belgium Roleplay</strong>
+                            <span>Admin Center</span>
+                        </span>
+                    </a>
+
+                    <div class="nav-group">
+                        <a class="nav-link" href="/trainingen.html">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            Trainingen
+                        </a>
+                        <a class="nav-link" href="/admin/dashboard.html">
+                            <i class="fa-solid fa-user-shield"></i>
+                            Admin
+                        </a>
+                        <a class="auth-link" href="#" id="authLink">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span id="authText">Inloggen</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
         <main class="main-content">
             <div class="container">
                 <section class="hero" style="padding-top: 4rem;">
@@ -81,6 +110,37 @@
     </div>
 
     <script>
+        // NETLIFY AUTH
+        (function() {
+            if (!window.netlifyIdentity) return;
+            const authLink = document.getElementById('authLink');
+            const authText = document.getElementById('authText');
+            
+            function updateAuth() {
+                const user = window.netlifyIdentity.currentUser();
+                if (user) {
+                    authText.textContent = 'Uitloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.logout();
+                        window.location.href = '/';
+                    };
+                } else {
+                    authText.textContent = 'Inloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.open();
+                    };
+                }
+            }
+            
+            window.netlifyIdentity.on('init', updateAuth);
+            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.href = '/admin/dashboard.html'; });
+            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
+            updateAuth();
+        })();
+
+        // LOGIN FUNCTIONALITEIT
         document.addEventListener('DOMContentLoaded', () => {
             const loginButton = document.getElementById('loginButton');
             const loginStatus = document.getElementById('loginStatus');
@@ -99,31 +159,10 @@
                 window.netlifyIdentity.open();
             });
 
-            window.netlifyIdentity.on('init', (user) => {
-                if (user) {
-                    setStatus('Je bent al ingelogd. Doorsturen naar admin...');
-                    window.setTimeout(() => {
-                        window.location.href = '/admin/dashboard.html';
-                    }, 700);
-                }
-            });
-
-            window.netlifyIdentity.on('login', () => {
-                setStatus('Login gelukt. Doorsturen naar admin...');
-                window.setTimeout(() => {
-                    window.location.href = '/admin/dashboard.html';
-                }, 700);
-            });
-
-            window.netlifyIdentity.on('error', (error) => {
-                console.error(error);
-                setStatus('Login mislukt. Controleer Netlify Identity en probeer opnieuw.');
-            });
-
-            const currentUser = window.netlifyIdentity.currentUser?.();
+            const currentUser = window.netlifyIdentity.currentUser();
             if (currentUser) {
                 setStatus('Je bent al ingelogd. Doorsturen naar admin...');
-                window.setTimeout(() => {
+                setTimeout(() => {
                     window.location.href = '/admin/dashboard.html';
                 }, 700);
             }
