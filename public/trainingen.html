@@ -10,18 +10,93 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="/js/main.js" defer></script>
     <style>
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 1.5rem;
+        }
+        .training-card {
+            padding: 1.5rem;
+            background: var(--bg-surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .training-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border-color: var(--primary);
+        }
+        .training-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0.75rem 0 0.5rem;
+            line-height: 1.3;
+        }
+        .training-card__top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: var(--bg-elevated);
+            padding: 0.5rem 0.75rem;
+            border-radius: 12px;
+        }
+        .inline-note {
+            background: rgba(88, 101, 242, 0.1);
+            padding: 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 0.75rem 0;
+        }
+        .badge-muted {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .toolbar-grow {
+            flex: 1;
+            min-width: 200px;
+        }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
         }
-        .split-layout {
-            display: block;
-        }
         @media (max-width: 768px) {
             .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .card-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -49,9 +124,9 @@
                             <i class="fa-solid fa-user-shield"></i>
                             Admin
                         </a>
-                        <a class="auth-link" href="#" id="authLink">
+                        <a class="auth-link" href="/admin/login.html" data-auth-toggle>
                             <i class="fa-solid fa-user-shield"></i>
-                            <span id="authText">Inloggen</span>
+                            Inloggen
                         </a>
                     </div>
                 </nav>
@@ -96,7 +171,7 @@
                 <section class="section">
                     <div class="toolbar">
                         <div class="toolbar-grow">
-                            <input class="input" id="trainingSearch" type="search" placeholder="Zoek op onderwerp, trainer of ID">
+                            <input class="input" id="trainingSearch" type="search" placeholder="🔍 Zoek op onderwerp, trainer of ID...">
                         </div>
                         <select class="select" id="statusFilter">
                             <option value="all">Alle statussen</option>
@@ -136,132 +211,6 @@
     </div>
 
     <script>
-        // API URL
-        const API_URL = '/.netlify/functions/api';
-        
-        // Helper functies
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
-        
-        function formatDateLabel(datum, tijd) {
-            if (!datum) return 'Datum onbekend';
-            return `${datum} om ${tijd || '??:??'}`;
-        }
-        
-        function getStatusMeta(status) {
-            const statusMap = {
-                'aangekondigd': { label: 'Aangekondigd', icon: 'fa-bullhorn', pillClass: 'pill-status-aangekondigd' },
-                'inloop': { label: 'Inloop', icon: 'fa-door-open', pillClass: 'pill-status-inloop' },
-                'bezig': { label: 'Bezig', icon: 'fa-bolt', pillClass: 'pill-status-bezig' },
-                'afgerond': { label: 'Afgerond', icon: 'fa-check-circle', pillClass: 'pill-status-afgerond' },
-                'geannuleerd': { label: 'Geannuleerd', icon: 'fa-ban', pillClass: 'pill-status-geannuleerd' },
-                'uitgesteld': { label: 'Uitgesteld', icon: 'fa-clock', pillClass: 'pill-status-uitgesteld' }
-            };
-            return statusMap[status] || statusMap['aangekondigd'];
-        }
-        
-        function getServiceMeta(dienst) {
-            const serviceMap = {
-                'lokale_politie': { label: '🚓 Lokale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-                'federale_politie': { label: '⭐ Federale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-                'militaire_politie': { label: '⚔️ Militaire Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-                'ambulance': { label: '🚑 Ambulance', icon: 'fa-truck-medical', pillClass: 'pill-service-ambulance' },
-                'brandweer': { label: '🔥 Brandweer', icon: 'fa-fire-extinguisher', pillClass: 'pill-service-brandweer' }
-            };
-            return serviceMap[dienst] || serviceMap['lokale_politie'];
-        }
-        
-        function renderTrainingCard(training) {
-            const status = getStatusMeta(training.status);
-            const service = getServiceMeta(training.dienst);
-            const deelnemers = Array.isArray(training.aangemeld) ? training.aangemeld.length : (training.aangemeldCount || 0);
-            
-            return `
-                <div class="training-card">
-                    <div class="training-card__top">
-                        <div>
-                            <span class="pill ${service.pillClass}">
-                                <i class="fa-solid ${service.icon}"></i>
-                                ${service.label}
-                            </span>
-                        </div>
-                        <span class="pill ${status.pillClass}">
-                            <i class="fa-solid ${status.icon}"></i>
-                            ${training.status_text || status.label}
-                        </span>
-                    </div>
-                    
-                    <h3>${escapeHtml(training.onderwerp || 'Training')}</h3>
-                    
-                    <div class="meta-grid">
-                        <div class="meta-item">
-                            <i class="fa-solid fa-calendar"></i>
-                            <span>${escapeHtml(formatDateLabel(training.datum, training.tijd))}</span>
-                        </div>
-                        <div class="meta-item">
-                            <i class="fa-solid fa-chalkboard-user"></i>
-                            <span>${escapeHtml(training.trainer || 'Onbekend')}</span>
-                        </div>
-                        <div class="meta-item">
-                            <i class="fa-solid fa-location-dot"></i>
-                            <span>${escapeHtml(training.locatie || 'Nader te bepalen')}</span>
-                        </div>
-                        <div class="meta-item">
-                            <i class="fa-solid fa-users"></i>
-                            <span>${deelnemers}/${training.maxDeelnemers || '?'}</span>
-                        </div>
-                    </div>
-                    
-                    ${training.notitie ? `
-                        <div class="inline-note">
-                            <i class="fa-regular fa-note-sticky"></i>
-                            ${escapeHtml(training.notitie)}
-                        </div>
-                    ` : ''}
-                    
-                    ${training.van_discord ? `
-                        <div class="badge-muted">
-                            <i class="fa-brands fa-discord"></i>
-                            Toegevoegd via Discord
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-        
-        // NETLIFY AUTH - Login/Logout
-        (function() {
-            if (!window.netlifyIdentity) return;
-            const authLink = document.getElementById('authLink');
-            const authText = document.getElementById('authText');
-            
-            function updateAuth() {
-                const user = window.netlifyIdentity.currentUser();
-                if (user) {
-                    authText.textContent = 'Uitloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.logout();
-                        window.location.href = '/';
-                    };
-                } else {
-                    authText.textContent = 'Inloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.open();
-                    };
-                }
-            }
-            
-            window.netlifyIdentity.on('init', updateAuth);
-            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.reload(); });
-            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
-            updateAuth();
-        })();
-
-        // DATA LADEN
         document.addEventListener('DOMContentLoaded', async () => {
             const grid = document.getElementById('trainingGrid');
             const searchInput = document.getElementById('trainingSearch');
@@ -271,9 +220,9 @@
             let trainings = [];
 
             function updateStats() {
-                document.getElementById('statsTotal').textContent = String(trainings.length);
-                document.getElementById('statsUpcoming').textContent = String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length);
-                document.getElementById('statsActive').textContent = String(trainings.filter((training) => training.status === 'bezig').length);
+                TrainingApp.setText(document.getElementById('statsTotal'), String(trainings.length));
+                TrainingApp.setText(document.getElementById('statsUpcoming'), String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length));
+                TrainingApp.setText(document.getElementById('statsActive'), String(trainings.filter((training) => training.status === 'bezig').length));
             }
 
             function renderFilteredTrainings() {
@@ -291,11 +240,19 @@
                 });
 
                 if (!filtered.length) {
-                    grid.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Geen trainingen gevonden voor deze filters.</p></div>`;
+                    TrainingApp.fillElement(
+                        grid,
+                        `
+                            <div class="empty-state">
+                                <i class="fa-regular fa-folder-open"></i>
+                                <p>Geen trainingen gevonden voor deze filters.</p>
+                            </div>
+                        `
+                    );
                     return;
                 }
 
-                grid.innerHTML = filtered.map((training) => renderTrainingCard(training)).join('');
+                TrainingApp.fillElement(grid, filtered.map((training) => TrainingApp.renderTrainingCard(training)).join(''));
             }
 
             searchInput.addEventListener('input', renderFilteredTrainings);
@@ -303,14 +260,21 @@
             serviceFilter.addEventListener('change', renderFilteredTrainings);
 
             try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-                trainings = Array.isArray(data) ? data : [];
+                const data = await TrainingApp.loadDashboardData();
+                trainings = TrainingApp.sortTrainings(data.trainings || []);
                 updateStats();
                 renderFilteredTrainings();
             } catch (error) {
                 console.error(error);
-                grid.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Kon de trainingen niet laden.</p></div>`;
+                TrainingApp.fillElement(
+                    grid,
+                    `
+                        <div class="empty-state">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <p>Kon de trainingen niet laden.</p>
+                        </div>
+                    `
+                );
             }
         });
     </script>
