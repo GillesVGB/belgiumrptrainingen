@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
@@ -200,6 +200,317 @@
                         <p>Kon de trainingen niet laden.</p>
                     </div>
                 `;
+            }
+        });
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belgium Roleplay | Operations & Training Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <style>
+        .hero-grid {
+            display: block;
+            text-align: center;
+        }
+        .signal-strip {
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="container">
+                <nav class="site-nav">
+                    <a class="brand" href="/">
+                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="brand-copy">
+                            <strong>Belgium Roleplay</strong>
+                            <span>Operations Center</span>
+                        </span>
+                    </a>
+
+                    <div class="nav-group">
+                        <a class="nav-link" href="/trainingen.html">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            Trainingen
+                        </a>
+                        <a class="nav-link" href="/admin/dashboard.html">
+                            <i class="fa-solid fa-user-shield"></i>
+                            Admin
+                        </a>
+                        <a class="auth-link" href="#" id="authLink">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span id="authText">Inloggen</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <section class="hero">
+                    <div class="hero-grid">
+                        <div class="hero-copy">
+                            <div class="eyebrow">
+                                <i class="fa-solid fa-satellite-dish"></i>
+                                Live trainingen en beheer
+                            </div>
+                            <h1>Trainingen en operationeel beheer</h1>
+                            <p class="lead">
+                                Deze omgeving bundelt je trainingen en adminbeheer in een heldere commandocentrale.
+                            </p>
+
+                            <div class="cta-row">
+                                <a class="button button-primary" href="/trainingen.html">
+                                    <i class="fa-solid fa-list-check"></i>
+                                    Bekijk trainingen
+                                </a>
+                                <a class="button button-secondary" href="/admin/dashboard.html">
+                                    <i class="fa-solid fa-gauge-high"></i>
+                                    Open admin
+                                </a>
+                            </div>
+
+                            <div class="signal-strip">
+                                <div class="signal-card">
+                                    <span>Komende trainingen</span>
+                                    <strong id="homeUpcomingCount">-</strong>
+                                </div>
+                                <div class="signal-card">
+                                    <span>Actieve sessies</span>
+                                    <strong id="homeActiveCount">-</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Waarom deze layout werkt</h2>
+                            <p class="section-copy">
+                                Duidelijk overzicht van alle trainingen voor hulpdiensten.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="feature-grid">
+                        <article class="feature-card">
+                            <div class="kicker"><i class="fa-solid fa-graduation-cap"></i> Trainingen</div>
+                            <h3>Altijd een helder overzicht</h3>
+                            <p>Komende opleidingen staan centraal, met duidelijke statussen.</p>
+                        </article>
+                        <article class="feature-card">
+                            <div class="kicker"><i class="fa-solid fa-user-shield"></i> Admin</div>
+                            <h3>Beheer zonder omwegen</h3>
+                            <p>Admins kunnen trainingen aanpassen, verwijderen en nieuwe inplannen.</p>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Komende trainingen</h2>
+                            <p class="section-copy">De eerstvolgende operationele sessies voor je teams.</p>
+                        </div>
+                        <a class="button button-ghost" href="/trainingen.html">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            Volledig overzicht
+                        </a>
+                    </div>
+
+                    <div class="card-grid" id="homeTrainingsGrid">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            <p>Trainingen laden...</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container footer__inner">
+                <span>Belgium Roleplay Training Systeem</span>
+                <span>Trainingen en admin in een uniforme commandolaag.</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // API URL
+        const API_URL = '/.netlify/functions/api';
+        
+        // Helper functies
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        
+        function formatDateLabel(datum, tijd) {
+            if (!datum) return 'Datum onbekend';
+            return `${datum} om ${tijd || '??:??'}`;
+        }
+        
+        function getStatusMeta(status) {
+            const statusMap = {
+                'aangekondigd': { label: 'Aangekondigd', icon: 'fa-bullhorn', pillClass: 'pill-status-aangekondigd' },
+                'inloop': { label: 'Inloop', icon: 'fa-door-open', pillClass: 'pill-status-inloop' },
+                'bezig': { label: 'Bezig', icon: 'fa-bolt', pillClass: 'pill-status-bezig' },
+                'afgerond': { label: 'Afgerond', icon: 'fa-check-circle', pillClass: 'pill-status-afgerond' },
+                'geannuleerd': { label: 'Geannuleerd', icon: 'fa-ban', pillClass: 'pill-status-geannuleerd' },
+                'uitgesteld': { label: 'Uitgesteld', icon: 'fa-clock', pillClass: 'pill-status-uitgesteld' }
+            };
+            return statusMap[status] || statusMap['aangekondigd'];
+        }
+        
+        function getServiceMeta(dienst) {
+            const serviceMap = {
+                'lokale_politie': { label: '🚓 Lokale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
+                'federale_politie': { label: '⭐ Federale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
+                'militaire_politie': { label: '⚔️ Militaire Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
+                'ambulance': { label: '🚑 Ambulance', icon: 'fa-truck-medical', pillClass: 'pill-service-ambulance' },
+                'brandweer': { label: '🔥 Brandweer', icon: 'fa-fire-extinguisher', pillClass: 'pill-service-brandweer' }
+            };
+            return serviceMap[dienst] || serviceMap['lokale_politie'];
+        }
+        
+        function renderTrainingCard(training) {
+            const status = getStatusMeta(training.status);
+            const service = getServiceMeta(training.dienst);
+            const deelnemers = Array.isArray(training.aangemeld) ? training.aangemeld.length : (training.aangemeldCount || 0);
+            
+            return `
+                <div class="training-card">
+                    <div class="training-card__top">
+                        <div>
+                            <span class="pill ${service.pillClass}">
+                                <i class="fa-solid ${service.icon}"></i>
+                                ${service.label}
+                            </span>
+                        </div>
+                        <span class="pill ${status.pillClass}">
+                            <i class="fa-solid ${status.icon}"></i>
+                            ${training.status_text || status.label}
+                        </span>
+                    </div>
+                    
+                    <h3>${escapeHtml(training.onderwerp || 'Training')}</h3>
+                    
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <i class="fa-solid fa-calendar"></i>
+                            <span>${escapeHtml(formatDateLabel(training.datum, training.tijd))}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                            <span>${escapeHtml(training.trainer || 'Onbekend')}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>${escapeHtml(training.locatie || 'Nader te bepalen')}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fa-solid fa-users"></i>
+                            <span>${deelnemers}/${training.maxDeelnemers || '?'}</span>
+                        </div>
+                    </div>
+                    
+                    ${training.notitie ? `
+                        <div class="inline-note">
+                            <i class="fa-regular fa-note-sticky"></i>
+                            ${escapeHtml(training.notitie)}
+                        </div>
+                    ` : ''}
+                    
+                    ${training.van_discord ? `
+                        <div class="badge-muted">
+                            <i class="fa-brands fa-discord"></i>
+                            Toegevoegd via Discord
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        // NETLIFY AUTH - Login/Logout
+        (function() {
+            if (!window.netlifyIdentity) return;
+            const authLink = document.getElementById('authLink');
+            const authText = document.getElementById('authText');
+            
+            function updateAuth() {
+                const user = window.netlifyIdentity.currentUser();
+                if (user) {
+                    authText.textContent = 'Uitloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.logout();
+                        window.location.href = '/';
+                    };
+                } else {
+                    authText.textContent = 'Inloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.open();
+                    };
+                }
+            }
+            
+            window.netlifyIdentity.on('init', updateAuth);
+            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.reload(); });
+            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
+            updateAuth();
+        })();
+
+        // DATA LADEN
+        document.addEventListener('DOMContentLoaded', async () => {
+            const trainingsGrid = document.getElementById('homeTrainingsGrid');
+
+            try {
+                const response = await fetch(API_URL);
+                const trainings = await response.json();
+                const trainingsArray = Array.isArray(trainings) ? trainings : [];
+                
+                const upcomingCount = trainingsArray.filter(t => t.status === 'aangekondigd' || t.status === 'inloop').length;
+                const activeCount = trainingsArray.filter(t => t.status === 'bezig').length;
+                
+                document.getElementById('homeUpcomingCount').textContent = upcomingCount;
+                document.getElementById('homeActiveCount').textContent = activeCount;
+                
+                const relevantTrainings = trainingsArray
+                    .filter(t => ['aangekondigd', 'inloop', 'bezig'].includes(t.status))
+                    .slice(0, 3);
+                
+                if (!relevantTrainings.length) {
+                    trainingsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <p>Er staan momenteel geen komende trainingen ingepland.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                trainingsGrid.innerHTML = relevantTrainings.map(t => renderTrainingCard(t)).join('');
+            } catch (error) {
+                console.error(error);
+                trainingsGrid.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Kon de trainingen niet laden.</p></div>`;
             }
         });
     </script>
