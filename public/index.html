@@ -34,9 +34,9 @@
                             <i class="fa-solid fa-user-shield"></i>
                             Admin
                         </a>
-                        <a class="auth-link" href="/admin/login.html" data-auth-toggle>
+                        <a class="auth-link" href="#" id="authLink">
                             <i class="fa-solid fa-user-shield"></i>
-                            Inloggen
+                            <span id="authText">Inloggen</span>
                         </a>
                     </div>
                 </nav>
@@ -50,12 +50,11 @@
                         <div class="hero-copy">
                             <div class="eyebrow">
                                 <i class="fa-solid fa-satellite-dish"></i>
-                                Live meldkamer voor training en game updates
+                                Live trainingen en beheer
                             </div>
-                            <h1>Strakker beheer. Snellere communicatie. Professionele uitstraling.</h1>
+                            <h1>Trainingen en operationeel beheer</h1>
                             <p class="lead">
-                                Deze omgeving bundelt je trainingen, adminbeheer en game-statusupdates in een heldere
-                                commandocentrale. Admins kunnen trainingen aanpassen of verwijderen en meteen een Discord webhook embed uitsturen bij game changes.
+                                Deze omgeving bundelt je trainingen en adminbeheer in een heldere commandocentrale.
                             </p>
 
                             <div class="cta-row">
@@ -78,29 +77,17 @@
                                     <span>Actieve sessies</span>
                                     <strong id="homeActiveCount">-</strong>
                                 </div>
-                                <div class="signal-card">
-                                    <span>Live game state</span>
-                                    <strong id="homeStateLabel">Operationeel</strong>
-                                </div>
                             </div>
                         </div>
-
-                        <aside class="status-board" id="homeStatusBoard">
-                            <div class="empty-state">
-                                <i class="fa-solid fa-spinner fa-spin"></i>
-                                <p>Dashboard laden...</p>
-                            </div>
-                        </aside>
                     </div>
                 </section>
 
                 <section class="section">
                     <div class="section-heading">
                         <div>
-                            <h2>Waarom deze nieuwe layout werkt</h2>
+                            <h2>Waarom deze layout werkt</h2>
                             <p class="section-copy">
-                                De kleuren zijn afgestemd op het politielogo-gevoel uit je bijlage: diep blauw als basis,
-                                wit voor rust, goud voor hiërarchie en subtiele rood/blauw-accents voor live meldingen.
+                                Duidelijk overzicht van alle trainingen voor hulpdiensten.
                             </p>
                         </div>
                     </div>
@@ -109,17 +96,12 @@
                         <article class="feature-card">
                             <div class="kicker"><i class="fa-solid fa-graduation-cap"></i> Trainingen</div>
                             <h3>Altijd een helder overzicht</h3>
-                            <p>Komende opleidingen staan centraal, met snelle filters en duidelijke statussen voor spelers en staff.</p>
+                            <p>Komende opleidingen staan centraal, met duidelijke statussen.</p>
                         </article>
                         <article class="feature-card">
                             <div class="kicker"><i class="fa-solid fa-user-shield"></i> Admin</div>
                             <h3>Beheer zonder omwegen</h3>
-                            <p>Admins kunnen trainingen aanpassen, verwijderen en direct vanuit hetzelfde paneel nieuwe items inplannen.</p>
-                        </article>
-                        <article class="feature-card">
-                            <div class="kicker"><i class="fa-solid fa-tower-broadcast"></i> Game status</div>
-                            <h3>Webhook embeds voor changes</h3>
-                            <p>Een storing, restart of opening van de server kan meteen als nette Discord embed worden uitgestuurd.</p>
+                            <p>Admins kunnen trainingen aanpassen, verwijderen en nieuwe inplannen.</p>
                         </article>
                     </div>
                 </section>
@@ -148,66 +130,83 @@
 
         <footer class="footer">
             <div class="container footer__inner">
-                <span>Belgium Roleplay Training System</span>
-                <span>Trainingen, admin en game-status in een uniforme commandolaag.</span>
+                <span>Belgium Roleplay Training Systeem</span>
+                <span>Trainingen en admin in een uniforme commandolaag.</span>
             </div>
         </footer>
     </div>
 
     <script>
+        // Auth link updaten
+        function updateAuthLink() {
+            const authText = document.getElementById('authText');
+            const authLink = document.getElementById('authLink');
+            
+            if (window.netlifyIdentity) {
+                const user = window.netlifyIdentity.currentUser();
+                
+                if (user) {
+                    authText.textContent = 'Uitloggen';
+                    authLink.href = '#';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.logout();
+                        window.location.href = '/';
+                    };
+                } else {
+                    authText.textContent = 'Inloggen';
+                    authLink.href = '/admin/login.html';
+                    authLink.onclick = null;
+                }
+            }
+        }
+        
+        if (window.netlifyIdentity) {
+            window.netlifyIdentity.on('init', updateAuthLink);
+            window.netlifyIdentity.on('login', () => {
+                updateAuthLink();
+                window.location.reload();
+            });
+            window.netlifyIdentity.on('logout', () => {
+                updateAuthLink();
+                window.location.reload();
+            });
+        }
+        updateAuthLink();
+
+        // Trainingen laden
         document.addEventListener('DOMContentLoaded', async () => {
-            const statusBoard = document.getElementById('homeStatusBoard');
             const trainingsGrid = document.getElementById('homeTrainingsGrid');
 
             try {
                 const data = await TrainingApp.loadDashboardData();
                 const trainings = TrainingApp.sortTrainings(data.trainings || []);
                 const relevantTrainings = trainings
-                    .filter((training) => ['not_started', 'in_progress', 'delayed'].includes(training.status))
+                    .filter((training) => ['aangekondigd', 'inloop', 'bezig'].includes(training.status))
                     .slice(0, 3);
 
-                TrainingApp.fillElement(statusBoard, TrainingApp.renderGameStatusCard(data.gameStatus));
-                TrainingApp.setText(document.getElementById('homeUpcomingCount'), String(trainings.filter((training) => training.status === 'not_started' || training.status === 'delayed').length));
-                TrainingApp.setText(document.getElementById('homeActiveCount'), String(trainings.filter((training) => training.status === 'in_progress').length));
-                TrainingApp.setText(document.getElementById('homeStateLabel'), data.gameStatus?.state_label || 'Operationeel');
+                document.getElementById('homeUpcomingCount').textContent = String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length);
+                document.getElementById('homeActiveCount').textContent = String(trainings.filter((training) => training.status === 'bezig').length);
 
                 if (!relevantTrainings.length) {
-                    TrainingApp.fillElement(
-                        trainingsGrid,
-                        `
-                            <div class="empty-state">
-                                <i class="fa-regular fa-calendar-check"></i>
-                                <p>Er staan momenteel geen komende trainingen ingepland.</p>
-                            </div>
-                        `
-                    );
+                    trainingsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <p>Er staan momenteel geen komende trainingen ingepland.</p>
+                        </div>
+                    `;
                     return;
                 }
 
-                TrainingApp.fillElement(
-                    trainingsGrid,
-                    relevantTrainings.map((training) => TrainingApp.renderTrainingCard(training)).join('')
-                );
+                trainingsGrid.innerHTML = relevantTrainings.map((training) => TrainingApp.renderTrainingCard(training)).join('');
             } catch (error) {
                 console.error(error);
-                TrainingApp.fillElement(
-                    statusBoard,
-                    `
-                        <div class="empty-state">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            <p>Kon de live status niet laden.</p>
-                        </div>
-                    `
-                );
-                TrainingApp.fillElement(
-                    trainingsGrid,
-                    `
-                        <div class="empty-state">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            <p>Kon de trainingen niet laden.</p>
-                        </div>
-                    `
-                );
+                trainingsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <p>Kon de trainingen niet laden.</p>
+                    </div>
+                `;
             }
         });
     </script>

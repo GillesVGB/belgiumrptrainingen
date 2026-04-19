@@ -34,9 +34,9 @@
                             <i class="fa-solid fa-gauge-high"></i>
                             Admin
                         </a>
-                        <a class="auth-link" href="/admin/login.html" data-auth-toggle>
+                        <a class="auth-link" href="#" id="authLink">
                             <i class="fa-solid fa-user-shield"></i>
-                            Inloggen
+                            <span id="authText">Inloggen</span>
                         </a>
                     </div>
                 </nav>
@@ -66,7 +66,7 @@
                             </div>
                             <h1 class="page-title">Controlekamer voor staff</h1>
                             <p class="page-copy">
-                                Welkom <span id="adminEmail">admin</span>. Hier zie je live trainingen, huidige game-status en snelle acties voor beheer.
+                                Welkom <span id="adminEmail">admin</span>. Hier zie je live trainingen en snelle acties voor beheer.
                             </p>
                         </div>
                         <div class="cta-row">
@@ -106,14 +106,7 @@
                         </div>
                     </section>
 
-                    <section class="section split-layout">
-                        <aside class="status-board" id="dashboardStatusBoard">
-                            <div class="empty-state">
-                                <i class="fa-solid fa-spinner fa-spin"></i>
-                                <p>Status laden...</p>
-                            </div>
-                        </aside>
-
+                    <section class="section">
                         <div class="panel">
                             <div class="section-heading">
                                 <div>
@@ -128,14 +121,9 @@
                                     <p>Open het beheer om een training op te slaan, bij te werken of te verwijderen.</p>
                                 </article>
                                 <article class="feature-card">
-                                    <div class="kicker"><i class="fa-solid fa-broadcast-tower"></i> Webhook</div>
-                                    <h3>Stuur game changes uit</h3>
-                                    <p>Publiceer een game-status met embed rechtstreeks vanuit het adminpaneel.</p>
-                                </article>
-                                <article class="feature-card">
                                     <div class="kicker"><i class="fa-solid fa-eye"></i> Publiek beeld</div>
                                     <h3>Controleer de publieke pagina</h3>
-                                    <p>Bekijk meteen hoe spelers de trainingslijst en statusinformatie zien.</p>
+                                    <p>Bekijk meteen hoe spelers de trainingslijst zien.</p>
                                 </article>
                             </div>
                         </div>
@@ -182,12 +170,50 @@
         <footer class="footer">
             <div class="container footer__inner">
                 <span>Admin dashboard</span>
-                <span>Live overzicht van planning, status en publicatieflow.</span>
+                <span>Live overzicht van planning en beheer.</span>
             </div>
         </footer>
     </div>
 
     <script>
+        // Auth link updaten
+        function updateAuthLink() {
+            const authText = document.getElementById('authText');
+            const authLink = document.getElementById('authLink');
+            
+            if (window.netlifyIdentity) {
+                const user = window.netlifyIdentity.currentUser();
+                
+                if (user) {
+                    authText.textContent = 'Uitloggen';
+                    authLink.href = '#';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.logout();
+                        window.location.href = '/';
+                    };
+                } else {
+                    authText.textContent = 'Inloggen';
+                    authLink.href = '/admin/login.html';
+                    authLink.onclick = null;
+                }
+            }
+        }
+        
+        if (window.netlifyIdentity) {
+            window.netlifyIdentity.on('init', updateAuthLink);
+            window.netlifyIdentity.on('login', () => {
+                updateAuthLink();
+                window.location.reload();
+            });
+            window.netlifyIdentity.on('logout', () => {
+                updateAuthLink();
+                window.location.reload();
+            });
+        }
+        updateAuthLink();
+
+        // Dashboard functionaliteit
         document.addEventListener('DOMContentLoaded', () => {
             const loginGate = document.getElementById('loginGate');
             const dashboardContent = document.getElementById('dashboardContent');
@@ -198,12 +224,17 @@
                     const data = await TrainingApp.loadDashboardData();
                     const trainings = TrainingApp.sortTrainings(data.trainings || []);
 
-                    TrainingApp.setText(document.getElementById('dashboardTotal'), String(trainings.length));
-                    TrainingApp.setText(document.getElementById('dashboardUpcoming'), String(trainings.filter((training) => training.status === 'not_started' || training.status === 'delayed').length));
-                    TrainingApp.setText(document.getElementById('dashboardActive'), String(trainings.filter((training) => training.status === 'in_progress').length));
-                    TrainingApp.setText(document.getElementById('dashboardDiscord'), String(trainings.filter((training) => training.van_discord).length));
-                    TrainingApp.fillElement(document.getElementById('dashboardStatusBoard'), TrainingApp.renderGameStatusCard(data.gameStatus));
-                    TrainingApp.fillElement(document.getElementById('dashboardTrainingsTable'), TrainingApp.renderTableRows([...trainings].reverse().slice(0, 6)));
+                    document.getElementById('dashboardTotal').textContent = String(trainings.length);
+                    document.getElementById('dashboardUpcoming').textContent = String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length);
+                    document.getElementById('dashboardActive').textContent = String(trainings.filter((training) => training.status === 'bezig').length);
+                    document.getElementById('dashboardDiscord').textContent = String(trainings.filter((training) => training.van_discord).length);
+                    
+                    const tableBody = document.getElementById('dashboardTrainingsTable');
+                    if (trainings.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Geen trainingen gevonden.</p></div></td></tr>`;
+                    } else {
+                        tableBody.innerHTML = TrainingApp.renderTableRows([...trainings].reverse().slice(0, 6));
+                    }
                 } catch (error) {
                     console.error(error);
                     TrainingApp.showToast('Kon het dashboard niet laden.', 'error');
@@ -213,7 +244,7 @@
             function openDashboardForUser(user) {
                 loginGate.classList.add('hidden');
                 dashboardContent.classList.remove('hidden');
-                TrainingApp.setText(document.getElementById('adminEmail'), user?.email || 'admin');
+                document.getElementById('adminEmail').textContent = user?.email || 'admin';
                 loadDashboard();
             }
 
@@ -237,15 +268,15 @@
                 }
             });
 
-            window.netlifyIdentity.on('login', openDashboardForUser);
+            window.netlifyIdentity.on('login', (user) => openDashboardForUser(user));
             window.netlifyIdentity.on('logout', showLoginGate);
 
-             const currentUser = window.netlifyIdentity.currentUser?.();
-             if (currentUser) {
-                 openDashboardForUser(currentUser);
-             }
+            const currentUser = window.netlifyIdentity.currentUser?.();
+            if (currentUser) {
+                openDashboardForUser(currentUser);
+            }
 
-            window.setInterval(() => {
+            setInterval(() => {
                 if (!dashboardContent.classList.contains('hidden')) {
                     loadDashboard();
                 }

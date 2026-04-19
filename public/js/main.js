@@ -1,4 +1,4 @@
-// js/main.js - CORRECTE VERSIE
+// js/main.js - ZONDER GAME STATUS
 const TrainingApp = {
     API_URL: '/.netlify/functions/api',
     
@@ -11,47 +11,47 @@ const TrainingApp = {
             headers: { 'Content-Type': 'application/json' }
         };
         
-        // 🔴 FIX: Voor DELETE, voeg ID toe aan de URL
         if (method === 'DELETE' && data && data.id) {
             url = `${this.API_URL}?id=${data.id}`;
-        } 
-        // 🔴 FIX: Voor POST en PUT, stuur data in body
-        else if (data && (method === 'POST' || method === 'PUT')) {
+        } else if (data && (method === 'POST' || method === 'PUT')) {
             fetchOptions.body = JSON.stringify(data);
         }
         
-        const response = await fetch(url, fetchOptions);
-        
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(`API error: ${response.status} - ${error}`);
+        try {
+            const response = await fetch(url, fetchOptions);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const text = await response.text();
+            if (!text || text.trim() === '') {
+                return method === 'DELETE' ? { success: true } : [];
+            }
+            
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('JSON parse error:', text);
+                return [];
+            }
+        } catch (error) {
+            console.error('API request error:', error);
+            return [];
         }
-        
-        if (method === 'DELETE') return { success: true };
-        return response.json();
     },
     
     async loadDashboardData() {
         try {
-            // API geeft nu DIRECT een array terug!
             const trainings = await this.apiRequest();
-            
-            return {
-                trainings: trainings || [],
-                gameStatus: {
-                    state: 'operational',
-                    state_label: 'Operationeel',
-                    title: 'Server Operationeel',
-                    message: 'Alles werkt normaal.'
-                }
-            };
+            const trainingsArray = Array.isArray(trainings) ? trainings : [];
+            return { trainings: trainingsArray };
         } catch (error) {
             console.error('Error loading data:', error);
-            return { trainings: [], gameStatus: null };
+            return { trainings: [] };
         }
     },
     
-    // De rest van je code blijft hetzelfde...
     sortTrainings(trainings) {
         return [...trainings].sort((a, b) => {
             const dateA = this.parseDate(a.datum, a.tijd);
@@ -93,12 +93,7 @@ const TrainingApp = {
             'bezig': { label: 'Bezig', icon: 'fa-bolt', pillClass: 'pill-status-bezig' },
             'afgerond': { label: 'Afgerond', icon: 'fa-check-circle', pillClass: 'pill-status-afgerond' },
             'geannuleerd': { label: 'Geannuleerd', icon: 'fa-ban', pillClass: 'pill-status-geannuleerd' },
-            'uitgesteld': { label: 'Uitgesteld', icon: 'fa-clock', pillClass: 'pill-status-uitgesteld' },
-            'not_started': { label: 'Nog niet gestart', icon: 'fa-hourglass-start', pillClass: 'pill-status-not_started' },
-            'in_progress': { label: 'Bezig', icon: 'fa-bolt', pillClass: 'pill-status-in_progress' },
-            'completed': { label: 'Afgerond', icon: 'fa-check-circle', pillClass: 'pill-status-completed' },
-            'cancelled': { label: 'Geannuleerd', icon: 'fa-ban', pillClass: 'pill-status-cancelled' },
-            'delayed': { label: 'Uitgesteld', icon: 'fa-clock', pillClass: 'pill-status-delayed' }
+            'uitgesteld': { label: 'Uitgesteld', icon: 'fa-clock', pillClass: 'pill-status-uitgesteld' }
         };
         return statusMap[status] || statusMap['aangekondigd'];
     },
@@ -108,10 +103,8 @@ const TrainingApp = {
             'lokale_politie': { label: '🚓 Lokale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
             'federale_politie': { label: '⭐ Federale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
             'militaire_politie': { label: '⚔️ Militaire Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-            'politie': { label: '🚓 Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
             'ambulance': { label: '🚑 Ambulance', icon: 'fa-truck-medical', pillClass: 'pill-service-ambulance' },
-            'brandweer': { label: '🔥 Brandweer', icon: 'fa-fire-extinguisher', pillClass: 'pill-service-brandweer' },
-            'handhaving': { label: '🔧 Handhaving', icon: 'fa-gavel', pillClass: 'pill-service-handhaving' }
+            'brandweer': { label: '🔥 Brandweer', icon: 'fa-fire-extinguisher', pillClass: 'pill-service-brandweer' }
         };
         return serviceMap[dienst] || serviceMap['lokale_politie'];
     },
@@ -171,38 +164,6 @@ const TrainingApp = {
                     </div>
                 ` : ''}
             </article>
-        `;
-    },
-    
-    renderGameStatusCard(gameStatus) {
-        if (!gameStatus) {
-            return `<div class="empty-state"><i class="fa-regular fa-circle-question"></i><p>Geen status informatie beschikbaar.</p></div>`;
-        }
-        
-        const stateColors = {
-            'operational': { color: '#27c08a', icon: 'fa-circle-check', label: 'Operationeel' },
-            'alert': { color: '#f6c24f', icon: 'fa-triangle-exclamation', label: 'Verhoogde paraatheid' },
-            'maintenance': { color: '#88bfff', icon: 'fa-wrench', label: 'Onderhoud' },
-            'outage': { color: '#ff625c', icon: 'fa-circle-exclamation', label: 'Offline' }
-        };
-        
-        const stateInfo = stateColors[gameStatus.state] || stateColors['operational'];
-        
-        return `
-            <div class="status-board" style="padding: 0;">
-                <div class="status-banner" style="background: ${stateInfo.color}20; border-left-color: ${stateInfo.color};">
-                    <div>
-                        <div class="eyebrow" style="margin-bottom: 0.5rem; color: ${stateInfo.color};">
-                            <i class="fa-solid ${stateInfo.icon}"></i>
-                            ${stateInfo.label}
-                        </div>
-                        <strong>${this.escapeHtml(gameStatus.title || 'Server Status')}</strong>
-                        <p class="status-meta" style="margin-top: 0.5rem;">
-                            ${this.escapeHtml(gameStatus.message || 'Geen verdere informatie.')}
-                        </p>
-                    </div>
-                </div>
-            </div>
         `;
     },
     
