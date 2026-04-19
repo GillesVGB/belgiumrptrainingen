@@ -1,0 +1,17 @@
+{
+  "trainings": [],
+  "gameStatus": {
+    "title": "Server operationeel",
+    "state": "operational",
+    "state_label": "Operationeel",
+    "message": "Geen actieve meldingen. De servers draaien normaal.",
+    "serverName": "Belgium Roleplay",
+    "joinCode": "",
+    "playersOnline": "",
+    "maxPlayers": "",
+    "imageUrl": "",
+    "updatedAt": null,
+    "updatedBy": "Systeem",
+    "lastWebhookAt": null
+  }
+}

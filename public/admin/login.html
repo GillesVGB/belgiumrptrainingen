@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Belgium Roleplay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="/js/main.js" defer></script>
+</head>
+<body>
+    <div class="page-shell">
+        <main class="main-content">
+            <div class="container">
+                <section class="hero" style="padding-top: 4rem;">
+                    <div class="hero-grid">
+                        <div class="hero-copy">
+                            <div class="eyebrow">
+                                <i class="fa-solid fa-user-shield"></i>
+                                Admin login
+                            </div>
+                            <h1>Toegang tot de commandocentrale</h1>
+                            <p class="lead">
+                                Log in om trainingen te beheren, statussen aan te passen en game changes via webhook embeds naar Discord te sturen.
+                            </p>
+
+                            <div class="signal-strip">
+                                <div class="signal-card">
+                                    <span>Trainingbeheer</span>
+                                    <strong>Toevoegen, aanpassen, verwijderen</strong>
+                                </div>
+                                <div class="signal-card">
+                                    <span>Game status</span>
+                                    <strong>Webhook embeds uitsturen</strong>
+                                </div>
+                                <div class="signal-card">
+                                    <span>Publieke sync</span>
+                                    <strong>Site direct bijgewerkt</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <aside class="form-shell" style="align-self: center;">
+                            <div class="section-heading">
+                                <div>
+                                    <h2>Inloggen</h2>
+                                    <p class="section-copy">Gebruik Netlify Identity om het admingedeelte te openen.</p>
+                                </div>
+                            </div>
+
+                            <div class="cta-row" style="margin-top: 0;">
+                                <button class="button button-primary" id="loginButton" type="button">
+                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                    Open login venster
+                                </button>
+                                <a class="button button-ghost" href="/">
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                    Terug naar site
+                                </a>
+                            </div>
+
+                            <div class="inline-note" id="loginStatus" style="margin-top: 1rem;">
+                                Klaar om in te loggen.
+                            </div>
+                        </aside>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container footer__inner">
+                <span>Admin portal</span>
+                <span>Veilige toegang tot trainingbeheer en game-statuspublicatie.</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginButton = document.getElementById('loginButton');
+            const loginStatus = document.getElementById('loginStatus');
+
+            function setStatus(message) {
+                loginStatus.textContent = message;
+            }
+
+            if (!window.netlifyIdentity) {
+                setStatus('Netlify Identity kon niet geladen worden.');
+                return;
+            }
+
+            loginButton.addEventListener('click', () => {
+                setStatus('Login venster openen...');
+                window.netlifyIdentity.open();
+            });
+
+            window.netlifyIdentity.on('init', (user) => {
+                if (user) {
+                    setStatus('Je bent al ingelogd. Doorsturen naar admin...');
+                    window.setTimeout(() => {
+                        window.location.href = '/admin/dashboard.html';
+                    }, 700);
+                }
+            });
+
+            window.netlifyIdentity.on('login', () => {
+                setStatus('Login gelukt. Doorsturen naar admin...');
+                window.setTimeout(() => {
+                    window.location.href = '/admin/dashboard.html';
+                }, 700);
+            });
+
+            window.netlifyIdentity.on('error', (error) => {
+                console.error(error);
+                setStatus('Login mislukt. Controleer Netlify Identity en probeer opnieuw.');
+            });
+
+            const currentUser = window.netlifyIdentity.currentUser?.();
+            if (currentUser) {
+                setStatus('Je bent al ingelogd. Doorsturen naar admin...');
+                window.setTimeout(() => {
+                    window.location.href = '/admin/dashboard.html';
+                }, 700);
+            }
+        });
+    </script>
+</body>
+</html>

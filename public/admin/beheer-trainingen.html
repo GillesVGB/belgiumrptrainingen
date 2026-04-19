@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beheer Trainingen | Belgium Roleplay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="/js/main.js" defer></script>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="container">
+                <nav class="site-nav">
+                    <a class="brand" href="/">
+                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="brand-copy">
+                            <strong>Belgium Roleplay</strong>
+                            <span>Trainingbeheer</span>
+                        </span>
+                    </a>
+
+                    <div class="nav-group">
+                        <a class="nav-link" href="/trainingen.html">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            Trainingen
+                        </a>
+                        <a class="nav-link active" href="/admin/dashboard.html">
+                            <i class="fa-solid fa-user-shield"></i>
+                            Admin
+                        </a>
+                        <a class="auth-link" href="/admin/login.html" data-auth-toggle>
+                            <i class="fa-solid fa-user-shield"></i>
+                            Inloggen
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <section id="manageLoginGate" class="login-gate hidden">
+                    <i class="fa-solid fa-lock"></i>
+                    <h2>Log in om trainingen te beheren</h2>
+                    <p class="section-copy">Na login kan je trainingen aanpassen of verwijderen en game-statusupdates uitsturen.</p>
+                    <div class="cta-row" style="justify-content: center;">
+                        <a class="button button-primary" href="/admin/login.html">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                            Open login
+                        </a>
+                    </div>
+                </section>
+
+                <section id="manageContent" class="hidden">
+                    <div class="page-head">
+                        <div>
+                            <div class="eyebrow">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                Trainingen en game status
+                            </div>
+                            <h1 class="page-title">Volledig beheer vanuit een scherm</h1>
+                            <p class="page-copy">
+                                Voeg trainingen toe, pas ze aan of verwijder ze. Daarnaast kan je hier meteen een game change als Discord embed publiceren.
+                            </p>
+                        </div>
+                        <div class="cta-row">
+                            <a class="button button-secondary" href="/admin/dashboard.html">
+                                <i class="fa-solid fa-gauge-high"></i>
+                                Dashboard
+                            </a>
+                            <a class="button button-ghost" href="/trainingen.html" target="_blank" rel="noreferrer">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                Publieke pagina
+                            </a>
+                        </div>
+                    </div>
+
+                    <section class="section split-layout">
+                        <form class="form-shell" id="trainingForm">
+                            <div class="section-heading">
+                                <div>
+                                    <h2>Training opslaan</h2>
+                                    <p class="section-copy">Gebruik hetzelfde formulier voor nieuw, aanpassen of statusupdate.</p>
+                                </div>
+                            </div>
+
+                            <input id="trainingId" type="hidden">
+
+                            <div class="form-grid">
+                                <div class="field field-full">
+                                    <label for="onderwerp">Onderwerp</label>
+                                    <input class="input" id="onderwerp" type="text" placeholder="Bijv. Verkeerscontrole basis" required>
+                                </div>
+
+                                <div class="field">
+                                    <label for="dienst">Dienst</label>
+                                    <select class="select" id="dienst" required>
+                                        <option value="politie">Politie</option>
+                                        <option value="ambulance">Ambulance</option>
+                                        <option value="brandweer">Brandweer</option>
+                                        <option value="handhaving">Handhaving</option>
+                                        <option value="algemeen">Algemeen</option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label for="status">Status</label>
+                                    <select class="select" id="status" required>
+                                        <option value="not_started">Nog niet gestart</option>
+                                        <option value="in_progress">Bezig</option>
+                                        <option value="completed">Afgerond</option>
+                                        <option value="cancelled">Geannuleerd</option>
+                                        <option value="delayed">Uitgesteld</option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label for="datum">Datum</label>
+                                    <input class="input" id="datum" type="text" placeholder="DD/MM/YYYY" required>
+                                </div>
+
+                                <div class="field">
+                                    <label for="tijd">Tijd</label>
+                                    <input class="input" id="tijd" type="text" placeholder="20:00" required>
+                                </div>
+
+                                <div class="field">
+                                    <label for="trainer">Trainer</label>
+                                    <input class="input" id="trainer" type="text" placeholder="Naam trainer" required>
+                                </div>
+
+                                <div class="field">
+                                    <label for="locatie">Locatie</label>
+                                    <input class="input" id="locatie" type="text" placeholder="Briefing room, HQ, server">
+                                </div>
+
+                                <div class="field">
+                                    <label for="maxDeelnemers">Maximum deelnemers</label>
+                                    <input class="input" id="maxDeelnemers" type="number" min="1" value="10">
+                                </div>
+
+                                <div class="field">
+                                    <label for="aangemeldCount">Aangemeld</label>
+                                    <input class="input" id="aangemeldCount" type="number" min="0" value="0">
+                                </div>
+
+                                <div class="field field-full">
+                                    <label for="notitie">Korte notitie</label>
+                                    <textarea class="textarea" id="notitie" placeholder="Korte briefing, benodigd materiaal of extra context"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="cta-row">
+                                <button class="button button-primary" type="submit" id="saveTrainingButton">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    Training opslaan
+                                </button>
+                                <button class="button button-ghost" type="button" id="resetTrainingButton">
+                                    <i class="fa-solid fa-plus"></i>
+                                    Nieuw formulier
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="form-shell">
+                            <div class="section-heading">
+                                <div>
+                                    <h2>Game status publiceren</h2>
+                                    <p class="section-copy">Deze update wordt opgeslagen op de site en kan via webhook als embed naar Discord worden verstuurd.</p>
+                                </div>
+                            </div>
+
+                            <form id="gameStatusForm">
+                                <div class="form-grid">
+                                    <div class="field field-full">
+                                        <label for="gameTitle">Titel</label>
+                                        <input class="input" id="gameTitle" type="text" placeholder="Bijv. Server restart om 20:30">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameState">Status</label>
+                                        <select class="select" id="gameState">
+                                            <option value="operational">Operationeel</option>
+                                            <option value="alert">Verhoogde paraatheid</option>
+                                            <option value="maintenance">Onderhoud</option>
+                                            <option value="outage">Offline</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameServerName">Servernaam</label>
+                                        <input class="input" id="gameServerName" type="text" placeholder="Belgium Roleplay Main">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gamePlayersOnline">Spelers online</label>
+                                        <input class="input" id="gamePlayersOnline" type="number" min="0" placeholder="42">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameMaxPlayers">Max spelers</label>
+                                        <input class="input" id="gameMaxPlayers" type="number" min="1" placeholder="64">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameJoinCode">Join code</label>
+                                        <input class="input" id="gameJoinCode" type="text" placeholder="ABCD-1234">
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="gameImageUrl">Optionele afbeelding URL</label>
+                                        <input class="input" id="gameImageUrl" type="url" placeholder="https://...">
+                                    </div>
+
+                                    <div class="field field-full">
+                                        <label for="gameMessage">Bericht</label>
+                                        <textarea class="textarea" id="gameMessage" placeholder="Omschrijf de wijziging, timing en eventuele instructies voor spelers"></textarea>
+                                    </div>
+
+                                    <div class="field field-full">
+                                        <label for="gameWebhookUrl">Webhook URL (optioneel override)</label>
+                                        <input class="input" id="gameWebhookUrl" type="url" placeholder="Laat leeg om DISCORD_WEBHOOK_URL uit de omgeving te gebruiken">
+                                    </div>
+                                </div>
+
+                                <div class="inline-note">
+                                    Laat de webhook URL leeg als je al een omgevingsvariabele gebruikt. Die override wordt niet permanent opgeslagen.
+                                </div>
+
+                                <div class="cta-row" style="margin-top: 1rem;">
+                                    <button class="button button-primary" type="submit">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                        Publiceer game status
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="status-board" id="gameStatusPreview" style="margin-top: 1rem; padding: 0;">
+                                <div class="empty-state">
+                                    <i class="fa-solid fa-spinner fa-spin"></i>
+                                    <p>Preview laden...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="section table-shell">
+                        <div class="table-heading">
+                            <div>
+                                <h2>Alle trainingen</h2>
+                                <p class="table-note">Klik op aanpassen om een training in het formulier te laden of verwijder ze rechtstreeks uit de tabel.</p>
+                            </div>
+                        </div>
+
+                        <div class="toolbar">
+                            <div class="toolbar-grow">
+                                <input class="input" id="manageSearch" type="search" placeholder="Zoek op onderwerp, trainer of ID">
+                            </div>
+                            <select class="select" id="manageStatusFilter">
+                                <option value="all">Alle statussen</option>
+                                <option value="not_started">Nog niet gestart</option>
+                                <option value="in_progress">Bezig</option>
+                                <option value="completed">Afgerond</option>
+                                <option value="cancelled">Geannuleerd</option>
+                                <option value="delayed">Uitgesteld</option>
+                            </select>
+                        </div>
+
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Onderwerp</th>
+                                        <th>Dienst</th>
+                                        <th>Moment</th>
+                                        <th>Trainer</th>
+                                        <th>Status</th>
+                                        <th>Deelnemers</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="manageTrainingsTable">
+                                    <tr>
+                                        <td colspan="8">
+                                            <div class="empty-state">
+                                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                                <p>Trainingen laden...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </section>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container footer__inner">
+                <span>Beheercentrum</span>
+                <span>Trainingen en game-status vanuit dezelfde operationele workflow.</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginGate = document.getElementById('manageLoginGate');
+            const manageContent = document.getElementById('manageContent');
+            const trainingForm = document.getElementById('trainingForm');
+            const gameStatusForm = document.getElementById('gameStatusForm');
+            const manageTable = document.getElementById('manageTrainingsTable');
+            const manageSearch = document.getElementById('manageSearch');
+            const manageStatusFilter = document.getElementById('manageStatusFilter');
+
+            let trainings = [];
+            let currentGameStatus = null;
+
+            function resetTrainingForm() {
+                trainingForm.reset();
+                document.getElementById('trainingId').value = '';
+                document.getElementById('dienst').value = 'politie';
+                document.getElementById('status').value = 'not_started';
+                document.getElementById('maxDeelnemers').value = '10';
+                document.getElementById('aangemeldCount').value = '0';
+            }
+
+            function fillGameStatusForm(gameStatus) {
+                currentGameStatus = gameStatus;
+                document.getElementById('gameTitle').value = gameStatus?.title || '';
+                document.getElementById('gameState').value = gameStatus?.state || 'operational';
+                document.getElementById('gameServerName').value = gameStatus?.serverName || 'Belgium Roleplay';
+                document.getElementById('gamePlayersOnline').value = gameStatus?.playersOnline || '';
+                document.getElementById('gameMaxPlayers').value = gameStatus?.maxPlayers || '';
+                document.getElementById('gameJoinCode').value = gameStatus?.joinCode || '';
+                document.getElementById('gameImageUrl').value = gameStatus?.imageUrl || '';
+                document.getElementById('gameMessage').value = gameStatus?.message || '';
+                TrainingApp.fillElement(document.getElementById('gameStatusPreview'), TrainingApp.renderGameStatusCard(gameStatus));
+            }
+
+            function populateTrainingForm(training) {
+                document.getElementById('trainingId').value = training.id;
+                document.getElementById('onderwerp').value = training.onderwerp || '';
+                document.getElementById('dienst').value = training.dienst || 'politie';
+                document.getElementById('status').value = training.status || 'not_started';
+                document.getElementById('datum').value = training.datum || '';
+                document.getElementById('tijd').value = training.tijd || '';
+                document.getElementById('trainer').value = training.trainer || '';
+                document.getElementById('locatie').value = training.locatie || '';
+                document.getElementById('maxDeelnemers').value = training.maxDeelnemers || 10;
+                document.getElementById('aangemeldCount').value = Array.isArray(training.aangemeld) ? training.aangemeld.length : 0;
+                document.getElementById('notitie').value = training.notitie || '';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function getTrainingPayload() {
+                return {
+                    id: document.getElementById('trainingId').value || undefined,
+                    onderwerp: document.getElementById('onderwerp').value.trim(),
+                    dienst: document.getElementById('dienst').value,
+                    status: document.getElementById('status').value,
+                    datum: document.getElementById('datum').value.trim(),
+                    tijd: document.getElementById('tijd').value.trim(),
+                    trainer: document.getElementById('trainer').value.trim(),
+                    locatie: document.getElementById('locatie').value.trim(),
+                    maxDeelnemers: document.getElementById('maxDeelnemers').value,
+                    aangemeldCount: document.getElementById('aangemeldCount').value,
+                    notitie: document.getElementById('notitie').value.trim(),
+                    toegevoegd_door: window.netlifyIdentity?.currentUser?.()?.email || 'admin'
+                };
+            }
+
+            function renderManageTable() {
+                const query = manageSearch.value.trim().toLowerCase();
+                const selectedStatus = manageStatusFilter.value;
+
+                const filtered = TrainingApp.sortTrainings(trainings).filter((training) => {
+                    const matchesStatus = selectedStatus === 'all' || training.status === selectedStatus;
+                    const haystack = [training.id, training.onderwerp, training.trainer, training.locatie].join(' ').toLowerCase();
+                    return matchesStatus && (!query || haystack.includes(query));
+                });
+
+                if (!filtered.length) {
+                    TrainingApp.fillElement(
+                        manageTable,
+                        `
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-state">
+                                        <i class="fa-regular fa-folder-open"></i>
+                                        <p>Geen trainingen gevonden voor deze filters.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `
+                    );
+                    return;
+                }
+
+                const rows = filtered
+                    .map((training) => {
+                        const status = TrainingApp.getStatusMeta(training.status);
+                        const service = TrainingApp.getServiceMeta(training.dienst);
+                        const deelnemers = Array.isArray(training.aangemeld) ? training.aangemeld.length : 0;
+
+                        return `
+                            <tr>
+                                <td><code>${TrainingApp.escapeHtml(training.id)}</code></td>
+                                <td>
+                                    <strong>${TrainingApp.escapeHtml(training.onderwerp || 'Training')}</strong>
+                                    <div class="table-note">${TrainingApp.escapeHtml(training.notitie || '')}</div>
+                                </td>
+                                <td>
+                                    <span class="pill ${service.pillClass}">
+                                        <i class="fa-solid ${service.icon}"></i>
+                                        ${TrainingApp.escapeHtml(service.label)}
+                                    </span>
+                                </td>
+                                <td>${TrainingApp.escapeHtml(TrainingApp.formatDateLabel(training.datum, training.tijd))}</td>
+                                <td>${TrainingApp.escapeHtml(training.trainer || '-')}</td>
+                                <td>
+                                    <span class="pill ${status.pillClass}">
+                                        <i class="fa-solid ${status.icon}"></i>
+                                        ${TrainingApp.escapeHtml(training.status_text || status.label)}
+                                    </span>
+                                </td>
+                                <td>${TrainingApp.escapeHtml(String(deelnemers))}/${TrainingApp.escapeHtml(String(training.maxDeelnemers || '-'))}</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="button button-small button-secondary" type="button" data-edit-id="${TrainingApp.escapeHtml(training.id)}">
+                                            <i class="fa-solid fa-pen"></i>
+                                            Aanpassen
+                                        </button>
+                                        <button class="button button-small button-danger" type="button" data-delete-id="${TrainingApp.escapeHtml(training.id)}">
+                                            <i class="fa-solid fa-trash"></i>
+                                            Verwijderen
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    })
+                    .join('');
+
+                TrainingApp.fillElement(manageTable, rows);
+            }
+
+            async function loadManageData() {
+                const data = await TrainingApp.loadDashboardData();
+                trainings = data.trainings || [];
+                fillGameStatusForm(data.gameStatus);
+                renderManageTable();
+            }
+
+            async function saveTraining(event) {
+                event.preventDefault();
+
+                const payload = getTrainingPayload();
+
+                try {
+                    if (!payload.onderwerp || !payload.datum || !payload.tijd || !payload.trainer) {
+                        throw new Error('Vul onderwerp, datum, tijd en trainer in.');
+                    }
+
+                    if (payload.id) {
+                        await TrainingApp.apiRequest({ method: 'PUT', data: payload });
+                        TrainingApp.showToast('Training aangepast.', 'success');
+                    } else {
+                        await TrainingApp.apiRequest({ method: 'POST', data: payload });
+                        TrainingApp.showToast('Training toegevoegd.', 'success');
+                    }
+
+                    resetTrainingForm();
+                    await loadManageData();
+                } catch (error) {
+                    console.error(error);
+                    TrainingApp.showToast(error.message || 'Kon de training niet opslaan.', 'error');
+                }
+            }
+
+            async function publishGameStatus(event) {
+                event.preventDefault();
+
+                try {
+                    const result = await TrainingApp.apiRequest({
+                        method: 'POST',
+                        data: {
+                            action: 'publish_game_status',
+                            title: document.getElementById('gameTitle').value.trim() || 'Server update',
+                            state: document.getElementById('gameState').value,
+                            serverName: document.getElementById('gameServerName').value.trim(),
+                            playersOnline: document.getElementById('gamePlayersOnline').value,
+                            maxPlayers: document.getElementById('gameMaxPlayers').value,
+                            joinCode: document.getElementById('gameJoinCode').value.trim(),
+                            imageUrl: document.getElementById('gameImageUrl').value.trim(),
+                            message: document.getElementById('gameMessage').value.trim(),
+                            webhookUrl: document.getElementById('gameWebhookUrl').value.trim(),
+                            updatedBy: window.netlifyIdentity?.currentUser?.()?.email || 'admin'
+                        }
+                    });
+
+                    fillGameStatusForm(result.gameStatus);
+                    document.getElementById('gameWebhookUrl').value = '';
+
+                    if (result.webhookSent) {
+                        TrainingApp.showToast('Game status gepubliceerd en webhook verstuurd.', 'success');
+                    } else {
+                        TrainingApp.showToast('Game status opgeslagen. Geen webhook verstuurd.', 'info');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    TrainingApp.showToast(error.message || 'Kon de game status niet publiceren.', 'error');
+                }
+            }
+
+            async function deleteTraining(id) {
+                if (!window.confirm('Weet je zeker dat je deze training wilt verwijderen?')) {
+                    return;
+                }
+
+                try {
+                    await TrainingApp.apiRequest({ method: 'DELETE', data: { id } });
+                    trainings = trainings.filter((training) => training.id !== id);
+                    renderManageTable();
+                    TrainingApp.showToast('Training verwijderd.', 'success');
+                } catch (error) {
+                    console.error(error);
+                    TrainingApp.showToast(error.message || 'Kon de training niet verwijderen.', 'error');
+                }
+            }
+
+            manageSearch.addEventListener('input', renderManageTable);
+            manageStatusFilter.addEventListener('change', renderManageTable);
+            trainingForm.addEventListener('submit', saveTraining);
+            gameStatusForm.addEventListener('submit', publishGameStatus);
+            document.getElementById('resetTrainingButton').addEventListener('click', resetTrainingForm);
+
+            manageTable.addEventListener('click', (event) => {
+                const editButton = event.target.closest('[data-edit-id]');
+                const deleteButton = event.target.closest('[data-delete-id]');
+
+                if (editButton) {
+                    const training = trainings.find((entry) => entry.id === editButton.dataset.editId);
+                    if (training) {
+                        populateTrainingForm(training);
+                    }
+                }
+
+                if (deleteButton) {
+                    deleteTraining(deleteButton.dataset.deleteId);
+                }
+            });
+
+            function openManageView() {
+                loginGate.classList.add('hidden');
+                manageContent.classList.remove('hidden');
+                resetTrainingForm();
+                loadManageData();
+            }
+
+            function showLoginGate() {
+                manageContent.classList.add('hidden');
+                loginGate.classList.remove('hidden');
+            }
+
+            if (!window.netlifyIdentity) {
+                showLoginGate();
+                return;
+            }
+
+            window.netlifyIdentity.on('init', (user) => {
+                if (user) {
+                    openManageView();
+                } else {
+                    showLoginGate();
+                }
+            });
+
+            window.netlifyIdentity.on('login', openManageView);
+            window.netlifyIdentity.on('logout', showLoginGate);
+
+            const currentUser = window.netlifyIdentity.currentUser?.();
+            if (currentUser) {
+                openManageView();
+            }
+        });
+    </script>
+</body>
+</html>
