@@ -200,10 +200,13 @@
 
     <script>
         // ============================================
-        // NETLIFY AUTH - LOGIN/LOGOUT
+        // NETLIFY AUTH - WERKENDE LOGIN/LOGOUT
         // ============================================
         (function() {
-            if (!window.netlifyIdentity) return;
+            if (!window.netlifyIdentity) {
+                console.log('Netlify Identity niet geladen');
+                return;
+            }
             
             const authLink = document.getElementById('authLink');
             const authText = document.getElementById('authText');
@@ -218,14 +221,15 @@
                     authLink.onclick = function(e) {
                         e.preventDefault();
                         window.netlifyIdentity.logout();
-                        window.location.href = '/';
                     };
+                    authLink.style.cursor = 'pointer';
                 } else {
                     authText.textContent = 'Inloggen';
                     authLink.onclick = function(e) {
                         e.preventDefault();
                         window.location.href = '/admin/login.html';
                     };
+                    authLink.style.cursor = 'pointer';
                 }
             }
             
@@ -243,20 +247,25 @@
                 loadDashboard();
             }
             
-            // Check login status
-            const user = window.netlifyIdentity.currentUser();
-            if (user) {
-                showDashboard(user);
+            // Check huidige status
+            const currentUser = window.netlifyIdentity.currentUser();
+            
+            if (currentUser) {
+                showDashboard(currentUser);
             } else {
                 showLoginRequired();
             }
             
             updateAuthButton();
             
+            // Event listeners
             window.netlifyIdentity.on('init', function(user) {
                 updateAuthButton();
-                if (user) showDashboard(user);
-                else showLoginRequired();
+                if (user) {
+                    showDashboard(user);
+                } else {
+                    showLoginRequired();
+                }
             });
             
             window.netlifyIdentity.on('login', function(user) {
@@ -267,11 +276,14 @@
             window.netlifyIdentity.on('logout', function() {
                 updateAuthButton();
                 showLoginRequired();
+                window.location.href = '/';
             });
+            
+            window.netlifyIdentity.init();
         })();
 
         // ============================================
-        // API CONFIGURATIE
+        // API FUNCTIES
         // ============================================
         const API_URL = '/.netlify/functions/api';
         
