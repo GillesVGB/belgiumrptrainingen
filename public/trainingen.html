@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
@@ -275,6 +275,420 @@
                         </div>
                     `
                 );
+            }
+        });
+    </script>
+</body>
+</html>-->
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainingen | Belgium Roleplay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 1.5rem;
+        }
+        .training-card {
+            padding: 1.5rem;
+            background: var(--bg-surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .training-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border-color: var(--primary);
+        }
+        .training-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0.75rem 0 0.5rem;
+            line-height: 1.3;
+        }
+        .training-card__top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: var(--bg-elevated);
+            padding: 0.5rem 0.75rem;
+            border-radius: 12px;
+        }
+        .inline-note {
+            background: rgba(88, 101, 242, 0.1);
+            padding: 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 0.75rem 0;
+        }
+        .badge-muted {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .toolbar-grow {
+            flex: 1;
+            min-width: 200px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        .footer__inner {
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="container">
+                <nav class="site-nav">
+                    <a class="brand" href="/">
+                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="brand-copy">
+                            <strong>Belgium Roleplay</strong>
+                            <span>Operations Center</span>
+                        </span>
+                    </a>
+
+                    <div class="nav-group">
+                        <a class="nav-link active" href="/trainingen.html">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            Trainingen
+                        </a>
+                        <a class="nav-link" href="/admin/dashboard.html">
+                            <i class="fa-solid fa-user-shield"></i>
+                            Admin
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow">
+                            <i class="fa-solid fa-list-check"></i>
+                            Trainings overzicht
+                        </div>
+                        <h1 class="page-title">Alle trainingen op een rij</h1>
+                        <p class="page-copy">
+                            Filter op dienst, status of zoek direct op trainer en onderwerp.
+                        </p>
+                    </div>
+                </div>
+
+                <section class="section">
+                    <div class="stats-grid">
+                        <article class="stat-card">
+                            <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                            <span class="stat-label">Totaal gepland</span>
+                            <strong class="stat-value" id="statsTotal">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <div class="stat-icon"><i class="fa-solid fa-hourglass-start"></i></div>
+                            <span class="stat-label">Komend</span>
+                            <strong class="stat-value" id="statsUpcoming">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <div class="stat-icon"><i class="fa-solid fa-bolt"></i></div>
+                            <span class="stat-label">Bezig</span>
+                            <strong class="stat-value" id="statsActive">0</strong>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="toolbar">
+                        <div class="toolbar-grow">
+                            <input class="input" id="trainingSearch" type="search" placeholder="🔍 Zoek op onderwerp, trainer of ID...">
+                        </div>
+                        <select class="select" id="statusFilter">
+                            <option value="all">Alle statussen</option>
+                            <option value="aangekondigd">📢 Aangekondigd</option>
+                            <option value="inloop">🚪 Inloop</option>
+                            <option value="bezig">🔄 Bezig</option>
+                            <option value="afgerond">✅ Afgerond</option>
+                            <option value="geannuleerd">❌ Geannuleerd</option>
+                            <option value="uitgesteld">⏰ Uitgesteld</option>
+                        </select>
+                        <select class="select" id="serviceFilter">
+                            <option value="all">Alle diensten</option>
+                            <option value="lokale_politie">🚓 Lokale Politie</option>
+                            <option value="federale_politie">⭐ Federale Politie</option>
+                            <option value="militaire_politie">⚔️ Militaire Politie</option>
+                            <option value="ambulance">🚑 Ambulance</option>
+                            <option value="brandweer">🔥 Brandweer</option>
+                        </select>
+                    </div>
+
+                    <div class="card-grid" id="trainingGrid">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            <p>Trainingen laden...</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-links">
+                    <a href="https://discord.gg/TpAvvVQDu6" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-discord"></i> Discord
+                    </a>
+                    <a href="/trainingen.html">Trainingen</a>
+                    <a href="/admin/dashboard.html">Admin</a>
+                </div>
+                <div class="footer__inner">
+                    <span>Publiek overzicht</span>
+                    <span>Live gekoppeld aan de trainingsgegevens van het systeem.</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // API CONFIGURATIE
+        // ============================================
+        const API_URL = '/.netlify/functions/api';
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        
+        function formatDateLabel(datum, tijd) {
+            if (!datum) return 'Datum onbekend';
+            return `${datum} om ${tijd || '??:??'}`;
+        }
+        
+        function sortTrainings(trainings) {
+            return [...trainings].sort((a, b) => {
+                const dateA = parseDate(a.datum, a.tijd);
+                const dateB = parseDate(b.datum, b.tijd);
+                return dateB - dateA;
+            });
+        }
+        
+        function parseDate(datum, tijd) {
+            if (!datum) return 0;
+            const parts = datum.split(/[-/]/);
+            let day, month, year;
+            if (parts.length === 3) {
+                if (parts[0].length === 4) {
+                    year = parseInt(parts[0]);
+                    month = parseInt(parts[1]) - 1;
+                    day = parseInt(parts[2]);
+                } else {
+                    day = parseInt(parts[0]);
+                    month = parseInt(parts[1]) - 1;
+                    year = parseInt(parts[2]);
+                }
+            } else {
+                return 0;
+            }
+            const [hour, minute] = (tijd || '00:00').split(':');
+            return new Date(year, month, day, hour, minute).getTime();
+        }
+        
+        function getStatusMeta(status) {
+            const statusMap = {
+                'aangekondigd': { label: 'Aangekondigd', icon: 'fa-bullhorn', pillClass: 'pill-status-aangekondigd' },
+                'inloop': { label: 'Inloop', icon: 'fa-door-open', pillClass: 'pill-status-inloop' },
+                'bezig': { label: 'Bezig', icon: 'fa-bolt', pillClass: 'pill-status-bezig' },
+                'afgerond': { label: 'Afgerond', icon: 'fa-check-circle', pillClass: 'pill-status-afgerond' },
+                'geannuleerd': { label: 'Geannuleerd', icon: 'fa-ban', pillClass: 'pill-status-geannuleerd' },
+                'uitgesteld': { label: 'Uitgesteld', icon: 'fa-clock', pillClass: 'pill-status-uitgesteld' }
+            };
+            return statusMap[status] || statusMap['aangekondigd'];
+        }
+        
+        function getServiceMeta(dienst) {
+            const serviceMap = {
+                'lokale_politie': { label: '🚓 Lokale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
+                'federale_politie': { label: '⭐ Federale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
+                'militaire_politie': { label: '⚔️ Militaire Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
+                'ambulance': { label: '🚑 Ambulance', icon: 'fa-truck-medical', pillClass: 'pill-service-ambulance' },
+                'brandweer': { label: '🔥 Brandweer', icon: 'fa-fire-extinguisher', pillClass: 'pill-service-brandweer' }
+            };
+            return serviceMap[dienst] || serviceMap['lokale_politie'];
+        }
+        
+        function renderTrainingCard(training) {
+            const status = getStatusMeta(training.status);
+            const service = getServiceMeta(training.dienst);
+            const deelnemers = Array.isArray(training.aangemeld) ? training.aangemeld.length : (training.aangemeldCount || 0);
+            
+            return `
+                <div class="training-card">
+                    <div class="training-card__top">
+                        <div>
+                            <span class="pill ${service.pillClass}">
+                                <i class="fa-solid ${service.icon}"></i>
+                                ${service.label}
+                            </span>
+                        </div>
+                        <span class="pill ${status.pillClass}">
+                            <i class="fa-solid ${status.icon}"></i>
+                            ${training.status_text || status.label}
+                        </span>
+                    </div>
+                    
+                    <h3>${escapeHtml(training.onderwerp || 'Training')}</h3>
+                    
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <i class="fa-solid fa-calendar"></i>
+                            <span>${escapeHtml(formatDateLabel(training.datum, training.tijd))}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                            <span>${escapeHtml(training.trainer || 'Onbekend')}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>${escapeHtml(training.locatie || 'Nader te bepalen')}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fa-solid fa-users"></i>
+                            <span>${deelnemers}/${training.maxDeelnemers || '?'}</span>
+                        </div>
+                    </div>
+                    
+                    ${training.notitie ? `
+                        <div class="inline-note">
+                            <i class="fa-regular fa-note-sticky"></i>
+                            ${escapeHtml(training.notitie)}
+                        </div>
+                    ` : ''}
+                    
+                    ${training.van_discord ? `
+                        <div class="badge-muted">
+                            <i class="fa-brands fa-discord"></i>
+                            Toegevoegd via Discord
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const grid = document.getElementById('trainingGrid');
+            const searchInput = document.getElementById('trainingSearch');
+            const statusFilter = document.getElementById('statusFilter');
+            const serviceFilter = document.getElementById('serviceFilter');
+
+            let trainings = [];
+
+            function updateStats() {
+                document.getElementById('statsTotal').textContent = String(trainings.length);
+                document.getElementById('statsUpcoming').textContent = String(trainings.filter(t => t.status === 'aangekondigd' || t.status === 'inloop').length);
+                document.getElementById('statsActive').textContent = String(trainings.filter(t => t.status === 'bezig').length);
+            }
+
+            function renderFilteredTrainings() {
+                const query = searchInput.value.trim().toLowerCase();
+                const selectedStatus = statusFilter.value;
+                const selectedService = serviceFilter.value;
+
+                const filtered = trainings.filter(t => {
+                    const matchesStatus = selectedStatus === 'all' || t.status === selectedStatus;
+                    const matchesService = selectedService === 'all' || t.dienst === selectedService;
+                    const haystack = [t.id, t.onderwerp, t.trainer, t.locatie, t.notitie].join(' ').toLowerCase();
+                    const matchesQuery = !query || haystack.includes(query);
+                    return matchesStatus && matchesService && matchesQuery;
+                });
+
+                if (!filtered.length) {
+                    grid.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Geen trainingen gevonden voor deze filters.</p></div>`;
+                    return;
+                }
+
+                grid.innerHTML = filtered.map(t => renderTrainingCard(t)).join('');
+            }
+
+            searchInput.addEventListener('input', renderFilteredTrainings);
+            statusFilter.addEventListener('change', renderFilteredTrainings);
+            serviceFilter.addEventListener('change', renderFilteredTrainings);
+
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                trainings = Array.isArray(data) ? data : [];
+                trainings = sortTrainings(trainings);
+                updateStats();
+                renderFilteredTrainings();
+            } catch (error) {
+                console.error(error);
+                grid.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Kon de trainingen niet laden.</p></div>`;
             }
         });
     </script>

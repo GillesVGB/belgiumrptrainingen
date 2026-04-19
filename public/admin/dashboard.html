@@ -10,7 +10,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <script src="/js/main.js" defer></script>
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .login-gate {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(30,41,59,0.7);
+            border-radius: 1rem;
+            max-width: 500px;
+            margin: 2rem auto;
+        }
+        .hidden {
+            display: none;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="page-shell">
@@ -34,9 +72,9 @@
                             <i class="fa-solid fa-gauge-high"></i>
                             Admin
                         </a>
-                        <a class="auth-link" href="/admin/login.html" data-auth-toggle>
+                        <a class="auth-link" href="#" id="authLink">
                             <i class="fa-solid fa-user-shield"></i>
-                            Inloggen
+                            <span id="authText">Inloggen</span>
                         </a>
                     </div>
                 </nav>
@@ -46,9 +84,9 @@
         <main class="main-content">
             <div class="container">
                 <section id="loginGate" class="login-gate hidden">
-                    <i class="fa-solid fa-lock"></i>
+                    <i class="fa-solid fa-lock" style="font-size: 3rem;"></i>
                     <h2>Admin login vereist</h2>
-                    <p class="section-copy">Log eerst in om het dashboard en trainingbeheer te openen.</p>
+                    <p class="section-copy">Log eerst in om het dashboard te openen.</p>
                     <div class="cta-row" style="justify-content: center;">
                         <a class="button button-primary" href="/admin/login.html">
                             <i class="fa-solid fa-right-to-bracket"></i>
@@ -66,7 +104,7 @@
                             </div>
                             <h1 class="page-title">Controlekamer voor staff</h1>
                             <p class="page-copy">
-                                Welkom <span id="adminEmail">admin</span>. Hier zie je live trainingen en snelle acties voor beheer.
+                                Welkom <span id="adminEmail">admin</span>! Hier zie je live trainingen.
                             </p>
                         </div>
                         <div class="cta-row">
@@ -106,34 +144,10 @@
                         </div>
                     </section>
 
-                    <section class="section">
-                        <div class="panel">
-                            <div class="section-heading">
-                                <div>
-                                    <h2>Snelle acties</h2>
-                                    <p class="section-copy">Directe toegang tot de belangrijkste adminstappen.</p>
-                                </div>
-                            </div>
-                            <div class="feature-grid">
-                                <article class="feature-card">
-                                    <div class="kicker"><i class="fa-solid fa-plus"></i> Nieuwe training</div>
-                                    <h3>Snel toevoegen of aanpassen</h3>
-                                    <p>Open het beheer om een training op te slaan, bij te werken of te verwijderen.</p>
-                                </article>
-                                <article class="feature-card">
-                                    <div class="kicker"><i class="fa-solid fa-eye"></i> Publiek beeld</div>
-                                    <h3>Controleer de publieke pagina</h3>
-                                    <p>Bekijk meteen hoe spelers de trainingslijst zien.</p>
-                                </article>
-                            </div>
-                        </div>
-                    </section>
-
                     <section class="section table-shell">
                         <div class="table-heading">
                             <div>
                                 <h2>Laatste trainingen</h2>
-                                <p class="table-note">Een compacte momentopname van de meest recente planning.</p>
                             </div>
                         </div>
                         <div class="table-scroll">
@@ -168,76 +182,180 @@
         </main>
 
         <footer class="footer">
-            <div class="container footer__inner">
-                <span>Admin dashboard</span>
-                <span>Live overzicht van planning en beheer.</span>
+            <div class="container">
+                <div class="footer-links">
+                    <a href="https://discord.gg/TpAvvVQDu6" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-discord"></i> Discord
+                    </a>
+                    <a href="/trainingen.html">Trainingen</a>
+                    <a href="/admin/dashboard.html">Admin</a>
+                </div>
+                <div class="footer__inner">
+                    <span>Admin dashboard</span>
+                    <span>Live overzicht van planning en beheer.</span>
+                </div>
             </div>
         </footer>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // ============================================
+        // NETLIFY AUTH - LOGIN/LOGOUT
+        // ============================================
+        (function() {
+            if (!window.netlifyIdentity) return;
+            
+            const authLink = document.getElementById('authLink');
+            const authText = document.getElementById('authText');
             const loginGate = document.getElementById('loginGate');
             const dashboardContent = document.getElementById('dashboardContent');
-            const refreshButton = document.getElementById('refreshDashboardButton');
-
-            async function loadDashboard() {
-                try {
-                    const data = await TrainingApp.loadDashboardData();
-                    const trainings = TrainingApp.sortTrainings(data.trainings || []);
-
-                    TrainingApp.setText(document.getElementById('dashboardTotal'), String(trainings.length));
-                    TrainingApp.setText(document.getElementById('dashboardUpcoming'), String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length));
-                    TrainingApp.setText(document.getElementById('dashboardActive'), String(trainings.filter((training) => training.status === 'bezig').length));
-                    TrainingApp.setText(document.getElementById('dashboardDiscord'), String(trainings.filter((training) => training.van_discord).length));
-                    TrainingApp.fillElement(document.getElementById('dashboardTrainingsTable'), TrainingApp.renderTableRows([...trainings].reverse().slice(0, 6)));
-                } catch (error) {
-                    console.error(error);
-                    TrainingApp.showToast('Kon het dashboard niet laden.', 'error');
+            
+            function updateAuthButton() {
+                const user = window.netlifyIdentity.currentUser();
+                
+                if (user) {
+                    authText.textContent = 'Uitloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.logout();
+                        window.location.href = '/';
+                    };
+                } else {
+                    authText.textContent = 'Inloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.location.href = '/admin/login.html';
+                    };
                 }
             }
-
-            function openDashboardForUser(user) {
-                loginGate.classList.add('hidden');
-                dashboardContent.classList.remove('hidden');
-                TrainingApp.setText(document.getElementById('adminEmail'), user?.email || 'admin');
+            
+            function showLoginRequired() {
+                if (loginGate) loginGate.classList.remove('hidden');
+                if (dashboardContent) dashboardContent.classList.add('hidden');
+            }
+            
+            function showDashboard(user) {
+                if (loginGate) loginGate.classList.add('hidden');
+                if (dashboardContent) dashboardContent.classList.remove('hidden');
+                if (user && document.getElementById('adminEmail')) {
+                    document.getElementById('adminEmail').textContent = user.email;
+                }
                 loadDashboard();
             }
-
-            function showLoginGate() {
-                dashboardContent.classList.add('hidden');
-                loginGate.classList.remove('hidden');
+            
+            // Check login status
+            const user = window.netlifyIdentity.currentUser();
+            if (user) {
+                showDashboard(user);
+            } else {
+                showLoginRequired();
             }
-
-            refreshButton.addEventListener('click', loadDashboard);
-
-            if (!window.netlifyIdentity) {
-                showLoginGate();
-                return;
-            }
-
-            window.netlifyIdentity.on('init', (user) => {
-                if (user) {
-                    openDashboardForUser(user);
-                } else {
-                    showLoginGate();
-                }
+            
+            updateAuthButton();
+            
+            window.netlifyIdentity.on('init', function(user) {
+                updateAuthButton();
+                if (user) showDashboard(user);
+                else showLoginRequired();
             });
+            
+            window.netlifyIdentity.on('login', function(user) {
+                updateAuthButton();
+                showDashboard(user);
+            });
+            
+            window.netlifyIdentity.on('logout', function() {
+                updateAuthButton();
+                showLoginRequired();
+            });
+        })();
 
-            window.netlifyIdentity.on('login', openDashboardForUser);
-            window.netlifyIdentity.on('logout', showLoginGate);
-
-            const currentUser = window.netlifyIdentity.currentUser?.();
-            if (currentUser) {
-                openDashboardForUser(currentUser);
+        // ============================================
+        // API CONFIGURATIE
+        // ============================================
+        const API_URL = '/.netlify/functions/api';
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        
+        function formatDateLabel(datum, tijd) {
+            if (!datum) return 'Datum onbekend';
+            return `${datum} om ${tijd || '??:??'}`;
+        }
+        
+        function getStatusMeta(status) {
+            const statusMap = {
+                'aangekondigd': { label: 'Aangekondigd', icon: 'fa-bullhorn', pillClass: 'pill-status-aangekondigd' },
+                'inloop': { label: 'Inloop', icon: 'fa-door-open', pillClass: 'pill-status-inloop' },
+                'bezig': { label: 'Bezig', icon: 'fa-bolt', pillClass: 'pill-status-bezig' },
+                'afgerond': { label: 'Afgerond', icon: 'fa-check-circle', pillClass: 'pill-status-afgerond' },
+                'geannuleerd': { label: 'Geannuleerd', icon: 'fa-ban', pillClass: 'pill-status-geannuleerd' },
+                'uitgesteld': { label: 'Uitgesteld', icon: 'fa-clock', pillClass: 'pill-status-uitgesteld' }
+            };
+            return statusMap[status] || statusMap['aangekondigd'];
+        }
+        
+        function getServiceMeta(dienst) {
+            const serviceMap = {
+                'lokale_politie': { label: '🚓 Lokale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
+                'federale_politie': { label: '⭐ Federale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
+                'militaire_politie': { label: '⚔️ Militaire Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
+                'ambulance': { label: '🚑 Ambulance', icon: 'fa-truck-medical', pillClass: 'pill-service-ambulance' },
+                'brandweer': { label: '🔥 Brandweer', icon: 'fa-fire-extinguisher', pillClass: 'pill-service-brandweer' }
+            };
+            return serviceMap[dienst] || serviceMap['lokale_politie'];
+        }
+        
+        function renderTableRows(trainings) {
+            if (!trainings.length) {
+                return `<tr><td colspan="8"><div class="empty-state">Geen trainingen gevonden</div></td></tr>`;
             }
-
-            window.setInterval(() => {
-                if (!dashboardContent.classList.contains('hidden')) {
-                    loadDashboard();
+            
+            return trainings.map(training => {
+                const status = getStatusMeta(training.status);
+                const service = getServiceMeta(training.dienst);
+                const deelnemers = Array.isArray(training.aangemeld) ? training.aangemeld.length : (training.aangemeldCount || 0);
+                
+                return `
+                    <tr>
+                        <td><code>${escapeHtml(training.id)}</code></td>
+                        <td><strong>${escapeHtml(training.onderwerp || 'Training')}</strong>${training.notitie ? `<div class="table-note">${escapeHtml(training.notitie.substring(0, 50))}</div>` : ''}</td>
+                        <td><span class="pill ${service.pillClass}">${service.label}</span></td>
+                        <td>${escapeHtml(formatDateLabel(training.datum, training.tijd))}</td>
+                        <td>${escapeHtml(training.trainer || '-')}</td>
+                        <td><span class="pill ${status.pillClass}">${training.status_text || status.label}</span></td>
+                        <td>${deelnemers}/${training.maxDeelnemers || '-'}</td>
+                        <td>${training.van_discord ? '<i class="fa-brands fa-discord"></i> Discord' : '<i class="fa-solid fa-globe"></i> Web'}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        async function loadDashboard() {
+            try {
+                const response = await fetch(API_URL);
+                const trainings = await response.json();
+                const trainingsArray = Array.isArray(trainings) ? trainings : [];
+                
+                document.getElementById('dashboardTotal').textContent = trainingsArray.length;
+                document.getElementById('dashboardUpcoming').textContent = trainingsArray.filter(t => t.status === 'aangekondigd' || t.status === 'inloop').length;
+                document.getElementById('dashboardActive').textContent = trainingsArray.filter(t => t.status === 'bezig').length;
+                document.getElementById('dashboardDiscord').textContent = trainingsArray.filter(t => t.van_discord).length;
+                
+                const tableBody = document.getElementById('dashboardTrainingsTable');
+                if (trainingsArray.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="8"><div class="empty-state">Geen trainingen gevonden</div></td></tr>`;
+                } else {
+                    tableBody.innerHTML = renderTableRows([...trainingsArray].reverse().slice(0, 6));
                 }
-            }, 45000);
-        });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        
+        document.getElementById('refreshDashboardButton').addEventListener('click', loadDashboard);
     </script>
 </body>
 </html>
