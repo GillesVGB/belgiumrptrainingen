@@ -11,6 +11,37 @@
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script src="/js/main.js" defer></script>
+    <style>
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        .field-full {
+            grid-column: span 2;
+        }
+        .input, .select, .textarea {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 1rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+        }
+        .textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .field-full {
+                grid-column: span 1;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="page-shell">
@@ -314,40 +345,83 @@
     </div>
 
     <script>
-        // NETLIFY AUTH
+        // NETLIFY AUTH - LOGIN CHECK VOOR BEHEER
         (function() {
-            if (!window.netlifyIdentity) return;
+            // Auth link in navbar updaten
             const authLink = document.getElementById('authLink');
             const authText = document.getElementById('authText');
             
-            function updateAuth() {
+            function updateAuthButton() {
+                if (!window.netlifyIdentity) return;
                 const user = window.netlifyIdentity.currentUser();
                 if (user) {
-                    authText.textContent = 'Uitloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.logout();
-                        window.location.href = '/';
-                    };
+                    if (authText) authText.textContent = 'Uitloggen';
+                    if (authLink) {
+                        authLink.onclick = function(e) {
+                            e.preventDefault();
+                            window.netlifyIdentity.logout();
+                            window.location.href = '/';
+                        };
+                    }
                 } else {
-                    authText.textContent = 'Inloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.open();
-                    };
+                    if (authText) authText.textContent = 'Inloggen';
+                    if (authLink) {
+                        authLink.onclick = function(e) {
+                            e.preventDefault();
+                            window.netlifyIdentity.open();
+                        };
+                    }
                 }
             }
             
-            window.netlifyIdentity.on('init', updateAuth);
-            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.reload(); });
-            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
-            updateAuth();
+            // Content tonen/verbergen op basis van login status
+            const loginGate = document.getElementById('manageLoginGate');
+            const manageContent = document.getElementById('manageContent');
+            
+            function showLoginRequired() {
+                if (loginGate) loginGate.classList.remove('hidden');
+                if (manageContent) manageContent.classList.add('hidden');
+            }
+            
+            function showManageContent() {
+                if (loginGate) loginGate.classList.add('hidden');
+                if (manageContent) manageContent.classList.remove('hidden');
+                if (typeof loadManageData === 'function') loadManageData();
+            }
+            
+            if (!window.netlifyIdentity) {
+                showLoginRequired();
+                return;
+            }
+            
+            const user = window.netlifyIdentity.currentUser();
+            if (user) {
+                showManageContent();
+            } else {
+                showLoginRequired();
+            }
+            
+            window.netlifyIdentity.on('init', (user) => {
+                updateAuthButton();
+                if (user) showManageContent();
+                else showLoginRequired();
+            });
+            
+            window.netlifyIdentity.on('login', () => {
+                updateAuthButton();
+                showManageContent();
+            });
+            
+            window.netlifyIdentity.on('logout', () => {
+                updateAuthButton();
+                showLoginRequired();
+            });
+            
+            updateAuthButton();
         })();
 
         // BEHEER FUNCTIES
         document.addEventListener('DOMContentLoaded', () => {
-            const loginGate = document.getElementById('manageLoginGate');
-            const manageContent = document.getElementById('manageContent');
             const trainingForm = document.getElementById('trainingForm');
             const gameStatusForm = document.getElementById('gameStatusForm');
             const manageTable = document.getElementById('manageTrainingsTable');
@@ -540,49 +614,29 @@
                 }
             }
 
-            manageSearch.addEventListener('input', renderManageTable);
-            manageStatusFilter.addEventListener('change', renderManageTable);
-            trainingForm.addEventListener('submit', saveTraining);
-            gameStatusForm.addEventListener('submit', publishGameStatus);
-            document.getElementById('resetTrainingButton').addEventListener('click', resetTrainingForm);
+            if (manageSearch) manageSearch.addEventListener('input', renderManageTable);
+            if (manageStatusFilter) manageStatusFilter.addEventListener('change', renderManageTable);
+            if (trainingForm) trainingForm.addEventListener('submit', saveTraining);
+            if (gameStatusForm) gameStatusForm.addEventListener('submit', publishGameStatus);
+            
+            const resetBtn = document.getElementById('resetTrainingButton');
+            if (resetBtn) resetBtn.addEventListener('click', resetTrainingForm);
 
-            manageTable.addEventListener('click', (event) => {
-                const editButton = event.target.closest('[data-edit-id]');
-                const deleteButton = event.target.closest('[data-delete-id]');
+            if (manageTable) {
+                manageTable.addEventListener('click', (event) => {
+                    const editButton = event.target.closest('[data-edit-id]');
+                    const deleteButton = event.target.closest('[data-delete-id]');
 
-                if (editButton) {
-                    const training = trainings.find((entry) => entry.id === editButton.dataset.editId);
-                    if (training) populateTrainingForm(training);
-                }
-                if (deleteButton) deleteTraining(deleteButton.dataset.deleteId);
-            });
-
-            function openManageView() {
-                loginGate.classList.add('hidden');
-                manageContent.classList.remove('hidden');
-                resetTrainingForm();
-                loadManageData();
+                    if (editButton) {
+                        const training = trainings.find((entry) => entry.id === editButton.dataset.editId);
+                        if (training) populateTrainingForm(training);
+                    }
+                    if (deleteButton) deleteTraining(deleteButton.dataset.deleteId);
+                });
             }
-
-            function showLoginGate() {
-                manageContent.classList.add('hidden');
-                loginGate.classList.remove('hidden');
-            }
-
-            if (!window.netlifyIdentity) {
-                showLoginGate();
-                return;
-            }
-
-            const currentUser = window.netlifyIdentity.currentUser();
-            if (currentUser) {
-                openManageView();
-            } else {
-                showLoginGate();
-            }
-
-            window.netlifyIdentity.on('login', openManageView);
-            window.netlifyIdentity.on('logout', showLoginGate);
+            
+            // Maak loadManageData globaal beschikbaar
+            window.loadManageData = loadManageData;
         });
     </script>
 </body>

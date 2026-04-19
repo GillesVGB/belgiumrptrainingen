@@ -3,170 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | Belgium Roleplay</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Admin Login - Belgium Roleplay 2026</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <script src="/js/main.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .login-container {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 2rem;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            z-index: 1;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1a237e 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(26, 35, 126, 0.5);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        .status {
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .status.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            display: block;
+        }
+        
+        .status.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            display: block;
+        }
+        
+        .status.info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            display: block;
+        }
+        
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+        
+        .feature i {
+            color: #10b981;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 1rem;
+                padding: 2rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .features {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="page-shell">
-        <header class="site-header">
-            <div class="container">
-                <nav class="site-nav">
-                    <a class="brand" href="/">
-                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
-                        <span class="brand-copy">
-                            <strong>Belgium Roleplay</strong>
-                            <span>Admin Center</span>
-                        </span>
-                    </a>
-
-                    <div class="nav-group">
-                        <a class="nav-link" href="/trainingen.html">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            Trainingen
-                        </a>
-                        <a class="nav-link" href="/admin/dashboard.html">
-                            <i class="fa-solid fa-user-shield"></i>
-                            Admin
-                        </a>
-                        <a class="auth-link" href="#" id="authLink">
-                            <i class="fa-solid fa-user-shield"></i>
-                            <span id="authText">Inloggen</span>
-                        </a>
-                    </div>
-                </nav>
+    <div class="login-container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <h1>Belgium Roleplay 2026</h1>
+        <div class="subtitle">Admin Portal</div>
+        
+        <button id="loginButton" class="login-btn">
+            <i class="fab fa-netlify"></i> Inloggen met Netlify
+        </button>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-check-circle"></i>
+                <span>Trainingen beheren</span>
             </div>
-        </header>
-
-        <main class="main-content">
-            <div class="container">
-                <section class="hero" style="padding-top: 4rem;">
-                    <div class="hero-grid">
-                        <div class="hero-copy">
-                            <div class="eyebrow">
-                                <i class="fa-solid fa-user-shield"></i>
-                                Admin login
-                            </div>
-                            <h1>Toegang tot de commandocentrale</h1>
-                            <p class="lead">
-                                Log in om trainingen te beheren, statussen aan te passen en game changes via webhook embeds naar Discord te sturen.
-                            </p>
-
-                            <div class="signal-strip">
-                                <div class="signal-card">
-                                    <span>Trainingbeheer</span>
-                                    <strong>Toevoegen, aanpassen, verwijderen</strong>
-                                </div>
-                                <div class="signal-card">
-                                    <span>Game status</span>
-                                    <strong>Webhook embeds uitsturen</strong>
-                                </div>
-                                <div class="signal-card">
-                                    <span>Publieke sync</span>
-                                    <strong>Site direct bijgewerkt</strong>
-                                </div>
-                            </div>
-                        </div>
-
-                        <aside class="form-shell" style="align-self: center;">
-                            <div class="section-heading">
-                                <div>
-                                    <h2>Inloggen</h2>
-                                    <p class="section-copy">Gebruik Netlify Identity om het admingedeelte te openen.</p>
-                                </div>
-                            </div>
-
-                            <div class="cta-row" style="margin-top: 0;">
-                                <button class="button button-primary" id="loginButton" type="button">
-                                    <i class="fa-solid fa-right-to-bracket"></i>
-                                    Open login venster
-                                </button>
-                                <a class="button button-ghost" href="/">
-                                    <i class="fa-solid fa-arrow-left"></i>
-                                    Terug naar site
-                                </a>
-                            </div>
-
-                            <div class="inline-note" id="loginStatus" style="margin-top: 1rem;">
-                                Klaar om in te loggen.
-                            </div>
-                        </aside>
-                    </div>
-                </section>
+            <div class="feature">
+                <i class="fas fa-check-circle"></i>
+                <span>Status wijzigen</span>
             </div>
-        </main>
-
-        <footer class="footer">
-            <div class="container footer__inner">
-                <span>Admin portal</span>
-                <span>Veilige toegang tot trainingbeheer en game-statuspublicatie.</span>
+            <div class="feature">
+                <i class="fas fa-check-circle"></i>
+                <span>Real-time sync</span>
             </div>
-        </footer>
+        </div>
     </div>
-
+    
     <script>
-        // NETLIFY AUTH
+        // SIMPELE WERKENDE LOGIN - Alleen login functionaliteit
         (function() {
-            if (!window.netlifyIdentity) return;
-            const authLink = document.getElementById('authLink');
-            const authText = document.getElementById('authText');
+            const loginBtn = document.getElementById('loginButton');
+            const statusDiv = document.getElementById('status');
             
-            function updateAuth() {
-                const user = window.netlifyIdentity.currentUser();
-                if (user) {
-                    authText.textContent = 'Uitloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.logout();
-                        window.location.href = '/';
-                    };
-                } else {
-                    authText.textContent = 'Inloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.open();
-                    };
-                }
+            function showStatus(message, type) {
+                statusDiv.textContent = message;
+                statusDiv.className = `status ${type}`;
+                setTimeout(() => {
+                    if (statusDiv.className === `status ${type}`) {
+                        statusDiv.style.display = 'none';
+                        statusDiv.className = 'status';
+                    }
+                }, 3000);
             }
             
-            window.netlifyIdentity.on('init', updateAuth);
-            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.href = '/admin/dashboard.html'; });
-            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
-            updateAuth();
-        })();
-
-        // LOGIN FUNCTIONALITEIT
-        document.addEventListener('DOMContentLoaded', () => {
-            const loginButton = document.getElementById('loginButton');
-            const loginStatus = document.getElementById('loginStatus');
-
-            function setStatus(message) {
-                loginStatus.textContent = message;
-            }
-
             if (!window.netlifyIdentity) {
-                setStatus('Netlify Identity kon niet geladen worden.');
+                showStatus('❌ Netlify Identity niet geladen. Vernieuw de pagina.', 'error');
                 return;
             }
-
-            loginButton.addEventListener('click', () => {
-                setStatus('Login venster openen...');
-                window.netlifyIdentity.open();
-            });
-
+            
+            // Check of al ingelogd
             const currentUser = window.netlifyIdentity.currentUser();
             if (currentUser) {
-                setStatus('Je bent al ingelogd. Doorsturen naar admin...');
+                showStatus('✅ Je bent al ingelogd! Doorverwijzen...', 'success');
                 setTimeout(() => {
-                    window.location.href = '/admin/dashboard.html';
-                }, 700);
+                    window.location.href = '/admin/beheer-trainingen.html';
+                }, 1000);
+                return;
             }
-        });
+            
+            // Login button click
+            loginBtn.onclick = () => {
+                showStatus('🔄 Bezig met inloggen...', 'info');
+                window.netlifyIdentity.open();
+            };
+            
+            // Login success
+            window.netlifyIdentity.on('login', () => {
+                showStatus('✅ Login succesvol! Doorverwijzen...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/admin/beheer-trainingen.html';
+                }, 1000);
+            });
+            
+            // Login error
+            window.netlifyIdentity.on('error', (err) => {
+                console.error('Login error:', err);
+                showStatus('❌ Login mislukt. Probeer opnieuw.', 'error');
+            });
+        })();
     </script>
 </body>
 </html>

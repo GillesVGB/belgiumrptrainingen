@@ -188,40 +188,86 @@
     </div>
 
     <script>
-        // NETLIFY AUTH
+        // NETLIFY AUTH - LOGIN CHECK VOOR DASHBOARD
         (function() {
-            if (!window.netlifyIdentity) return;
+            // Auth link in navbar updaten
             const authLink = document.getElementById('authLink');
             const authText = document.getElementById('authText');
             
-            function updateAuth() {
+            function updateAuthButton() {
+                if (!window.netlifyIdentity) return;
                 const user = window.netlifyIdentity.currentUser();
                 if (user) {
-                    authText.textContent = 'Uitloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.logout();
-                        window.location.href = '/';
-                    };
+                    if (authText) authText.textContent = 'Uitloggen';
+                    if (authLink) {
+                        authLink.onclick = function(e) {
+                            e.preventDefault();
+                            window.netlifyIdentity.logout();
+                            window.location.href = '/';
+                        };
+                    }
                 } else {
-                    authText.textContent = 'Inloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.open();
-                    };
+                    if (authText) authText.textContent = 'Inloggen';
+                    if (authLink) {
+                        authLink.onclick = function(e) {
+                            e.preventDefault();
+                            window.netlifyIdentity.open();
+                        };
+                    }
                 }
             }
             
-            window.netlifyIdentity.on('init', updateAuth);
-            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.reload(); });
-            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
-            updateAuth();
-        })();
-
-        // DASHBOARD FUNCTIE
-        document.addEventListener('DOMContentLoaded', () => {
+            // Content tonen/verbergen op basis van login status
             const loginGate = document.getElementById('loginGate');
             const dashboardContent = document.getElementById('dashboardContent');
+            
+            function showLoginRequired() {
+                if (loginGate) loginGate.classList.remove('hidden');
+                if (dashboardContent) dashboardContent.classList.add('hidden');
+            }
+            
+            function showDashboard(user) {
+                if (loginGate) loginGate.classList.add('hidden');
+                if (dashboardContent) dashboardContent.classList.remove('hidden');
+                if (user && document.getElementById('adminEmail')) {
+                    document.getElementById('adminEmail').textContent = user.email;
+                }
+                if (typeof loadDashboard === 'function') loadDashboard();
+            }
+            
+            if (!window.netlifyIdentity) {
+                showLoginRequired();
+                return;
+            }
+            
+            const user = window.netlifyIdentity.currentUser();
+            if (user) {
+                showDashboard(user);
+            } else {
+                showLoginRequired();
+            }
+            
+            window.netlifyIdentity.on('init', (user) => {
+                updateAuthButton();
+                if (user) showDashboard(user);
+                else showLoginRequired();
+            });
+            
+            window.netlifyIdentity.on('login', (user) => {
+                updateAuthButton();
+                showDashboard(user);
+            });
+            
+            window.netlifyIdentity.on('logout', () => {
+                updateAuthButton();
+                showLoginRequired();
+            });
+            
+            updateAuthButton();
+        })();
+
+        // DASHBOARD FUNCTIES
+        document.addEventListener('DOMContentLoaded', () => {
             const refreshButton = document.getElementById('refreshDashboardButton');
 
             async function loadDashboard() {
@@ -241,40 +287,15 @@
                 }
             }
 
-            function openDashboardForUser(user) {
-                loginGate.classList.add('hidden');
-                dashboardContent.classList.remove('hidden');
-                document.getElementById('adminEmail').textContent = user?.email || 'admin';
+            if (refreshButton) refreshButton.addEventListener('click', loadDashboard);
+            
+            // Maak loadDashboard globaal beschikbaar
+            window.loadDashboard = loadDashboard;
+            
+            // Initial load als dashboard zichtbaar is
+            if (document.getElementById('dashboardContent') && !document.getElementById('dashboardContent').classList.contains('hidden')) {
                 loadDashboard();
             }
-
-            function showLoginGate() {
-                dashboardContent.classList.add('hidden');
-                loginGate.classList.remove('hidden');
-            }
-
-            refreshButton.addEventListener('click', loadDashboard);
-
-            if (!window.netlifyIdentity) {
-                showLoginGate();
-                return;
-            }
-
-            const currentUser = window.netlifyIdentity.currentUser();
-            if (currentUser) {
-                openDashboardForUser(currentUser);
-            } else {
-                showLoginGate();
-            }
-
-            window.netlifyIdentity.on('login', (user) => openDashboardForUser(user));
-            window.netlifyIdentity.on('logout', showLoginGate);
-
-            setInterval(() => {
-                if (!dashboardContent.classList.contains('hidden')) {
-                    loadDashboard();
-                }
-            }, 45000);
         });
     </script>
 </body>

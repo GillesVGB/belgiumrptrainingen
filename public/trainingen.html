@@ -11,6 +11,96 @@
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script src="/js/main.js" defer></script>
+    <style>
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 1.5rem;
+        }
+        .training-card {
+            padding: 1.5rem;
+            background: var(--bg-surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .training-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border-color: var(--primary);
+        }
+        .training-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0.75rem 0 0.5rem;
+            line-height: 1.3;
+        }
+        .training-card__top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: var(--bg-elevated);
+            padding: 0.5rem 0.75rem;
+            border-radius: 12px;
+        }
+        .inline-note {
+            background: rgba(88, 101, 242, 0.1);
+            padding: 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 0.75rem 0;
+        }
+        .badge-muted {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .toolbar-grow {
+            flex: 1;
+            min-width: 200px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="page-shell">
@@ -135,7 +225,7 @@
     </div>
 
     <script>
-        // NETLIFY AUTH
+        // NETLIFY AUTH - Alleen auth link updaten
         (function() {
             if (!window.netlifyIdentity) return;
             const authLink = document.getElementById('authLink');
