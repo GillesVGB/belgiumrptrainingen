@@ -1,12 +1,5 @@
 // netlify/functions/api.js
 let trainingen = [];
-let gameStatus = {
-    state: 'operational',
-    state_label: 'Operationeel',
-    title: 'Server Operationeel',
-    message: 'De server draait normaal.',
-    lastUpdated: new Date().toISOString()
-};
 
 exports.handler = async (event) => {
     const headers = {
@@ -16,101 +9,96 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json'
     };
     
+    // OPTIONS preflight
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 204, headers, body: '' };
     }
     
-    // GET - Haal ALLEEN trainingen op als DIRECTE ARRAY
+    // GET - Haal alle trainingen op
     if (event.httpMethod === 'GET') {
-        // Filter alleen echte trainingen (geen sync objecten)
-        const echteTrainingen = trainingen.filter(t => t && !t.action && t.onderwerp && t.id);
+        // Filter alleen geldige trainingen
+        const geldigeTrainingen = trainingen.filter(t => t && t.id && t.onderwerp);
         
-        // 🔴 DIRECTE ARRAY, geen object!
+        console.log(`GET: ${geldigeTrainingen.length} trainingen teruggeven`);
+        
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify(echteTrainingen)
+            body: JSON.stringify(geldigeTrainingen)
         };
     }
     
     // POST - Nieuwe training of sync
     if (event.httpMethod === 'POST') {
-        const body = JSON.parse(event.body);
-        
-        // Sync van Discord bot
-        if (body.action === 'sync' && body.trainingen) {
-            // Alleen echte trainingen opslaan
-            trainingen = body.trainingen.filter(t => t && !t.action && t.onderwerp && t.id);
-            console.log(`✅ Synced ${trainingen.length} trainingen`);
+        try {
+            const body = JSON.parse(event.body);
+            console.log('POST ontvangen:', body);
+            
+            // Sync van Discord bot
+            if (body.action === 'sync' && body.trainingen) {
+                trainingen = body.trainingen.filter(t => t && t.id && t.onderwerp);
+                console.log(`✅ Synced ${trainingen.length} trainingen`);
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({ success: true, count: trainingen.length })
+                };
+            }
+            
+            // Nieuwe training
+            if (body.onderwerp) {
+                if (!body.id) body.id = Date.now().toString();
+                trainingen.push(body);
+                console.log(`✅ Training toegevoegd: ${body.onderwerp}`);
+                return {
+                    statusCode: 201,
+                    headers,
+                    body: JSON.stringify(body)
+                };
+            }
+            
             return {
-                statusCode: 200,
+                statusCode: 400,
                 headers,
-                body: JSON.stringify(trainingen)  // ← Ook array terug
+                body: JSON.stringify({ error: 'Invalid data' })
+            };
+        } catch (error) {
+            console.error('POST error:', error);
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ error: error.message })
             };
         }
-        
-        // Nieuwe training
-        if (body.onderwerp && !body.action) {
-            if (!body.id) body.id = Date.now().toString();
-            trainingen.push(body);
-            console.log(`✅ Training toegevoegd: ${body.onderwerp}`);
-            return {
-                statusCode: 201,
-                headers,
-                body: JSON.stringify(body)
-            };
-        }
-        
-        // Game status update
-        if (body.action === 'publish_game_status') {
-            gameStatus = {
-                state: body.state,
-                state_label: body.state === 'operational' ? 'Operationeel' : 
-                            body.state === 'alert' ? 'Verhoogde paraatheid' :
-                            body.state === 'maintenance' ? 'Onderhoud' : 'Offline',
-                title: body.title,
-                message: body.message,
-                serverName: body.serverName,
-                playersOnline: body.playersOnline,
-                maxPlayers: body.maxPlayers,
-                joinCode: body.joinCode,
-                imageUrl: body.imageUrl,
-                lastUpdated: new Date().toISOString(),
-                updatedBy: body.updatedBy
-            };
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({ success: true, gameStatus })
-            };
-        }
-        
-        return {
-            statusCode: 400,
-            headers,
-            body: JSON.stringify({ error: 'Invalid training data' })
-        };
     }
     
     // PUT - Update training
     if (event.httpMethod === 'PUT') {
-        const body = JSON.parse(event.body);
-        const index = trainingen.findIndex(t => t.id === body.id);
-        
-        if (index !== -1) {
-            trainingen[index] = { ...trainingen[index], ...body };
+        try {
+            const body = JSON.parse(event.body);
+            const index = trainingen.findIndex(t => t.id === body.id);
+            
+            if (index !== -1) {
+                trainingen[index] = { ...trainingen[index], ...body };
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({ success: true, training: trainingen[index] })
+                };
+            }
+            
             return {
-                statusCode: 200,
+                statusCode: 404,
                 headers,
-                body: JSON.stringify({ success: true, training: trainingen[index] })
+                body: JSON.stringify({ error: 'Training not found' })
+            };
+        } catch (error) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ error: error.message })
             };
         }
-        
-        return {
-            statusCode: 404,
-            headers,
-            body: JSON.stringify({ error: 'Training not found' })
-        };
     }
     
     // DELETE - Verwijder training
@@ -118,6 +106,7 @@ exports.handler = async (event) => {
         const id = event.queryStringParameters?.id;
         if (id) {
             trainingen = trainingen.filter(t => t.id !== id);
+            console.log(`✅ Training verwijderd: ${id}`);
             return {
                 statusCode: 200,
                 headers,
