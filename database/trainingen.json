@@ -15,5 +15,41 @@
     "van_discord": true,
     "toegevoegd_door": "kwniwie",
     "aangemaakt": "2026-04-19T21:19:12.489Z"
+  },
+  {
+    "id": "1776634745241",
+    "dienst": "lokale_politie",
+    "dienst_label": "🚓 Lokale Politie",
+    "datum": "aa",
+    "tijd": "aa",
+    "onderwerp": "aa",
+    "trainer": "aa1",
+    "host": "kwniwie",
+    "hostId": "960090714950225970",
+    "maxDeelnemers": 1,
+    "status": "aangekondigd",
+    "status_text": "📢 Aangekondigd",
+    "aangemeld": [],
+    "van_discord": true,
+    "toegevoegd_door": "kwniwie",
+    "aangemaakt": "2026-04-19T21:39:05.241Z"
+  },
+  {
+    "id": "1776635136797",
+    "dienst": "lokale_politie",
+    "dienst_label": "🚓 Lokale Politie",
+    "datum": "20-04-2026",
+    "tijd": "19:00",
+    "onderwerp": "\"Test na fix\"",
+    "trainer": "\"Admin\"",
+    "host": "kwniwie",
+    "hostId": "960090714950225970",
+    "maxDeelnemers": 5,
+    "status": "bezig",
+    "status_text": "🔄 Bezig",
+    "aangemeld": [],
+    "van_discord": true,
+    "toegevoegd_door": "kwniwie",
+    "aangemaakt": "2026-04-19T21:45:36.797Z"
   }
 ]

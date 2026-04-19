@@ -8,7 +8,7 @@ let gameStatus = {
     lastUpdated: new Date().toISOString()
 };
 
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -16,27 +16,52 @@ exports.handler = async (event, context) => {
         'Content-Type': 'application/json'
     };
     
-    // Handle preflight
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 204, headers, body: '' };
     }
     
-    // GET: Haal alle trainingen en status op
+    // GET - Haal ALLEEN trainingen op als DIRECTE ARRAY
     if (event.httpMethod === 'GET') {
+        // Filter alleen echte trainingen (geen sync objecten)
+        const echteTrainingen = trainingen.filter(t => t && !t.action && t.onderwerp && t.id);
+        
+        // 🔴 DIRECTE ARRAY, geen object!
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify({
-                trainings: trainingen,
-                gameStatus: gameStatus
-            })
+            body: JSON.stringify(echteTrainingen)
         };
     }
     
-    // POST: Nieuwe training of game status
+    // POST - Nieuwe training of sync
     if (event.httpMethod === 'POST') {
         const body = JSON.parse(event.body);
         
+        // Sync van Discord bot
+        if (body.action === 'sync' && body.trainingen) {
+            // Alleen echte trainingen opslaan
+            trainingen = body.trainingen.filter(t => t && !t.action && t.onderwerp && t.id);
+            console.log(`✅ Synced ${trainingen.length} trainingen`);
+            return {
+                statusCode: 200,
+                headers,
+                body: JSON.stringify(trainingen)  // ← Ook array terug
+            };
+        }
+        
+        // Nieuwe training
+        if (body.onderwerp && !body.action) {
+            if (!body.id) body.id = Date.now().toString();
+            trainingen.push(body);
+            console.log(`✅ Training toegevoegd: ${body.onderwerp}`);
+            return {
+                statusCode: 201,
+                headers,
+                body: JSON.stringify(body)
+            };
+        }
+        
+        // Game status update
         if (body.action === 'publish_game_status') {
             gameStatus = {
                 state: body.state,
@@ -53,32 +78,21 @@ exports.handler = async (event, context) => {
                 lastUpdated: new Date().toISOString(),
                 updatedBy: body.updatedBy
             };
-            
             return {
                 statusCode: 200,
                 headers,
-                body: JSON.stringify({ 
-                    success: true, 
-                    gameStatus: gameStatus,
-                    webhookSent: false 
-                })
+                body: JSON.stringify({ success: true, gameStatus })
             };
         }
         
-        // Nieuwe training
-        if (!body.id) {
-            body.id = Date.now().toString();
-        }
-        trainingen.push(body);
-        
         return {
-            statusCode: 201,
+            statusCode: 400,
             headers,
-            body: JSON.stringify({ success: true, training: body })
+            body: JSON.stringify({ error: 'Invalid training data' })
         };
     }
     
-    // PUT: Update training
+    // PUT - Update training
     if (event.httpMethod === 'PUT') {
         const body = JSON.parse(event.body);
         const index = trainingen.findIndex(t => t.id === body.id);
@@ -99,7 +113,7 @@ exports.handler = async (event, context) => {
         };
     }
     
-    // DELETE: Verwijder training
+    // DELETE - Verwijder training
     if (event.httpMethod === 'DELETE') {
         const id = event.queryStringParameters?.id;
         if (id) {
