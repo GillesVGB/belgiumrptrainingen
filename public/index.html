@@ -34,9 +34,9 @@
                             <i class="fa-solid fa-user-shield"></i>
                             Admin
                         </a>
-                        <a class="auth-link" href="/admin/login.html" data-auth-toggle>
+                        <a class="auth-link" href="#" id="authLink">
                             <i class="fa-solid fa-user-shield"></i>
-                            Inloggen
+                            <span id="authText">Inloggen</span>
                         </a>
                     </div>
                 </nav>
@@ -137,6 +137,37 @@
     </div>
 
     <script>
+        // NETLIFY AUTH - Login/Logout fix
+        (function() {
+            if (!window.netlifyIdentity) return;
+            const authLink = document.getElementById('authLink');
+            const authText = document.getElementById('authText');
+            
+            function updateAuth() {
+                const user = window.netlifyIdentity.currentUser();
+                if (user) {
+                    authText.textContent = 'Uitloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.logout();
+                        window.location.href = '/';
+                    };
+                } else {
+                    authText.textContent = 'Inloggen';
+                    authLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.netlifyIdentity.open();
+                    };
+                }
+            }
+            
+            window.netlifyIdentity.on('init', updateAuth);
+            window.netlifyIdentity.on('login', function() { updateAuth(); window.location.reload(); });
+            window.netlifyIdentity.on('logout', function() { updateAuth(); window.location.reload(); });
+            updateAuth();
+        })();
+
+        // DATA LADEN
         document.addEventListener('DOMContentLoaded', async () => {
             const trainingsGrid = document.getElementById('homeTrainingsGrid');
 
@@ -147,37 +178,28 @@
                     .filter((training) => ['aangekondigd', 'inloop', 'bezig'].includes(training.status))
                     .slice(0, 3);
 
-                TrainingApp.setText(document.getElementById('homeUpcomingCount'), String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length));
-                TrainingApp.setText(document.getElementById('homeActiveCount'), String(trainings.filter((training) => training.status === 'bezig').length));
+                document.getElementById('homeUpcomingCount').textContent = String(trainings.filter((training) => training.status === 'aangekondigd' || training.status === 'inloop').length);
+                document.getElementById('homeActiveCount').textContent = String(trainings.filter((training) => training.status === 'bezig').length);
 
                 if (!relevantTrainings.length) {
-                    TrainingApp.fillElement(
-                        trainingsGrid,
-                        `
-                            <div class="empty-state">
-                                <i class="fa-regular fa-calendar-check"></i>
-                                <p>Er staan momenteel geen komende trainingen ingepland.</p>
-                            </div>
-                        `
-                    );
+                    trainingsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <p>Er staan momenteel geen komende trainingen ingepland.</p>
+                        </div>
+                    `;
                     return;
                 }
 
-                TrainingApp.fillElement(
-                    trainingsGrid,
-                    relevantTrainings.map((training) => TrainingApp.renderTrainingCard(training)).join('')
-                );
+                trainingsGrid.innerHTML = relevantTrainings.map((training) => TrainingApp.renderTrainingCard(training)).join('');
             } catch (error) {
                 console.error(error);
-                TrainingApp.fillElement(
-                    trainingsGrid,
-                    `
-                        <div class="empty-state">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            <p>Kon de trainingen niet laden.</p>
-                        </div>
-                    `
-                );
+                trainingsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <p>Kon de trainingen niet laden.</p>
+                    </div>
+                `;
             }
         });
     </script>
