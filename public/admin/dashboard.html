@@ -16,9 +16,42 @@
             gap: 1rem;
             margin-bottom: 2rem;
         }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .pill-status-aangekondigd { background: rgba(59,130,246,0.2); color: #60a5fa; }
+        .pill-status-inloop { background: rgba(16,185,129,0.2); color: #34d399; }
+        .pill-status-bezig { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .pill-status-afgerond { background: rgba(107,114,128,0.2); color: #9ca3af; }
+        .pill-status-geannuleerd { background: rgba(239,68,68,0.2); color: #f87171; }
+        .pill-status-uitgesteld { background: rgba(139,92,246,0.2); color: #a78bfa; }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #94a3b8;
+        }
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            .data-table {
+                display: block;
+                overflow-x: auto;
             }
         }
     </style>
@@ -51,7 +84,7 @@
                     <div>
                         <div class="eyebrow"><i class="fa-solid fa-user-shield"></i> Dashboard</div>
                         <h1 class="page-title">Controlekamer voor staff</h1>
-                        <p class="page-copy">Welkom, <span id="adminName">admin</span>! Hier zie je live trainingen.</p>
+                        <p class="page-copy">Welkom, <span id="adminNaam">admin</span>! Hier zie je live trainingen.</p>
                     </div>
                     <div class="cta-row">
                         <a class="button button-secondary" href="/admin/beheer-trainingen.html">Beheer trainingen</a>
@@ -72,19 +105,40 @@
                     <div class="table-heading"><h2>Laatste trainingen</h2></div>
                     <div class="table-scroll">
                         <table class="data-table">
-                            <thead><tr><th>ID</th><th>Onderwerp</th><th>Dienst</th><th>Moment</th><th>Trainer</th><th>Status</th><th>Deelnemers</th><th>Bron</th></tr></thead>
-                            <tbody id="trainingsTable"><tr><td colspan="8"><div class="empty-state">Laden...</div></td></tr></tbody>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Onderwerp</th>
+                                    <th>Dienst</th>
+                                    <th>Moment</th>
+                                    <th>Trainer</th>
+                                    <th>Status</th>
+                                    <th>Deelnemers</th>
+                                    <th>Bron</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trainingsTable">
+                                <tr>
+                                    <td colspan="8"><div class="empty-state">Laden...</div></td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </section>
             </div>
         </main>
 
-        <footer class="footer"><div class="container footer__inner"><span>Admin dashboard</span><span>Live overzicht van planning en beheer.</span></div></footer>
+        <footer class="footer">
+            <div class="container footer__inner">
+                <span>Admin dashboard</span>
+                <span>Live overzicht van planning en beheer.</span>
+            </div>
+        </footer>
     </div>
 
     <script>
         const API_URL = '/.netlify/functions/api';
+        const USERS_API_URL = '/.netlify/functions/api-gebruikers';
         
         // Auth check
         async function checkAuth() {
@@ -93,15 +147,37 @@
                 window.location.href = '/admin/login.html';
                 return false;
             }
+            
+            try {
+                const response = await fetch(`${USERS_API_URL}/check`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (!data.valid) {
+                    localStorage.removeItem('adminToken');
+                    window.location.href = '/admin/login.html';
+                    return false;
+                }
+                document.getElementById('adminNaam').textContent = localStorage.getItem('adminNaam') || 'admin';
+            } catch (e) {
+                console.error('Auth check error:', e);
+            }
             return true;
         }
         
         function logout() {
             localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminNaam');
             window.location.href = '/';
         }
         
         document.getElementById('logoutLink').onclick = logout;
+        
+        // Escape HTML functie
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
         
         // Data laden
         async function loadDashboard() {
@@ -121,12 +197,12 @@
                 } else {
                     tbody.innerHTML = trainingsArray.slice(0, 10).map(t => `
                         <tr>
-                            <td><code>${t.id}</code></td>
-                            <td><strong>${t.onderwerp || '-'}</strong></td>
-                            <td>${t.dienst || '-'}</td>
-                            <td>${t.datum || '-'} ${t.tijd || ''}</td>
-                            <td>${t.trainer || '-'}</td>
-                            <td><span class="pill pill-status-${t.status}">${t.status_text || t.status}</span></td>
+                            <td><code>${escapeHtml(t.id)}</code></td>
+                            <td><strong>${escapeHtml(t.onderwerp || '-')}</strong></td>
+                            <td>${escapeHtml(t.dienst || '-')}</td>
+                            <td>${escapeHtml(t.datum || '-')} ${escapeHtml(t.tijd || '')}</td>
+                            <td>${escapeHtml(t.trainer || '-')}</td>
+                            <td><span class="pill pill-status-${escapeHtml(t.status)}">${escapeHtml(t.status_text || t.status)}</span></td>
                             <td>${t.aangemeld?.length || 0}/${t.maxDeelnemers || '-'}</td>
                             <td>${t.van_discord ? '<i class="fa-brands fa-discord"></i> Discord' : 'Web'}</td>
                         </tr>
@@ -134,6 +210,7 @@
                 }
             } catch (error) {
                 console.error(error);
+                document.getElementById('trainingsTable').innerHTML = '<tr><td colspan="8"><div class="empty-state">Fout bij laden</div></td></tr>';
             }
         }
         

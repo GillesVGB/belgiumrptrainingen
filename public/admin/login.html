@@ -8,218 +8,145 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Sora', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
         .login-container {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 2rem;
-            padding: 3rem;
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .login-card {
+            background: rgba(30,41,59,0.7);
+            border-radius: 1rem;
+            padding: 2rem;
             border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
         }
-        
-        .logo {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        
-        h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #1a237e 0%, #10b981 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-        }
-        
-        .subtitle {
-            color: #94a3b8;
-            margin-bottom: 2rem;
-        }
-        
         .input-group {
             margin-bottom: 1rem;
-            text-align: left;
         }
-        
         .input-group label {
             display: block;
+            margin-bottom: 0.5rem;
             color: #94a3b8;
-            font-size: 0.8rem;
-            margin-bottom: 0.25rem;
         }
-        
-        input {
+        .input-group input {
             width: 100%;
-            padding: 0.85rem;
-            border-radius: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
             border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15,23,42,0.8);
             color: white;
-            font-size: 1rem;
         }
-        
-        input:focus {
-            outline: none;
-            border-color: #1a237e;
-        }
-        
         .login-btn {
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #1a237e, #283593);
             color: white;
             border: none;
-            padding: 0.85rem;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 0.5rem;
             cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-            margin-top: 0.5rem;
+            font-weight: 600;
         }
-        
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(26, 35, 126, 0.5);
         }
-        
-        .status {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            font-size: 0.9rem;
-            display: none;
-        }
-        
-        .status.success {
-            background: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        
-        .status.error {
-            background: rgba(239, 68, 68, 0.2);
+        .error {
             color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            margin-top: 1rem;
+            text-align: center;
         }
-        
-        .footer-links {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .footer-links a {
-            color: #64748b;
-            text-decoration: none;
-            font-size: 0.8rem;
-        }
-        
-        .footer-links a:hover {
-            color: #10b981;
+        .success {
+            color: #34d399;
+            margin-top: 1rem;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <i class="fas fa-shield-alt"></i>
-        </div>
-        <h1>Belgium Roleplay</h1>
-        <div class="subtitle">Admin Portal</div>
-        
-        <div class="input-group">
-            <label><i class="fas fa-user"></i> Gebruikersnaam</label>
-            <input type="text" id="username" placeholder="Voer je gebruikersnaam in">
-        </div>
-        
-        <div class="input-group">
-            <label><i class="fas fa-lock"></i> Wachtwoord</label>
-            <input type="password" id="password" placeholder="Voer je wachtwoord in">
-        </div>
-        
-        <button class="login-btn" id="loginBtn">
-            <i class="fas fa-sign-in-alt"></i> Inloggen
-        </button>
-        
-        <div id="status" class="status"></div>
-        
-        <div class="footer-links">
-            <a href="/">Terug naar website</a>
-        </div>
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="container">
+                <nav class="site-nav">
+                    <a class="brand" href="/">
+                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="brand-copy">
+                            <strong>Belgium Roleplay</strong>
+                            <span>Admin Center</span>
+                        </span>
+                    </a>
+                    <div class="nav-group">
+                        <a class="nav-link" href="/trainingen.html">Trainingen</a>
+                        <a class="nav-link" href="/admin/dashboard.html">Admin</a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container login-container">
+                <div class="login-card">
+                    <h1 style="text-align: center; margin-bottom: 1.5rem;">Admin Login</h1>
+                    <div class="input-group">
+                        <label>Gebruikersnaam</label>
+                        <input type="text" id="gebruikersnaam" placeholder="gebruikersnaam">
+                    </div>
+                    <div class="input-group">
+                        <label>Wachtwoord</label>
+                        <input type="password" id="wachtwoord" placeholder="wachtwoord">
+                    </div>
+                    <button class="login-btn" id="loginBtn">Inloggen</button>
+                    <div id="message"></div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container footer__inner">
+                <span>Admin login</span>
+                <span>Belgium Roleplay Training Systeem</span>
+            </div>
+        </footer>
     </div>
-    
+
     <script>
-        const API_URL = '/.netlify/functions/users';
+        const API_URL = '/.netlify/functions/api-gebruikers';
         
         async function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const statusDiv = document.getElementById('status');
+            const gebruikersnaam = document.getElementById('gebruikersnaam').value;
+            const wachtwoord = document.getElementById('wachtwoord').value;
+            const messageDiv = document.getElementById('message');
             
-            if (!username || !password) {
-                statusDiv.textContent = 'Vul gebruikersnaam en wachtwoord in';
-                statusDiv.className = 'status error';
-                statusDiv.style.display = 'block';
+            if (!gebruikersnaam || !wachtwoord) {
+                messageDiv.innerHTML = '<div class="error">Vul gebruikersnaam en wachtwoord in</div>';
                 return;
             }
             
             try {
-                const response = await fetch(API_URL, {
+                const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'login', username, password })
+                    body: JSON.stringify({ gebruikersnaam, wachtwoord })
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
                     localStorage.setItem('adminToken', data.token);
-                    statusDiv.textContent = 'Login succesvol! Doorverwijzen...';
-                    statusDiv.className = 'status success';
-                    statusDiv.style.display = 'block';
+                    localStorage.setItem('adminNaam', data.naam);
+                    messageDiv.innerHTML = '<div class="success">Login succesvol! Doorverwijzen...</div>';
                     setTimeout(() => {
                         window.location.href = '/admin/dashboard.html';
                     }, 1000);
                 } else {
-                    statusDiv.textContent = 'Ongeldige gebruikersnaam of wachtwoord';
-                    statusDiv.className = 'status error';
-                    statusDiv.style.display = 'block';
+                    messageDiv.innerHTML = '<div class="error">Ongeldige gebruikersnaam of wachtwoord</div>';
                 }
             } catch (error) {
-                statusDiv.textContent = 'Fout bij inloggen. Probeer opnieuw.';
-                statusDiv.className = 'status error';
-                statusDiv.style.display = 'block';
+                messageDiv.innerHTML = '<div class="error">Fout bij inloggen</div>';
             }
         }
         
         document.getElementById('loginBtn').onclick = login;
-        document.getElementById('username').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') login();
-        });
-        document.getElementById('password').addEventListener('keypress', (e) => {
+        document.getElementById('wachtwoord').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') login();
         });
         

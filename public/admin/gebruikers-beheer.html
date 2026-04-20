@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gebruikers Beheer | Belgium Roleplay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .users-table th, .users-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .form-card {
+            background: rgba(30,41,59,0.7);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .form-grid input, .form-grid select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(15,23,42,0.8);
+            color: white;
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="container">
+                <nav class="site-nav">
+                    <a class="brand" href="/">
+                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="brand-copy">
+                            <strong>Belgium Roleplay</strong>
+                            <span>Admin Center</span>
+                        </span>
+                    </a>
+                    <div class="nav-group">
+                        <a class="nav-link" href="/trainingen.html">Trainingen</a>
+                        <a class="nav-link" href="/admin/dashboard.html">Dashboard</a>
+                        <a class="nav-link active" href="/admin/gebruikers-beheer.html">Gebruikers</a>
+                        <a class="auth-link" href="#" id="logoutLink">Uitloggen</a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="page-head">
+                    <h1 class="page-title">Gebruikers Beheer</h1>
+                    <p class="page-copy">Bekijk alle gebruikers (toevoegen kan via Discord command /gebruiker-create)</p>
+                </div>
+
+                <div class="form-card">
+                    <h2>Nieuwe gebruiker toevoegen via Discord</h2>
+                    <p>Gebruik het Discord command: <code>/gebruiker-create gebruikersnaam:xxx naam:"xxx" rol:staff</code></p>
+                    <p>Het wachtwoord wordt automatisch gegenereerd en getoond in Discord.</p>
+                </div>
+
+                <div class="form-card">
+                    <h2>Bestaande gebruikers</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Gebruikersnaam</th>
+                                    <th>Naam</th>
+                                    <th>Rol</th>
+                                    <th>Acties</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersList">
+                                <tr>
+                                    <td colspan="4">Laden...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container footer__inner">
+                <span>Gebruikersbeheer</span>
+                <span>Alleen weergave - toevoegen via Discord</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const USERS_API_URL = '/.netlify/functions/api-gebruikers';
+        
+        async function checkAuth() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = '/admin/login.html';
+                return false;
+            }
+            return true;
+        }
+        
+        function logout() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminNaam');
+            window.location.href = '/';
+        }
+        
+        document.getElementById('logoutLink').onclick = logout;
+        
+        async function loadUsers() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(USERS_API_URL, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const users = await response.json();
+                
+                const tbody = document.getElementById('usersList');
+                if (!users.length) {
+                    tbody.innerHTML = '<tr><td colspan="4">Geen gebruikers</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.gebruikersnaam}</td>
+                        <td>${user.naam}</td>
+                        <td>${user.rol === 'admin' ? '👑 Admin' : '👤 Staff'}</td>
+                        <td>${user.gebruikersnaam === 'admin' ? '🔒 Beschermd' : '<button class="btn-danger" onclick="deleteUser(\'' + user.gebruikersnaam + '\')">Verwijderen</button>'}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error(error);
+                document.getElementById('usersList').innerHTML = '<tr><td colspan="4">Fout bij laden</td></tr>';
+            }
+        }
+        
+        window.deleteUser = async (gebruikersnaam) => {
+            if (!confirm(`Weet je zeker dat je "${gebruikersnaam}" wilt verwijderen?`)) return;
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                await fetch(`${USERS_API_URL}?gebruikersnaam=${gebruikersnaam}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                loadUsers();
+                alert('Gebruiker verwijderd!');
+            } catch (error) {
+                console.error(error);
+                alert('Fout bij verwijderen');
+            }
+        };
+        
+        if (checkAuth()) {
+            loadUsers();
+        }
+    </script>
+</body>
+</html>
