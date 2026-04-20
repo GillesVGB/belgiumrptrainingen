@@ -1,17 +1,16 @@
 // netlify/functions/api-gebruikers.js
+const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
-// Gebruikers in geheugen (bij koude start wordt dit gereset)
-let gebruikersCache = {
-    "admin": { 
-        wachtwoord: "admin123", 
-        rol: "admin", 
-        naam: "Hoofdbeheerder" 
-    }
-};
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Actieve sessies (tijdelijke tokens)
-const SESSIONS = new Map();
+// Verwijder oude sessies elke uur
+setInterval(async () => {
+    const now = Date.now();
+    await supabase.from('sessies').delete().lt('vervalt_op', now);
+}, 60 * 60 * 1000);
 
 exports.handler = async (event) => {
     const headers = {
@@ -21,85 +20,97 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json'
     };
     
-    // OPTIONS preflight
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 204, headers, body: '' };
     }
     
-    // Bepaal het pad (voor /login en /check)
     const url = new URL(event.rawUrl);
     const pathname = url.pathname;
     const isLoginEndpoint = pathname.endsWith('/login');
     const isCheckEndpoint = pathname.endsWith('/check');
     
-    // ============================================
-    // GET - Gebruikers ophalen of token checken
-    // ============================================
+    // GET - Check token of gebruikers ophalen
     if (event.httpMethod === 'GET') {
-        // CHECK ENDPOINT - Token validatie
+        // CHECK TOKEN
         if (isCheckEndpoint) {
             const authHeader = event.headers.authorization;
             const token = authHeader?.replace('Bearer ', '');
             
-            if (token && SESSIONS.has(token)) {
-                const session = SESSIONS.get(token);
-                return { 
-                    statusCode: 200, 
-                    headers, 
-                    body: JSON.stringify({ 
-                        valid: true, 
-                        naam: session.naam, 
-                        rol: session.rol,
-                        gebruikersnaam: session.gebruikersnaam
-                    }) 
-                };
+            if (token) {
+                const { data, error } = await supabase
+                    .from('sessies')
+                    .select('*')
+                    .eq('token', token)
+                    .single();
+                
+                if (data && data.vervalt_op > Date.now()) {
+                    return { 
+                        statusCode: 200, 
+                        headers, 
+                        body: JSON.stringify({ 
+                            valid: true, 
+                            naam: data.naam, 
+                            rol: data.rol,
+                            gebruikersnaam: data.gebruikersnaam
+                        }) 
+                    };
+                }
             }
             return { statusCode: 401, headers, body: JSON.stringify({ valid: false }) };
         }
         
-        // GET ALLE GEBRUIKERS - Alleen voor ingelogde admins
+        // ALLE GEBRUIKERS OPHALEN
         const authHeader = event.headers.authorization;
         const token = authHeader?.replace('Bearer ', '');
         
-        if (!token || !SESSIONS.has(token)) {
+        if (!token) {
             return { statusCode: 401, headers, body: JSON.stringify({ error: 'Niet ingelogd' }) };
         }
         
-        const session = SESSIONS.get(token);
-        if (session.rol !== 'admin') {
+        const { data: session, error: sessionError } = await supabase
+            .from('sessies')
+            .select('rol')
+            .eq('token', token)
+            .single();
+        
+        if (!session || session.rol !== 'admin') {
             return { statusCode: 403, headers, body: JSON.stringify({ error: 'Geen admin rechten' }) };
         }
         
-        const gebruikersLijst = Object.entries(gebruikersCache).map(([naam, data]) => ({
-            gebruikersnaam: naam,
-            naam: data.naam,
-            rol: data.rol
-        }));
+        const { data: gebruikers, error } = await supabase
+            .from('gebruikers')
+            .select('gebruikersnaam, naam, rol');
         
-        return { statusCode: 200, headers, body: JSON.stringify(gebruikersLijst) };
+        if (error) throw error;
+        
+        return { statusCode: 200, headers, body: JSON.stringify(gebruikers || []) };
     }
     
-    // ============================================
-    // POST - Login of nieuwe gebruiker toevoegen
-    // ============================================
+    // POST - Login of nieuwe gebruiker
     if (event.httpMethod === 'POST') {
         const body = JSON.parse(event.body);
         
-        // LOGIN ENDPOINT
-        if (isLoginEndpoint || body.action === 'login') {
+        // LOGIN
+        if (isLoginEndpoint) {
             const { gebruikersnaam, wachtwoord } = body;
-            const user = gebruikersCache[gebruikersnaam];
+            
+            const { data: user, error } = await supabase
+                .from('gebruikers')
+                .select('*')
+                .eq('gebruikersnaam', gebruikersnaam)
+                .single();
             
             if (user && user.wachtwoord === wachtwoord) {
                 const token = crypto.randomBytes(32).toString('hex');
-                SESSIONS.set(token, { 
-                    gebruikersnaam: gebruikersnaam, 
-                    rol: user.rol, 
-                    naam: user.naam 
-                });
+                const vervalt_op = Date.now() + (24 * 60 * 60 * 1000);
                 
-                // Token vervalt na 24 uur
-                setTimeout(() => SESSIONS.delete(token), 24 * 60 * 60 * 1000);
+                await supabase.from('sessies').insert([{
+                    token: token,
+                    gebruikersnaam: gebruikersnaam,
+                    rol: user.rol,
+                    naam: user.naam,
+                    vervalt_op: vervalt_op
+                }]);
                 
                 return { 
                     statusCode: 200, 
@@ -117,102 +128,48 @@ exports.handler = async (event) => {
             return { 
                 statusCode: 401, 
                 headers, 
-                body: JSON.stringify({ 
-                    success: false, 
-                    error: 'Ongeldige gebruikersnaam of wachtwoord' 
-                }) 
+                body: JSON.stringify({ success: false, error: 'Ongeldige gegevens' }) 
             };
         }
         
-        // SYNC VAN DISCORD BOT (volledige lijst overschrijven)
-        if (body.action === 'sync' && body.gebruikers) {
-            gebruikersCache = body.gebruikers;
-            console.log(`✅ Synced ${Object.keys(gebruikersCache).length} gebruikers van Discord`);
-            return { 
-                statusCode: 200, 
-                headers, 
-                body: JSON.stringify({ success: true, count: Object.keys(gebruikersCache).length }) 
-            };
-        }
-        
-        // NIEUWE GEBRUIKER TOEVOEGEN (via Discord command)
+        // NIEUWE GEBRUIKER
         if (body.gebruikersnaam && body.wachtwoord) {
             const { gebruikersnaam, wachtwoord, naam, rol } = body;
             
-            if (gebruikersCache[gebruikersnaam]) {
-                return { 
-                    statusCode: 400, 
-                    headers, 
-                    body: JSON.stringify({ error: 'Gebruiker bestaat al' }) 
-                };
+            const { error } = await supabase.from('gebruikers').insert([{
+                gebruikersnaam: gebruikersnaam,
+                wachtwoord: wachtwoord,
+                rol: rol || 'staff',
+                naam: naam || gebruikersnaam,
+                aangemaakt: Date.now()
+            }]);
+            
+            if (error) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
             }
             
-            gebruikersCache[gebruikersnaam] = { 
-                wachtwoord: wachtwoord, 
-                rol: rol || 'staff', 
-                naam: naam || gebruikersnaam 
-            };
-            
-            console.log(`✅ Nieuwe gebruiker toegevoegd: ${gebruikersnaam} (${rol || 'staff'})`);
-            
-            return { 
-                statusCode: 201, 
-                headers, 
-                body: JSON.stringify({ success: true }) 
-            };
+            return { statusCode: 201, headers, body: JSON.stringify({ success: true }) };
         }
         
         return { statusCode: 400, headers, body: JSON.stringify({ error: 'Ongeldige aanvraag' }) };
     }
     
-    // ============================================
-    // PUT - Gebruiker bijwerken
-    // ============================================
-    if (event.httpMethod === 'PUT') {
-        const authHeader = event.headers.authorization;
-        const token = authHeader?.replace('Bearer ', '');
-        
-        if (!token || !SESSIONS.has(token)) {
-            return { statusCode: 401, headers, body: JSON.stringify({ error: 'Niet ingelogd' }) };
-        }
-        
-        const session = SESSIONS.get(token);
-        if (session.rol !== 'admin') {
-            return { statusCode: 403, headers, body: JSON.stringify({ error: 'Geen admin rechten' }) };
-        }
-        
-        const body = JSON.parse(event.body);
-        const { gebruikersnaam, naam, rol } = body;
-        
-        if (!gebruikersCache[gebruikersnaam]) {
-            return { statusCode: 404, headers, body: JSON.stringify({ error: 'Gebruiker niet gevonden' }) };
-        }
-        
-        if (naam) gebruikersCache[gebruikersnaam].naam = naam;
-        if (rol) gebruikersCache[gebruikersnaam].rol = rol;
-        
-        console.log(`✅ Gebruiker bijgewerkt: ${gebruikersnaam}`);
-        
-        return { 
-            statusCode: 200, 
-            headers, 
-            body: JSON.stringify({ success: true }) 
-        };
-    }
-    
-    // ============================================
-    // DELETE - Gebruiker verwijderen
-    // ============================================
+    // DELETE - Verwijder gebruiker
     if (event.httpMethod === 'DELETE') {
         const authHeader = event.headers.authorization;
         const token = authHeader?.replace('Bearer ', '');
         
-        if (!token || !SESSIONS.has(token)) {
+        if (!token) {
             return { statusCode: 401, headers, body: JSON.stringify({ error: 'Niet ingelogd' }) };
         }
         
-        const session = SESSIONS.get(token);
-        if (session.rol !== 'admin') {
+        const { data: session } = await supabase
+            .from('sessies')
+            .select('rol')
+            .eq('token', token)
+            .single();
+        
+        if (!session || session.rol !== 'admin') {
             return { statusCode: 403, headers, body: JSON.stringify({ error: 'Geen admin rechten' }) };
         }
         
@@ -225,18 +182,9 @@ exports.handler = async (event) => {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Admin kan niet verwijderd worden' }) };
         }
         
-        if (!gebruikersCache[gebruikersnaam]) {
-            return { statusCode: 404, headers, body: JSON.stringify({ error: 'Gebruiker niet gevonden' }) };
-        }
+        await supabase.from('gebruikers').delete().eq('gebruikersnaam', gebruikersnaam);
         
-        delete gebruikersCache[gebruikersnaam];
-        console.log(`✅ Gebruiker verwijderd: ${gebruikersnaam}`);
-        
-        return { 
-            statusCode: 200, 
-            headers, 
-            body: JSON.stringify({ success: true }) 
-        };
+        return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
     }
     
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
