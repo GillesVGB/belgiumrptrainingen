@@ -1,4 +1,4 @@
-// netlify/functions/api-gebruikers.js
+// netlify/functions/api-gebruikers.js - FIXED
 const crypto = require('crypto');
 
 let gebruikersCache = {
@@ -53,25 +53,27 @@ exports.handler = async (event) => {
         return { statusCode: 401, headers, body: JSON.stringify({ valid: false }) };
     }
     
-    // POST /login - Inloggen
-    if (event.httpMethod === 'POST' && event.body.includes('"action":"login"')) {
+    // POST - Login (check op body content ipv action string)
+    if (event.httpMethod === 'POST') {
         const body = JSON.parse(event.body);
-        const { gebruikersnaam, wachtwoord } = body;
-        const user = gebruikersCache[gebruikersnaam];
         
-        if (user && user.wachtwoord === wachtwoord) {
-            const token = crypto.randomBytes(32).toString('hex');
-            SESSIONS.set(token, { gebruikersnaam, rol: user.rol, naam: user.naam });
-            setTimeout(() => SESSIONS.delete(token), 24 * 60 * 60 * 1000);
+        // LOGIN (als er gebruikersnaam en wachtwoord is)
+        if (body.gebruikersnaam && body.wachtwoord !== undefined) {
+            const { gebruikersnaam, wachtwoord } = body;
+            const user = gebruikersCache[gebruikersnaam];
             
-            return { statusCode: 200, headers, body: JSON.stringify({ success: true, token, rol: user.rol, naam: user.naam }) };
+            if (user && user.wachtwoord === wachtwoord) {
+                const token = crypto.randomBytes(32).toString('hex');
+                SESSIONS.set(token, { gebruikersnaam, rol: user.rol, naam: user.naam });
+                setTimeout(() => SESSIONS.delete(token), 24 * 60 * 60 * 1000);
+                
+                return { statusCode: 200, headers, body: JSON.stringify({ success: true, token, rol: user.rol, naam: user.naam }) };
+            }
+            
+            return { statusCode: 401, headers, body: JSON.stringify({ success: false, error: 'Ongeldige gegevens' }) };
         }
         
-        return { statusCode: 401, headers, body: JSON.stringify({ success: false, error: 'Ongeldige gegevens' }) };
-    }
-    
-    // POST - Nieuwe gebruiker toevoegen (via website)
-    if (event.httpMethod === 'POST') {
+        // NIEUWE GEBRUIKER TOEVOEGEN (via website)
         const authHeader = event.headers.authorization;
         const token = authHeader?.replace('Bearer ', '');
         
@@ -84,7 +86,6 @@ exports.handler = async (event) => {
             return { statusCode: 403, headers, body: JSON.stringify({ error: 'Geen admin rechten' }) };
         }
         
-        const body = JSON.parse(event.body);
         const { gebruikersnaam, wachtwoord, naam, rol } = body;
         
         if (gebruikersCache[gebruikersnaam]) {
