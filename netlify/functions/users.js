@@ -3,25 +3,41 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const GEBRUIKERS_BESTAND = path.join(__dirname, '..', '..', 'database', 'gebruikers.json');
+// Gebruik /tmp voor schrijven (Netlify toestemming)
+const GEBRUIKERS_BESTAND = '/tmp/gebruikers.json';
 const SESSIONS = new Map();
+
+// Standaard gebruikers
+const DEFAULT_USERS = {
+    "admin": { wachtwoord: "admin123", rol: "admin", naam: "Hoofdbeheerder" }
+};
 
 function laadGebruikers() {
     try {
         if (fs.existsSync(GEBRUIKERS_BESTAND)) {
-            return JSON.parse(fs.readFileSync(GEBRUIKERS_BESTAND, 'utf8'));
+            const data = fs.readFileSync(GEBRUIKERS_BESTAND, 'utf8');
+            return JSON.parse(data);
         }
-    } catch (error) {}
+    } catch (error) {
+        console.error('Fout bij laden gebruikers:', error.message);
+    }
     
-    const defaultUsers = {
-        "admin": { wachtwoord: "admin123", rol: "admin", naam: "Hoofdbeheerder" }
-    };
-    fs.writeFileSync(GEBRUIKERS_BESTAND, JSON.stringify(defaultUsers, null, 2));
-    return defaultUsers;
+    // Default gebruikers als bestand niet bestaat
+    try {
+        fs.writeFileSync(GEBRUIKERS_BESTAND, JSON.stringify(DEFAULT_USERS, null, 2));
+    } catch (error) {
+        console.error('Fout bij aanmaken gebruikersbestand:', error.message);
+    }
+    
+    return DEFAULT_USERS;
 }
 
 function bewaarGebruikers(gebruikers) {
-    fs.writeFileSync(GEBRUIKERS_BESTAND, JSON.stringify(gebruikers, null, 2));
+    try {
+        fs.writeFileSync(GEBRUIKERS_BESTAND, JSON.stringify(gebruikers, null, 2));
+    } catch (error) {
+        console.error('Fout bij bewaren gebruikers:', error.message);
+    }
 }
 
 exports.handler = async (event) => {
@@ -36,28 +52,21 @@ exports.handler = async (event) => {
         return { statusCode: 204, headers, body: '' };
     }
     
-    // GET - Haal gebruikers op
+    // GET - Check token
     if (event.httpMethod === 'GET') {
         const authHeader = event.headers.authorization;
         const token = authHeader?.replace('Bearer ', '');
         
-        if (!token || !SESSIONS.has(token)) {
-            return { statusCode: 401, headers, body: JSON.stringify({ error: 'Niet ingelogd' }) };
+        if (token && SESSIONS.has(token)) {
+            const session = SESSIONS.get(token);
+            return { 
+                statusCode: 200, 
+                headers, 
+                body: JSON.stringify({ valid: true, naam: session.naam, rol: session.rol }) 
+            };
         }
         
-        const session = SESSIONS.get(token);
-        if (session.rol !== 'admin') {
-            return { statusCode: 403, headers, body: JSON.stringify({ error: 'Geen admin rechten' }) };
-        }
-        
-        const gebruikers = laadGebruikers();
-        const userList = Object.entries(gebruikers).map(([username, data]) => ({
-            username,
-            naam: data.naam,
-            rol: data.rol
-        }));
-        
-        return { statusCode: 200, headers, body: JSON.stringify(userList) };
+        return { statusCode: 401, headers, body: JSON.stringify({ error: 'Niet ingelogd' }) };
     }
     
     // POST - Login of nieuwe gebruiker
@@ -73,12 +82,21 @@ exports.handler = async (event) => {
             if (user && user.wachtwoord === password) {
                 const token = crypto.randomBytes(32).toString('hex');
                 SESSIONS.set(token, { username, rol: user.rol, naam: user.naam });
+                
                 setTimeout(() => SESSIONS.delete(token), 24 * 60 * 60 * 1000);
                 
-                return { statusCode: 200, headers, body: JSON.stringify({ success: true, token, rol: user.rol }) };
+                return { 
+                    statusCode: 200, 
+                    headers, 
+                    body: JSON.stringify({ success: true, token, rol: user.rol, naam: user.naam }) 
+                };
             }
             
-            return { statusCode: 401, headers, body: JSON.stringify({ success: false, error: 'Ongeldige inloggegevens' }) };
+            return { 
+                statusCode: 401, 
+                headers, 
+                body: JSON.stringify({ success: false, error: 'Ongeldige gebruikersnaam of wachtwoord' }) 
+            };
         }
         
         // NIEUWE GEBRUIKER
