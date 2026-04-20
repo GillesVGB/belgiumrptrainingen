@@ -1,33 +1,16 @@
 // netlify/functions/api-gebruikers.js
-const fs = require('fs');
-const path = require('path');
 const crypto = require('crypto');
 
-const GEBRUIKERS_BESTAND = path.join(__dirname, '..', '..', 'database', 'gebruikers.json');
+let gebruikersCache = {
+    "admin": { wachtwoord: "admin123", rol: "admin", naam: "Hoofdbeheerder" }
+};
 const SESSIONS = new Map();
-
-function laadGebruikers() {
-    try {
-        if (fs.existsSync(GEBRUIKERS_BESTAND)) {
-            return JSON.parse(fs.readFileSync(GEBRUIKERS_BESTAND, 'utf8'));
-        }
-    } catch (error) {}
-    return {
-        "admin": { wachtwoord: "admin123", rol: "admin", naam: "Hoofdbeheerder" }
-    };
-}
-
-function bewaarGebruikers(gebruikers) {
-    try {
-        fs.writeFileSync(GEBRUIKERS_BESTAND, JSON.stringify(gebruikers, null, 2));
-    } catch (error) {}
-}
 
 exports.handler = async (event) => {
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Content-Type': 'application/json'
     };
     
@@ -38,7 +21,7 @@ exports.handler = async (event) => {
     const url = new URL(event.rawUrl);
     const pad = url.pathname.replace('/.netlify/functions/api-gebruikers', '');
     
-    // GET /api/gebruikers - Haal alle gebruikers op
+    // GET - Haal gebruikers op
     if (event.httpMethod === 'GET' && pad === '') {
         const authHeader = event.headers.authorization;
         const token = authHeader?.replace('Bearer ', '');
@@ -52,8 +35,7 @@ exports.handler = async (event) => {
             return { statusCode: 403, headers, body: JSON.stringify({ error: 'Geen admin rechten' }) };
         }
         
-        const gebruikers = laadGebruikers();
-        const lijst = Object.entries(gebruikers).map(([naam, data]) => ({
+        const lijst = Object.entries(gebruikersCache).map(([naam, data]) => ({
             gebruikersnaam: naam,
             naam: data.naam,
             rol: data.rol
@@ -62,12 +44,23 @@ exports.handler = async (event) => {
         return { statusCode: 200, headers, body: JSON.stringify(lijst) };
     }
     
-    // POST /api/gebruikers/login - Inloggen
+    // GET /check - Check token
+    if (event.httpMethod === 'GET' && pad === '/check') {
+        const authHeader = event.headers.authorization;
+        const token = authHeader?.replace('Bearer ', '');
+        
+        if (token && SESSIONS.has(token)) {
+            const session = SESSIONS.get(token);
+            return { statusCode: 200, headers, body: JSON.stringify({ valid: true, naam: session.naam, rol: session.rol }) };
+        }
+        return { statusCode: 401, headers, body: JSON.stringify({ valid: false }) };
+    }
+    
+    // POST /login - Inloggen
     if (event.httpMethod === 'POST' && pad === '/login') {
         const body = JSON.parse(event.body);
         const { gebruikersnaam, wachtwoord } = body;
-        const gebruikers = laadGebruikers();
-        const user = gebruikers[gebruikersnaam];
+        const user = gebruikersCache[gebruikersnaam];
         
         if (user && user.wachtwoord === wachtwoord) {
             const token = crypto.randomBytes(32).toString('hex');
@@ -80,35 +73,31 @@ exports.handler = async (event) => {
         return { statusCode: 401, headers, body: JSON.stringify({ success: false, error: 'Ongeldige gegevens' }) };
     }
     
-    // POST /api/gebruikers - Nieuwe gebruiker toevoegen
+    // POST - Nieuwe gebruiker (sync van Discord)
     if (event.httpMethod === 'POST' && pad === '') {
-        const authHeader = event.headers.authorization;
-        const token = authHeader?.replace('Bearer ', '');
-        
-        if (!token || !SESSIONS.has(token)) {
-            return { statusCode: 401, headers, body: JSON.stringify({ error: 'Niet ingelogd' }) };
-        }
-        
-        const session = SESSIONS.get(token);
-        if (session.rol !== 'admin') {
-            return { statusCode: 403, headers, body: JSON.stringify({ error: 'Geen admin rechten' }) };
-        }
-        
         const body = JSON.parse(event.body);
-        const { gebruikersnaam, wachtwoord, naam, rol } = body;
-        const gebruikers = laadGebruikers();
         
-        if (gebruikers[gebruikersnaam]) {
+        // Sync volledige lijst
+        if (body.action === 'sync' && body.gebruikers) {
+            gebruikersCache = body.gebruikers;
+            console.log(`✅ Synced ${Object.keys(gebruikersCache).length} gebruikers`);
+            return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+        }
+        
+        // Nieuwe gebruiker
+        const { gebruikersnaam, wachtwoord, naam, rol } = body;
+        
+        if (gebruikersCache[gebruikersnaam]) {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Gebruiker bestaat al' }) };
         }
         
-        gebruikers[gebruikersnaam] = { wachtwoord, rol: rol || 'staff', naam: naam || gebruikersnaam };
-        bewaarGebruikers(gebruikers);
+        gebruikersCache[gebruikersnaam] = { wachtwoord, rol: rol || 'staff', naam: naam || gebruikersnaam };
+        console.log(`✅ Gebruiker toegevoegd: ${gebruikersnaam}`);
         
         return { statusCode: 201, headers, body: JSON.stringify({ success: true }) };
     }
     
-    // DELETE /api/gebruikers?gebruikersnaam=xxx - Verwijder gebruiker
+    // DELETE - Verwijder gebruiker
     if (event.httpMethod === 'DELETE') {
         const authHeader = event.headers.authorization;
         const token = authHeader?.replace('Bearer ', '');
@@ -131,24 +120,10 @@ exports.handler = async (event) => {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Admin kan niet verwijderd worden' }) };
         }
         
-        const gebruikers = laadGebruikers();
-        delete gebruikers[gebruikersnaam];
-        bewaarGebruikers(gebruikers);
+        delete gebruikersCache[gebruikersnaam];
+        console.log(`✅ Gebruiker verwijderd: ${gebruikersnaam}`);
         
         return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
-    }
-    
-    // GET /api/gebruikers/check - Check token
-    if (event.httpMethod === 'GET' && pad === '/check') {
-        const authHeader = event.headers.authorization;
-        const token = authHeader?.replace('Bearer ', '');
-        
-        if (token && SESSIONS.has(token)) {
-            const session = SESSIONS.get(token);
-            return { statusCode: 200, headers, body: JSON.stringify({ valid: true, naam: session.naam, rol: session.rol }) };
-        }
-        
-        return { statusCode: 401, headers, body: JSON.stringify({ valid: false }) };
     }
     
     return { statusCode: 404, headers, body: JSON.stringify({ error: 'Not found' }) };
