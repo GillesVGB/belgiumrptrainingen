@@ -71,6 +71,23 @@
             padding: 2rem;
             color: #94a3b8;
         }
+        .error-message {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(239,68,68,0.2);
+            border-radius: 1rem;
+            margin: 2rem auto;
+            max-width: 500px;
+        }
+        .error-message i {
+            font-size: 3rem;
+            color: #ef4444;
+            margin-bottom: 1rem;
+        }
+        .error-message h2 {
+            color: #f87171;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -88,6 +105,7 @@
                     <div class="nav-group">
                         <a class="nav-link" href="/trainingen.html">Trainingen</a>
                         <a class="nav-link" href="/admin/dashboard.html">Dashboard</a>
+                        <a class="nav-link" href="/admin/beheer-trainingen.html">Beheer</a>
                         <a class="nav-link active" href="/admin/gebruikers-beheer.html">Gebruikers</a>
                         <a class="auth-link" href="#" id="logoutLink">Uitloggen</a>
                     </div>
@@ -97,37 +115,51 @@
 
         <main class="main-content">
             <div class="container">
-                <div class="page-head">
-                    <h1 class="page-title">Gebruikers Beheer</h1>
-                    <p class="page-copy">Bekijk alle gebruikers (toevoegen kan via Discord command /gebruiker-create)</p>
-                </div>
-
-                <div class="form-card">
-                    <h2><i class="fas fa-info-circle"></i> Nieuwe gebruiker toevoegen via Discord</h2>
-                    <p>Gebruik het Discord command: <code>/gebruiker-create gebruikersnaam:xxx naam:"xxx" rol:staff</code></p>
-                    <p>Het wachtwoord wordt automatisch gegenereerd en getoond in Discord.</p>
-                    <p style="margin-top: 0.5rem;">Standaard admin account: <code>admin</code> / <code>admin123</code> (staat in Supabase)</p>
-                </div>
-
-                <div class="form-card">
-                    <h2><i class="fas fa-users"></i> Bestaande gebruikers (via Supabase)</h2>
-                    <div style="overflow-x: auto;">
-                        <table class="users-table">
-                            <thead>
-                                <tr>
-                                    <th>Gebruikersnaam</th>
-                                    <th>Naam</th>
-                                    <th>Rol</th>
-                                    <th>Acties</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersList">
-                                <tr>
-                                    <td colspan="4"><div class="empty-state">Laden...</div></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <!-- Admin only content -->
+                <div id="adminContent">
+                    <div class="page-head">
+                        <h1 class="page-title">Gebruikers Beheer</h1>
+                        <p class="page-copy">Bekijk alle gebruikers (toevoegen kan via Discord command /gebruiker-create)</p>
                     </div>
+
+                    <div class="form-card">
+                        <h2><i class="fas fa-info-circle"></i> Nieuwe gebruiker toevoegen via Discord</h2>
+                        <p>Gebruik het Discord command: <code>/gebruiker-create gebruikersnaam:xxx naam:"xxx" rol:staff</code></p>
+                        <p>Het wachtwoord wordt automatisch gegenereerd en getoond in Discord.</p>
+                        <p style="margin-top: 0.5rem;">Standaard admin account: <code>admin</code> / <code>admin123</code> (staat in Supabase)</p>
+                    </div>
+
+                    <div class="form-card">
+                        <h2><i class="fas fa-users"></i> Bestaande gebruikers (via Supabase)</h2>
+                        <div style="overflow-x: auto;">
+                            <table class="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Gebruikersnaam</th>
+                                        <th>Naam</th>
+                                        <th>Rol</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersList">
+                                    <tr>
+                                        <td colspan="4"><div class="empty-state">Laden...</div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Geen toegang voor staff -->
+                <div id="noAccessMessage" class="error-message" style="display: none;">
+                    <i class="fas fa-lock"></i>
+                    <h2>Geen toegang</h2>
+                    <p>Je hebt geen admin rechten om deze pagina te bekijken.</p>
+                    <p>Neem contact op met een hoofdbeheerder.</p>
+                    <a href="/admin/dashboard.html" class="button button-primary" style="margin-top: 1rem; display: inline-block;">
+                        <i class="fas fa-arrow-left"></i> Terug naar Dashboard
+                    </a>
                 </div>
             </div>
         </main>
@@ -135,7 +167,7 @@
         <footer class="footer">
             <div class="container footer__inner">
                 <span>Gebruikersbeheer</span>
-                <span>Data opgeslagen in Supabase (permanent)</span>
+                <span>Alleen voor Admins</span>
             </div>
         </footer>
     </div>
@@ -150,22 +182,24 @@
                 return false;
             }
             
-            // Check token geldigheid
             try {
                 const response = await fetch(`${USERS_API_URL}/check`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
+                
                 if (!data.valid) {
                     localStorage.removeItem('adminToken');
                     localStorage.removeItem('adminUser');
                     window.location.href = '/admin/login.html';
                     return false;
                 }
+                
+                return data;
             } catch (e) {
                 console.error('Auth check error:', e);
+                return null;
             }
-            return true;
         }
         
         function logout() {
@@ -191,7 +225,7 @@
                 
                 const tbody = document.getElementById('usersList');
                 if (!users || users.length === 0) {
-                    tbody.innerHTML = '<td><td colspan="4"><div class="empty-state">Geen gebruikers gevonden</div></td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state">Geen gebruikers gevonden</div></td></tr>';
                     return;
                 }
                 
@@ -231,9 +265,23 @@
             }
         };
         
-        if (checkAuth()) {
+        // Start - check role
+        (async function init() {
+            const authData = await checkAuth();
+            
+            if (!authData) return;
+            
+            // 🔴 CHECK ROLE: Alleen admin mag gebruikers beheer zien
+            if (authData.rol !== 'admin') {
+                document.getElementById('adminContent').style.display = 'none';
+                document.getElementById('noAccessMessage').style.display = 'block';
+                return;
+            }
+            
+            // Admin heeft toegang
+            document.getElementById('adminContent').style.display = 'block';
             loadUsers();
-        }
+        })();
     </script>
 </body>
 </html>
