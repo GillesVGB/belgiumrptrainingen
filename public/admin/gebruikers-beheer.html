@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gebruikers Beheer - Belgium Roleplay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .users-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .form-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .form-card h2 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .input-group label {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+        .input-group input, .input-group select {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .users-table th, .users-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .users-table th {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .status {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .status.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .status.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .login-gate {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+        .hidden {
+            display: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(99, 102, 241, 0.2);
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .full-width {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="container">
+                <nav class="site-nav">
+                    <a class="brand" href="/">
+                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="brand-copy">
+                            <strong>Belgium Roleplay</strong>
+                            <span>Admin Center</span>
+                        </span>
+                    </a>
+                    <div class="nav-group">
+                        <a class="nav-link" href="/trainingen.html">Trainingen</a>
+                        <a class="nav-link" href="/admin/dashboard.html">Dashboard</a>
+                        <a class="nav-link active" href="/admin/gebruikers-beheer.html">Gebruikers</a>
+                        <a class="auth-link" href="#" id="logoutLink">Uitloggen</a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container users-container">
+                <div id="loginGate" class="login-gate">
+                    <i class="fa-solid fa-lock" style="font-size: 3rem;"></i>
+                    <h2>Admin Login</h2>
+                    <p>Log in om gebruikers te beheren</p>
+                    <input type="text" id="loginUsername" placeholder="Gebruikersnaam" style="width: 100%; margin-bottom: 0.5rem;">
+                    <input type="password" id="loginPassword" placeholder="Wachtwoord" style="width: 100%; margin-bottom: 1rem;">
+                    <button class="btn btn-primary" id="loginBtn">Inloggen</button>
+                    <div id="loginStatus" class="status"></div>
+                </div>
+
+                <div id="adminContent" class="hidden">
+                    <div class="page-head">
+                        <h1 class="page-title">Gebruikers Beheer</h1>
+                        <p class="page-copy">Voeg nieuwe gebruikers toe of verwijder bestaande gebruikers.</p>
+                    </div>
+
+                    <div class="form-card">
+                        <h2><i class="fa-solid fa-user-plus"></i> Nieuwe gebruiker toevoegen</h2>
+                        <div id="addStatus" class="status"></div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Gebruikersnaam</label>
+                                <input type="text" id="newUsername" placeholder="gebruikersnaam">
+                            </div>
+                            <div class="input-group">
+                                <label>Wachtwoord</label>
+                                <input type="password" id="newPassword" placeholder="wachtwoord">
+                            </div>
+                            <div class="input-group">
+                                <label>Volledige naam</label>
+                                <input type="text" id="newName" placeholder="Naam van de gebruiker">
+                            </div>
+                            <div class="input-group">
+                                <label>Rol</label>
+                                <select id="newRole">
+                                    <option value="staff">Staff</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="full-width">
+                                <button class="btn btn-primary" id="addUserBtn">
+                                    <i class="fa-solid fa-plus"></i> Gebruiker toevoegen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-card">
+                        <h2><i class="fa-solid fa-users"></i> Bestaande gebruikers</h2>
+                        <div style="overflow-x: auto;">
+                            <table class="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Gebruikersnaam</th>
+                                        <th>Naam</th>
+                                        <th>Rol</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersList">
+                                    <tr><td colspan="4" style="text-align: center;">Laden...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container footer__inner">
+                <span>Gebruikersbeheer</span>
+                <span>Voeg gebruikers toe of verwijder ze</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = '/.netlify/functions/users';
+        
+        function showStatus(element, message, type) {
+            element.textContent = message;
+            element.className = `status ${type}`;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+        
+        async function checkLogin() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                document.getElementById('loginGate').style.display = 'block';
+                document.getElementById('adminContent').classList.add('hidden');
+                return false;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}?check=true`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.valid) {
+                        document.getElementById('loginGate').style.display = 'none';
+                        document.getElementById('adminContent').classList.remove('hidden');
+                        loadUsers();
+                        return true;
+                    }
+                }
+            } catch (e) {}
+            
+            localStorage.removeItem('adminToken');
+            document.getElementById('loginGate').style.display = 'block';
+            document.getElementById('adminContent').classList.add('hidden');
+            return false;
+        }
+        
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const statusDiv = document.getElementById('loginStatus');
+            
+            if (!username || !password) {
+                showStatus(statusDiv, 'Vul gebruikersnaam en wachtwoord in', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('adminToken', data.token);
+                    showStatus(statusDiv, 'Login succesvol!', 'success');
+                    setTimeout(() => {
+                        checkLogin();
+                        document.getElementById('loginUsername').value = '';
+                        document.getElementById('loginPassword').value = '';
+                    }, 1000);
+                } else {
+                    showStatus(statusDiv, 'Ongeldige gebruikersnaam of wachtwoord', 'error');
+                }
+            } catch (error) {
+                showStatus(statusDiv, 'Fout bij inloggen', 'error');
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = '/';
+        }
+        
+        async function loadUsers() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(API_URL, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const users = await response.json();
+                
+                const tbody = document.getElementById('usersList');
+                if (!users.length) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Geen gebruikers gevonden</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                users.forEach(user => {
+                    const row = tbody.insertRow();
+                    row.insertCell(0).textContent = user.username;
+                    row.insertCell(1).textContent = user.naam;
+                    row.insertCell(2).textContent = user.rol === 'admin' ? '👑 Admin' : '👤 Staff';
+                    
+                    const actions = row.insertCell(3);
+                    if (user.username !== 'admin') {
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Verwijderen';
+                        deleteBtn.className = 'btn-danger';
+                        deleteBtn.style.padding = '0.25rem 0.75rem';
+                        deleteBtn.style.borderRadius = '0.5rem';
+                        deleteBtn.onclick = () => deleteUser(user.username);
+                        actions.appendChild(deleteBtn);
+                    } else {
+                        actions.textContent = '🔒 Beschermd';
+                        actions.style.color = '#94a3b8';
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('usersList').innerHTML = '<tr><td colspan="4" style="text-align: center;">Fout bij laden</td></tr>';
+            }
+        }
+        
+        async function addUser() {
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            const naam = document.getElementById('newName').value;
+            const rol = document.getElementById('newRole').value;
+            const statusDiv = document.getElementById('addStatus');
+            
+            if (!username || !password || !naam) {
+                showStatus(statusDiv, 'Vul alle velden in', 'error');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ action: 'add', username, password, naam, rol })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(statusDiv, `Gebruiker "${username}" toegevoegd!`, 'success');
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('newName').value = '';
+                    loadUsers();
+                } else {
+                    showStatus(statusDiv, data.error || 'Fout bij toevoegen', 'error');
+                }
+            } catch (error) {
+                showStatus(statusDiv, 'Fout bij toevoegen', 'error');
+            }
+        }
+        
+        async function deleteUser(username) {
+            if (!confirm(`Weet je zeker dat je "${username}" wilt verwijderen?`)) return;
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(API_URL, {
+                    method: 'DELETE',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ username })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadUsers();
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        
+        document.getElementById('loginBtn').onclick = login;
+        document.getElementById('logoutLink').onclick = logout;
+        document.getElementById('addUserBtn').onclick = addUser;
+        
+        document.getElementById('loginUsername').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+        document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+        
+        checkLogin();
+    </script>
+</body>
+</html>

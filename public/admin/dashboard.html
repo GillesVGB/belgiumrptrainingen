@@ -9,39 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
-        }
-        .login-gate {
-            text-align: center;
-            padding: 3rem;
-            background: rgba(30,41,59,0.7);
-            border-radius: 1rem;
-            max-width: 500px;
-            margin: 2rem auto;
-        }
-        .hidden {
-            display: none;
-        }
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        .footer-links a:hover {
-            color: var(--primary);
         }
         @media (max-width: 768px) {
             .stats-grid {
@@ -62,20 +35,11 @@
                             <span>Admin Center</span>
                         </span>
                     </a>
-
                     <div class="nav-group">
-                        <a class="nav-link" href="/trainingen.html">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            Trainingen
-                        </a>
-                        <a class="nav-link active" href="/admin/dashboard.html">
-                            <i class="fa-solid fa-gauge-high"></i>
-                            Admin
-                        </a>
-                        <a class="auth-link" href="#" id="authLink">
-                            <i class="fa-solid fa-user-shield"></i>
-                            <span id="authText">Inloggen</span>
-                        </a>
+                        <a class="nav-link" href="/trainingen.html">Trainingen</a>
+                        <a class="nav-link active" href="/admin/dashboard.html">Dashboard</a>
+                        <a class="nav-link" href="/admin/gebruikers-beheer.html">Gebruikers</a>
+                        <a class="auth-link" href="#" id="logoutLink">Uitloggen</a>
                     </div>
                 </nav>
             </div>
@@ -83,291 +47,102 @@
 
         <main class="main-content">
             <div class="container">
-                <section id="loginGate" class="login-gate hidden">
-                    <i class="fa-solid fa-lock" style="font-size: 3rem;"></i>
-                    <h2>Admin login vereist</h2>
-                    <p class="section-copy">Log eerst in om het dashboard te openen.</p>
-                    <div class="cta-row" style="justify-content: center;">
-                        <a class="button button-primary" href="/admin/login.html">
-                            <i class="fa-solid fa-right-to-bracket"></i>
-                            Open login
-                        </a>
+                <div class="page-head">
+                    <div>
+                        <div class="eyebrow"><i class="fa-solid fa-user-shield"></i> Dashboard</div>
+                        <h1 class="page-title">Controlekamer voor staff</h1>
+                        <p class="page-copy">Welkom, <span id="adminName">admin</span>! Hier zie je live trainingen.</p>
+                    </div>
+                    <div class="cta-row">
+                        <a class="button button-secondary" href="/admin/beheer-trainingen.html">Beheer trainingen</a>
+                        <button class="button button-ghost" id="refreshBtn">Vernieuwen</button>
+                    </div>
+                </div>
+
+                <section class="section">
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div><span class="stat-label">Totaal trainingen</span><strong class="stat-value" id="totalTrainings">0</strong></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-hourglass-start"></i></div><span class="stat-label">Komend</span><strong class="stat-value" id="upcomingTrainings">0</strong></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-bolt"></i></div><span class="stat-label">Actief</span><strong class="stat-value" id="activeTrainings">0</strong></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fa-brands fa-discord"></i></div><span class="stat-label">Via Discord</span><strong class="stat-value" id="discordTrainings">0</strong></div>
                     </div>
                 </section>
 
-                <section id="dashboardContent" class="hidden">
-                    <div class="page-head">
-                        <div>
-                            <div class="eyebrow">
-                                <i class="fa-solid fa-user-shield"></i>
-                                Dashboard
-                            </div>
-                            <h1 class="page-title">Controlekamer voor staff</h1>
-                            <p class="page-copy">
-                                Welkom <span id="adminEmail">admin</span>! Hier zie je live trainingen.
-                            </p>
-                        </div>
-                        <div class="cta-row">
-                            <a class="button button-secondary" href="/admin/beheer-trainingen.html">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                Beheer trainingen
-                            </a>
-                            <button class="button button-ghost" id="refreshDashboardButton" type="button">
-                                <i class="fa-solid fa-rotate"></i>
-                                Vernieuwen
-                            </button>
-                        </div>
+                <section class="section table-shell">
+                    <div class="table-heading"><h2>Laatste trainingen</h2></div>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead><tr><th>ID</th><th>Onderwerp</th><th>Dienst</th><th>Moment</th><th>Trainer</th><th>Status</th><th>Deelnemers</th><th>Bron</th></tr></thead>
+                            <tbody id="trainingsTable"><tr><td colspan="8"><div class="empty-state">Laden...</div></td></tr></tbody>
+                        </table>
                     </div>
-
-                    <section class="section">
-                        <div class="stats-grid">
-                            <article class="stat-card">
-                                <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
-                                <span class="stat-label">Totaal trainingen</span>
-                                <strong class="stat-value" id="dashboardTotal">0</strong>
-                            </article>
-                            <article class="stat-card">
-                                <div class="stat-icon"><i class="fa-solid fa-hourglass-start"></i></div>
-                                <span class="stat-label">Komend</span>
-                                <strong class="stat-value" id="dashboardUpcoming">0</strong>
-                            </article>
-                            <article class="stat-card">
-                                <div class="stat-icon"><i class="fa-solid fa-bolt"></i></div>
-                                <span class="stat-label">Actief</span>
-                                <strong class="stat-value" id="dashboardActive">0</strong>
-                            </article>
-                            <article class="stat-card">
-                                <div class="stat-icon"><i class="fa-brands fa-discord"></i></div>
-                                <span class="stat-label">Via Discord</span>
-                                <strong class="stat-value" id="dashboardDiscord">0</strong>
-                            </article>
-                        </div>
-                    </section>
-
-                    <section class="section table-shell">
-                        <div class="table-heading">
-                            <div>
-                                <h2>Laatste trainingen</h2>
-                            </div>
-                        </div>
-                        <div class="table-scroll">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Onderwerp</th>
-                                        <th>Dienst</th>
-                                        <th>Moment</th>
-                                        <th>Trainer</th>
-                                        <th>Status</th>
-                                        <th>Deelnemers</th>
-                                        <th>Bron</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dashboardTrainingsTable">
-                                    <tr>
-                                        <td colspan="8">
-                                            <div class="empty-state">
-                                                <i class="fa-solid fa-spinner fa-spin"></i>
-                                                <p>Trainingen laden...</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
                 </section>
             </div>
         </main>
 
-        <footer class="footer">
-            <div class="container">
-                <div class="footer-links">
-                    <a href="https://discord.gg/TpAvvVQDu6" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-discord"></i> Discord
-                    </a>
-                    <a href="/trainingen.html">Trainingen</a>
-                    <a href="/admin/dashboard.html">Admin</a>
-                </div>
-                <div class="footer__inner">
-                    <span>Admin dashboard</span>
-                    <span>Live overzicht van planning en beheer.</span>
-                </div>
-            </div>
-        </footer>
+        <footer class="footer"><div class="container footer__inner"><span>Admin dashboard</span><span>Live overzicht van planning en beheer.</span></div></footer>
     </div>
 
     <script>
-        // ============================================
-        // NETLIFY AUTH - WERKENDE LOGIN/LOGOUT
-        // ============================================
-        (function() {
-            if (!window.netlifyIdentity) {
-                console.log('Netlify Identity niet geladen');
-                return;
-            }
-            
-            const authLink = document.getElementById('authLink');
-            const authText = document.getElementById('authText');
-            const loginGate = document.getElementById('loginGate');
-            const dashboardContent = document.getElementById('dashboardContent');
-            
-            function updateAuthButton() {
-                const user = window.netlifyIdentity.currentUser();
-                
-                if (user) {
-                    authText.textContent = 'Uitloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.logout();
-                    };
-                    authLink.style.cursor = 'pointer';
-                } else {
-                    authText.textContent = 'Inloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.location.href = '/admin/login.html';
-                    };
-                    authLink.style.cursor = 'pointer';
-                }
-            }
-            
-            function showLoginRequired() {
-                if (loginGate) loginGate.classList.remove('hidden');
-                if (dashboardContent) dashboardContent.classList.add('hidden');
-            }
-            
-            function showDashboard(user) {
-                if (loginGate) loginGate.classList.add('hidden');
-                if (dashboardContent) dashboardContent.classList.remove('hidden');
-                if (user && document.getElementById('adminEmail')) {
-                    document.getElementById('adminEmail').textContent = user.email;
-                }
-                loadDashboard();
-            }
-            
-            // Check huidige status
-            const currentUser = window.netlifyIdentity.currentUser();
-            
-            if (currentUser) {
-                showDashboard(currentUser);
-            } else {
-                showLoginRequired();
-            }
-            
-            updateAuthButton();
-            
-            // Event listeners
-            window.netlifyIdentity.on('init', function(user) {
-                updateAuthButton();
-                if (user) {
-                    showDashboard(user);
-                } else {
-                    showLoginRequired();
-                }
-            });
-            
-            window.netlifyIdentity.on('login', function(user) {
-                updateAuthButton();
-                showDashboard(user);
-            });
-            
-            window.netlifyIdentity.on('logout', function() {
-                updateAuthButton();
-                showLoginRequired();
-                window.location.href = '/';
-            });
-            
-            window.netlifyIdentity.init();
-        })();
-
-        // ============================================
-        // API FUNCTIES
-        // ============================================
         const API_URL = '/.netlify/functions/api';
         
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
-        
-        function formatDateLabel(datum, tijd) {
-            if (!datum) return 'Datum onbekend';
-            return `${datum} om ${tijd || '??:??'}`;
-        }
-        
-        function getStatusMeta(status) {
-            const statusMap = {
-                'aangekondigd': { label: 'Aangekondigd', icon: 'fa-bullhorn', pillClass: 'pill-status-aangekondigd' },
-                'inloop': { label: 'Inloop', icon: 'fa-door-open', pillClass: 'pill-status-inloop' },
-                'bezig': { label: 'Bezig', icon: 'fa-bolt', pillClass: 'pill-status-bezig' },
-                'afgerond': { label: 'Afgerond', icon: 'fa-check-circle', pillClass: 'pill-status-afgerond' },
-                'geannuleerd': { label: 'Geannuleerd', icon: 'fa-ban', pillClass: 'pill-status-geannuleerd' },
-                'uitgesteld': { label: 'Uitgesteld', icon: 'fa-clock', pillClass: 'pill-status-uitgesteld' }
-            };
-            return statusMap[status] || statusMap['aangekondigd'];
-        }
-        
-        function getServiceMeta(dienst) {
-            const serviceMap = {
-                'lokale_politie': { label: '🚓 Lokale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-                'federale_politie': { label: '⭐ Federale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-                'militaire_politie': { label: '⚔️ Militaire Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-                'ambulance': { label: '🚑 Ambulance', icon: 'fa-truck-medical', pillClass: 'pill-service-ambulance' },
-                'brandweer': { label: '🔥 Brandweer', icon: 'fa-fire-extinguisher', pillClass: 'pill-service-brandweer' }
-            };
-            return serviceMap[dienst] || serviceMap['lokale_politie'];
-        }
-        
-        function renderTableRows(trainings) {
-            if (!trainings.length) {
-                return `<tr><td colspan="8"><div class="empty-state">Geen trainingen gevonden</div></td></tr>`;
+        // Auth check
+        async function checkAuth() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = '/admin/login.html';
+                return false;
             }
-            
-            return trainings.map(training => {
-                const status = getStatusMeta(training.status);
-                const service = getServiceMeta(training.dienst);
-                const deelnemers = Array.isArray(training.aangemeld) ? training.aangemeld.length : (training.aangemeldCount || 0);
-                
-                return `
-                    <tr>
-                        <td><code>${escapeHtml(training.id)}</code></td>
-                        <td><strong>${escapeHtml(training.onderwerp || 'Training')}</strong>${training.notitie ? `<div class="table-note">${escapeHtml(training.notitie.substring(0, 50))}</div>` : ''}</td>
-                        <td><span class="pill ${service.pillClass}">${service.label}</span></td>
-                        <td>${escapeHtml(formatDateLabel(training.datum, training.tijd))}</td>
-                        <td>${escapeHtml(training.trainer || '-')}</td>
-                        <td><span class="pill ${status.pillClass}">${training.status_text || status.label}</span></td>
-                        <td>${deelnemers}/${training.maxDeelnemers || '-'}</td>
-                        <td>${training.van_discord ? '<i class="fa-brands fa-discord"></i> Discord' : '<i class="fa-solid fa-globe"></i> Web'}</td>
-                    </tr>
-                `;
-            }).join('');
+            return true;
         }
         
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = '/';
+        }
+        
+        document.getElementById('logoutLink').onclick = logout;
+        
+        // Data laden
         async function loadDashboard() {
             try {
                 const response = await fetch(API_URL);
                 const trainings = await response.json();
                 const trainingsArray = Array.isArray(trainings) ? trainings : [];
                 
-                document.getElementById('dashboardTotal').textContent = trainingsArray.length;
-                document.getElementById('dashboardUpcoming').textContent = trainingsArray.filter(t => t.status === 'aangekondigd' || t.status === 'inloop').length;
-                document.getElementById('dashboardActive').textContent = trainingsArray.filter(t => t.status === 'bezig').length;
-                document.getElementById('dashboardDiscord').textContent = trainingsArray.filter(t => t.van_discord).length;
+                document.getElementById('totalTrainings').textContent = trainingsArray.length;
+                document.getElementById('upcomingTrainings').textContent = trainingsArray.filter(t => t.status === 'aangekondigd' || t.status === 'inloop').length;
+                document.getElementById('activeTrainings').textContent = trainingsArray.filter(t => t.status === 'bezig').length;
+                document.getElementById('discordTrainings').textContent = trainingsArray.filter(t => t.van_discord).length;
                 
-                const tableBody = document.getElementById('dashboardTrainingsTable');
+                const tbody = document.getElementById('trainingsTable');
                 if (trainingsArray.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="8"><div class="empty-state">Geen trainingen gevonden</div></td></tr>`;
+                    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">Geen trainingen</div></td></tr>';
                 } else {
-                    tableBody.innerHTML = renderTableRows([...trainingsArray].reverse().slice(0, 6));
+                    tbody.innerHTML = trainingsArray.slice(0, 10).map(t => `
+                        <tr>
+                            <td><code>${t.id}</code></td>
+                            <td><strong>${t.onderwerp || '-'}</strong></td>
+                            <td>${t.dienst || '-'}</td>
+                            <td>${t.datum || '-'} ${t.tijd || ''}</td>
+                            <td>${t.trainer || '-'}</td>
+                            <td><span class="pill pill-status-${t.status}">${t.status_text || t.status}</span></td>
+                            <td>${t.aangemeld?.length || 0}/${t.maxDeelnemers || '-'}</td>
+                            <td>${t.van_discord ? '<i class="fa-brands fa-discord"></i> Discord' : 'Web'}</td>
+                        </tr>
+                    `).join('');
                 }
             } catch (error) {
                 console.error(error);
             }
         }
         
-        document.getElementById('refreshDashboardButton').addEventListener('click', loadDashboard);
+        document.getElementById('refreshBtn').onclick = loadDashboard;
+        
+        if (checkAuth()) {
+            loadDashboard();
+            setInterval(loadDashboard, 30000);
+        }
     </script>
 </body>
 </html>

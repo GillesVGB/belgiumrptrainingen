@@ -9,80 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-        .field-full {
-            grid-column: span 2;
-        }
-        .input, .select, .textarea {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            font-size: 1rem;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text);
-        }
-        .textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        .login-gate {
-            text-align: center;
-            padding: 3rem;
-            background: rgba(30,41,59,0.7);
-            border-radius: 1rem;
-            max-width: 500px;
-            margin: 2rem auto;
-        }
-        .hidden {
-            display: none;
-        }
-        .toolbar {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-        .toolbar-grow {
-            flex: 1;
-        }
-        .table-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .button-small {
-            padding: 0.25rem 0.75rem;
-            font-size: 0.8rem;
-        }
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        .footer-links a:hover {
-            color: var(--primary);
-        }
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .field-full {
-                grid-column: span 1;
-            }
-        }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .field-full { grid-column: span 2; }
+        .input, .select, .textarea { width: 100%; padding: 0.85rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; color: var(--text); }
+        .textarea { min-height: 120px; resize: vertical; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .field-full { grid-column: span 1; } }
     </style>
 </head>
 <body>
@@ -90,27 +22,12 @@
         <header class="site-header">
             <div class="container">
                 <nav class="site-nav">
-                    <a class="brand" href="/">
-                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
-                        <span class="brand-copy">
-                            <strong>Belgium Roleplay</strong>
-                            <span>Trainingbeheer</span>
-                        </span>
-                    </a>
-
+                    <a class="brand" href="/"><span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span><span class="brand-copy"><strong>Belgium Roleplay</strong><span>Trainingbeheer</span></span></a>
                     <div class="nav-group">
-                        <a class="nav-link" href="/trainingen.html">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            Trainingen
-                        </a>
-                        <a class="nav-link active" href="/admin/dashboard.html">
-                            <i class="fa-solid fa-gauge-high"></i>
-                            Admin
-                        </a>
-                        <a class="auth-link" href="#" id="authLink">
-                            <i class="fa-solid fa-user-shield"></i>
-                            <span id="authText">Inloggen</span>
-                        </a>
+                        <a class="nav-link" href="/trainingen.html">Trainingen</a>
+                        <a class="nav-link" href="/admin/dashboard.html">Dashboard</a>
+                        <a class="nav-link" href="/admin/gebruikers-beheer.html">Gebruikers</a>
+                        <a class="auth-link" href="#" id="logoutLink">Uitloggen</a>
                     </div>
                 </nav>
             </div>
@@ -118,465 +35,152 @@
 
         <main class="main-content">
             <div class="container">
-                <section id="loginGate" class="login-gate hidden">
-                    <i class="fa-solid fa-lock" style="font-size: 3rem;"></i>
-                    <h2>Login vereist</h2>
-                    <p class="section-copy">Log in om trainingen te beheren.</p>
-                    <div class="cta-row" style="justify-content: center;">
-                        <a class="button button-primary" href="/admin/login.html">
-                            <i class="fa-solid fa-right-to-bracket"></i>
-                            Open login
-                        </a>
-                    </div>
+                <div class="page-head">
+                    <h1 class="page-title">Trainingen beheren</h1>
+                    <p class="page-copy">Voeg trainingen toe, pas ze aan of verwijder ze.</p>
+                </div>
+
+                <section class="section">
+                    <form class="form-shell" id="trainingForm">
+                        <input id="trainingId" type="hidden">
+                        <div class="form-grid">
+                            <div class="field field-full"><label>Onderwerp</label><input class="input" id="onderwerp" required></div>
+                            <div class="field"><label>Dienst</label><select class="select" id="dienst"><option value="lokale_politie">🚓 Lokale Politie</option><option value="federale_politie">⭐ Federale Politie</option><option value="militaire_politie">⚔️ Militaire Politie</option><option value="ambulance">🚑 Ambulance</option><option value="brandweer">🔥 Brandweer</option></select></div>
+                            <div class="field"><label>Status</label><select class="select" id="status"><option value="aangekondigd">📢 Aangekondigd</option><option value="inloop">🚪 Inloop</option><option value="bezig">🔄 Bezig</option><option value="afgerond">✅ Afgerond</option><option value="geannuleerd">❌ Geannuleerd</option><option value="uitgesteld">⏰ Uitgesteld</option></select></div>
+                            <div class="field"><label>Datum</label><input class="input" id="datum" placeholder="DD-MM-YYYY" required></div>
+                            <div class="field"><label>Tijd</label><input class="input" id="tijd" placeholder="20:00" required></div>
+                            <div class="field"><label>Trainer</label><input class="input" id="trainer" required></div>
+                            <div class="field"><label>Locatie</label><input class="input" id="locatie"></div>
+                            <div class="field"><label>Max deelnemers</label><input class="input" id="maxDeelnemers" type="number" value="10"></div>
+                            <div class="field field-full"><label>Notitie</label><textarea class="textarea" id="notitie"></textarea></div>
+                        </div>
+                        <div class="cta-row"><button class="button button-primary" type="submit">Opslaan</button><button class="button button-ghost" type="button" id="resetBtn">Nieuw formulier</button></div>
+                    </form>
                 </section>
 
-                <section id="manageContent" class="hidden">
-                    <div class="page-head">
-                        <div>
-                            <div class="eyebrow">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                Trainingen beheer
-                            </div>
-                            <h1 class="page-title">Trainingen beheren</h1>
-                            <p class="page-copy">
-                                Voeg trainingen toe, pas ze aan of verwijder ze.
-                            </p>
-                        </div>
-                        <div class="cta-row">
-                            <a class="button button-secondary" href="/admin/dashboard.html">
-                                <i class="fa-solid fa-gauge-high"></i>
-                                Dashboard
-                            </a>
-                            <a class="button button-ghost" href="/trainingen.html" target="_blank">
-                                <i class="fa-solid fa-eye"></i> Publieke pagina
-                            </a>
-                        </div>
-                    </div>
-
-                    <section class="section">
-                        <form class="form-shell" id="trainingForm">
-                            <div class="section-heading">
-                                <div>
-                                    <h2>Training opslaan</h2>
-                                    <p class="section-copy">Gebruik hetzelfde formulier voor nieuw, aanpassen of statusupdate.</p>
-                                </div>
-                            </div>
-
-                            <input id="trainingId" type="hidden">
-
-                            <div class="form-grid">
-                                <div class="field field-full">
-                                    <label for="onderwerp">Onderwerp</label>
-                                    <input class="input" id="onderwerp" type="text" placeholder="Bijv. Verkeerscontrole basis" required>
-                                </div>
-
-                                <div class="field">
-                                    <label for="dienst">Dienst</label>
-                                    <select class="select" id="dienst" required>
-                                        <option value="lokale_politie">🚓 Lokale Politie</option>
-                                        <option value="federale_politie">⭐ Federale Politie</option>
-                                        <option value="militaire_politie">⚔️ Militaire Politie</option>
-                                        <option value="ambulance">🚑 Ambulance</option>
-                                        <option value="brandweer">🔥 Brandweer</option>
-                                    </select>
-                                </div>
-
-                                <div class="field">
-                                    <label for="status">Status</label>
-                                    <select class="select" id="status" required>
-                                        <option value="aangekondigd">📢 Aangekondigd</option>
-                                        <option value="inloop">🚪 Inloop</option>
-                                        <option value="bezig">🔄 Bezig</option>
-                                        <option value="afgerond">✅ Afgerond</option>
-                                        <option value="geannuleerd">❌ Geannuleerd</option>
-                                        <option value="uitgesteld">⏰ Uitgesteld</option>
-                                    </select>
-                                </div>
-
-                                <div class="field">
-                                    <label for="datum">Datum</label>
-                                    <input class="input" id="datum" type="text" placeholder="DD-MM-YYYY" required>
-                                </div>
-
-                                <div class="field">
-                                    <label for="tijd">Tijd</label>
-                                    <input class="input" id="tijd" type="text" placeholder="20:00" required>
-                                </div>
-
-                                <div class="field">
-                                    <label for="trainer">Trainer</label>
-                                    <input class="input" id="trainer" type="text" placeholder="Naam trainer" required>
-                                </div>
-
-                                <div class="field">
-                                    <label for="locatie">Locatie</label>
-                                    <input class="input" id="locatie" type="text" placeholder="Briefing room, HQ, server">
-                                </div>
-
-                                <div class="field">
-                                    <label for="maxDeelnemers">Maximum deelnemers</label>
-                                    <input class="input" id="maxDeelnemers" type="number" min="1" value="10">
-                                </div>
-
-                                <div class="field">
-                                    <label for="aangemeldCount">Aangemeld</label>
-                                    <input class="input" id="aangemeldCount" type="number" min="0" value="0">
-                                </div>
-
-                                <div class="field field-full">
-                                    <label for="notitie">Korte notitie / Beschrijving</label>
-                                    <textarea class="textarea" id="notitie" placeholder="Korte briefing, benodigd materiaal of extra context..."></textarea>
-                                </div>
-                            </div>
-
-                            <div class="cta-row">
-                                <button class="button button-primary" type="submit" id="saveTrainingButton">
-                                    <i class="fa-solid fa-floppy-disk"></i>
-                                    Training opslaan
-                                </button>
-                                <button class="button button-ghost" type="button" id="resetTrainingButton">
-                                    <i class="fa-solid fa-plus"></i>
-                                    Nieuw formulier
-                                </button>
-                            </div>
-                        </form>
-                    </section>
-
-                    <section class="section table-shell">
-                        <div class="table-heading">
-                            <div>
-                                <h2>Alle trainingen</h2>
-                                <p class="table-note">Klik op aanpassen om een training in het formulier te laden of verwijder ze rechtstreeks uit de tabel.</p>
-                            </div>
-                        </div>
-
-                        <div class="toolbar">
-                            <div class="toolbar-grow">
-                                <input class="input" id="manageSearch" type="search" placeholder="Zoek op onderwerp, trainer of ID">
-                            </div>
-                            <select class="select" id="manageStatusFilter">
-                                <option value="all">Alle statussen</option>
-                                <option value="aangekondigd">📢 Aangekondigd</option>
-                                <option value="inloop">🚪 Inloop</option>
-                                <option value="bezig">🔄 Bezig</option>
-                                <option value="afgerond">✅ Afgerond</option>
-                                <option value="geannuleerd">❌ Geannuleerd</option>
-                                <option value="uitgesteld">⏰ Uitgesteld</option>
-                            </select>
-                        </div>
-
-                        <div class="table-scroll">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Onderwerp</th>
-                                        <th>Dienst</th>
-                                        <th>Moment</th>
-                                        <th>Trainer</th>
-                                        <th>Status</th>
-                                        <th>Deelnemers</th>
-                                        <th>Acties</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="manageTrainingsTable">
-                                    <tr>
-                                        <td colspan="8">
-                                            <div class="empty-state">
-                                                <i class="fa-solid fa-spinner fa-spin"></i>
-                                                <p>Trainingen laden...</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
+                <section class="section table-shell">
+                    <div class="toolbar"><div class="toolbar-grow"><input class="input" id="searchInput" placeholder="Zoeken..."></div><select class="select" id="statusFilter"><option value="all">Alle statussen</option><option value="aangekondigd">Aangekondigd</option><option value="inloop">Inloop</option><option value="bezig">Bezig</option><option value="afgerond">Afgerond</option><option value="geannuleerd">Geannuleerd</option><option value="uitgesteld">Uitgesteld</option></select></div>
+                    <div class="table-scroll"><table class="data-table"><thead><tr><th>ID</th><th>Onderwerp</th><th>Dienst</th><th>Datum</th><th>Trainer</th><th>Status</th><th>Deelnemers</th><th>Acties</th></tr></thead><tbody id="trainingsTable"><tr><td colspan="8">Laden...</td></tr></tbody></table></div>
                 </section>
             </div>
         </main>
 
-        <footer class="footer">
-            <div class="container">
-                <div class="footer-links">
-                    <a href="https://discord.gg/TpAvvVQDu6" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-discord"></i> Discord
-                    </a>
-                    <a href="/trainingen.html">Trainingen</a>
-                    <a href="/admin/dashboard.html">Admin</a>
-                </div>
-                <div class="footer__inner">
-                    <span>Beheercentrum</span>
-                    <span>Trainingen beheren vanuit een centrale plek.</span>
-                </div>
-            </div>
-        </footer>
+        <footer class="footer"><div class="container footer__inner"><span>Beheercentrum</span><span>Trainingen beheren</span></div></footer>
     </div>
 
     <script>
-        // ============================================
-        // NETLIFY AUTH - WERKENDE LOGIN/LOGOUT
-        // ============================================
-        (function() {
-            if (!window.netlifyIdentity) {
-                console.log('Netlify Identity niet geladen');
-                return;
-            }
-            
-            const authLink = document.getElementById('authLink');
-            const authText = document.getElementById('authText');
-            const loginGate = document.getElementById('loginGate');
-            const manageContent = document.getElementById('manageContent');
-            
-            function updateAuthButton() {
-                const user = window.netlifyIdentity.currentUser();
-                
-                if (user) {
-                    authText.textContent = 'Uitloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.netlifyIdentity.logout();
-                    };
-                    authLink.style.cursor = 'pointer';
-                } else {
-                    authText.textContent = 'Inloggen';
-                    authLink.onclick = function(e) {
-                        e.preventDefault();
-                        window.location.href = '/admin/login.html';
-                    };
-                    authLink.style.cursor = 'pointer';
-                }
-            }
-            
-            function showLoginRequired() {
-                if (loginGate) loginGate.classList.remove('hidden');
-                if (manageContent) manageContent.classList.add('hidden');
-            }
-            
-            function showManageContent() {
-                if (loginGate) loginGate.classList.add('hidden');
-                if (manageContent) manageContent.classList.remove('hidden');
-                loadManageData();
-            }
-            
-            // Check huidige status
-            const currentUser = window.netlifyIdentity.currentUser();
-            
-            if (currentUser) {
-                showManageContent();
-            } else {
-                showLoginRequired();
-            }
-            
-            updateAuthButton();
-            
-            window.netlifyIdentity.on('init', function(user) {
-                updateAuthButton();
-                if (user) {
-                    showManageContent();
-                } else {
-                    showLoginRequired();
-                }
-            });
-            
-            window.netlifyIdentity.on('login', function() {
-                updateAuthButton();
-                showManageContent();
-            });
-            
-            window.netlifyIdentity.on('logout', function() {
-                updateAuthButton();
-                showLoginRequired();
-                window.location.href = '/';
-            });
-            
-            window.netlifyIdentity.init();
-        })();
-
-        // ============================================
-        // API FUNCTIES
-        // ============================================
         const API_URL = '/.netlify/functions/api';
         
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
-        
-        function formatDateLabel(datum, tijd) {
-            if (!datum) return 'Datum onbekend';
-            return `${datum} om ${tijd || '??:??'}`;
-        }
-        
-        function getStatusMeta(status) {
-            const statusMap = {
-                'aangekondigd': { label: 'Aangekondigd', icon: 'fa-bullhorn', pillClass: 'pill-status-aangekondigd' },
-                'inloop': { label: 'Inloop', icon: 'fa-door-open', pillClass: 'pill-status-inloop' },
-                'bezig': { label: 'Bezig', icon: 'fa-bolt', pillClass: 'pill-status-bezig' },
-                'afgerond': { label: 'Afgerond', icon: 'fa-check-circle', pillClass: 'pill-status-afgerond' },
-                'geannuleerd': { label: 'Geannuleerd', icon: 'fa-ban', pillClass: 'pill-status-geannuleerd' },
-                'uitgesteld': { label: 'Uitgesteld', icon: 'fa-clock', pillClass: 'pill-status-uitgesteld' }
-            };
-            return statusMap[status] || statusMap['aangekondigd'];
-        }
-        
-        function getServiceMeta(dienst) {
-            const serviceMap = {
-                'lokale_politie': { label: '🚓 Lokale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-                'federale_politie': { label: '⭐ Federale Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-                'militaire_politie': { label: '⚔️ Militaire Politie', icon: 'fa-shield-halved', pillClass: 'pill-service-politie' },
-                'ambulance': { label: '🚑 Ambulance', icon: 'fa-truck-medical', pillClass: 'pill-service-ambulance' },
-                'brandweer': { label: '🔥 Brandweer', icon: 'fa-fire-extinguisher', pillClass: 'pill-service-brandweer' }
-            };
-            return serviceMap[dienst] || serviceMap['lokale_politie'];
-        }
-        
-        async function apiRequest(options = {}) {
-            const { method = 'GET', data = null } = options;
-            let url = API_URL;
-            
-            const fetchOptions = { method, headers: { 'Content-Type': 'application/json' } };
-            
-            if (method === 'DELETE' && data && data.id) {
-                url = `${API_URL}?id=${data.id}`;
-            } else if (data && (method === 'POST' || method === 'PUT')) {
-                fetchOptions.body = JSON.stringify(data);
+        // Auth check
+        async function checkAuth() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = '/admin/login.html';
+                return false;
             }
-            
-            const response = await fetch(url, fetchOptions);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            if (method === 'DELETE') return { success: true };
-            return response.json();
+            return true;
         }
+        
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = '/';
+        }
+        
+        document.getElementById('logoutLink').onclick = logout;
         
         let trainings = [];
         
-        function resetTrainingForm() {
+        function resetForm() {
             document.getElementById('trainingForm').reset();
             document.getElementById('trainingId').value = '';
             document.getElementById('dienst').value = 'lokale_politie';
             document.getElementById('status').value = 'aangekondigd';
             document.getElementById('maxDeelnemers').value = '10';
-            document.getElementById('aangemeldCount').value = '0';
         }
         
-        function populateTrainingForm(training) {
-            document.getElementById('trainingId').value = training.id;
-            document.getElementById('onderwerp').value = training.onderwerp || '';
-            document.getElementById('dienst').value = training.dienst || 'lokale_politie';
-            document.getElementById('status').value = training.status || 'aangekondigd';
-            document.getElementById('datum').value = training.datum || '';
-            document.getElementById('tijd').value = training.tijd || '';
-            document.getElementById('trainer').value = training.trainer || '';
-            document.getElementById('locatie').value = training.locatie || '';
-            document.getElementById('maxDeelnemers').value = training.maxDeelnemers || 10;
-            document.getElementById('aangemeldCount').value = Array.isArray(training.aangemeld) ? training.aangemeld.length : 0;
-            document.getElementById('notitie').value = training.notitie || '';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function populateForm(t) {
+            document.getElementById('trainingId').value = t.id;
+            document.getElementById('onderwerp').value = t.onderwerp || '';
+            document.getElementById('dienst').value = t.dienst || 'lokale_politie';
+            document.getElementById('status').value = t.status || 'aangekondigd';
+            document.getElementById('datum').value = t.datum || '';
+            document.getElementById('tijd').value = t.tijd || '';
+            document.getElementById('trainer').value = t.trainer || '';
+            document.getElementById('locatie').value = t.locatie || '';
+            document.getElementById('maxDeelnemers').value = t.maxDeelnemers || 10;
+            document.getElementById('notitie').value = t.notitie || '';
         }
         
-        function getTrainingPayload() {
-            return {
-                id: document.getElementById('trainingId').value || undefined,
-                onderwerp: document.getElementById('onderwerp').value.trim(),
-                dienst: document.getElementById('dienst').value,
-                status: document.getElementById('status').value,
-                status_text: document.getElementById('status').selectedOptions[0]?.text || '',
-                datum: document.getElementById('datum').value.trim(),
-                tijd: document.getElementById('tijd').value.trim(),
-                trainer: document.getElementById('trainer').value.trim(),
-                locatie: document.getElementById('locatie').value.trim(),
-                maxDeelnemers: parseInt(document.getElementById('maxDeelnemers').value) || 10,
-                aangemeldCount: parseInt(document.getElementById('aangemeldCount').value) || 0,
-                notitie: document.getElementById('notitie').value.trim(),
-                toegevoegd_door: 'admin'
-            };
+        function renderTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const filtered = trainings.filter(t => (statusFilter === 'all' || t.status === statusFilter) && (!query || [t.onderwerp, t.trainer, t.id].join(' ').toLowerCase().includes(query)));
+            const tbody = document.getElementById('trainingsTable');
+            if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8">Geen trainingen</td></tr>'; return; }
+            tbody.innerHTML = filtered.map(t => `
+                <tr>
+                    <td><code>${t.id}</code></td>
+                    <td><strong>${t.onderwerp || '-'}</strong><div class="table-note">${(t.notitie || '').substring(0, 50)}</div></td>
+                    <td>${t.dienst || '-'}</td>
+                    <td>${t.datum || '-'} ${t.tijd || ''}</td>
+                    <td>${t.trainer || '-'}</td>
+                    <td><span class="pill pill-status-${t.status}">${t.status_text || t.status}</span></td>
+                    <td>${t.aangemeld?.length || 0}/${t.maxDeelnemers || '-'}</td>
+                    <td><button class="button-small button-secondary" onclick='editTraining("${t.id}")'><i class="fa-solid fa-pen"></i></button> <button class="button-small button-danger" onclick='deleteTraining("${t.id}")'><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+            `).join('');
         }
         
-        function renderManageTable() {
-            const query = document.getElementById('manageSearch').value.trim().toLowerCase();
-            const selectedStatus = document.getElementById('manageStatusFilter').value;
-            
-            const filtered = trainings.filter(t => {
-                const matchesStatus = selectedStatus === 'all' || t.status === selectedStatus;
-                const haystack = [t.id, t.onderwerp, t.trainer, t.locatie].join(' ').toLowerCase();
-                return matchesStatus && (!query || haystack.includes(query));
-            });
-            
-            const tbody = document.getElementById('manageTrainingsTable');
-            if (!filtered.length) {
-                tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">Geen trainingen gevonden</div></td></tr>`;
-                return;
-            }
-            
-            tbody.innerHTML = filtered.map(t => {
-                const status = getStatusMeta(t.status);
-                const service = getServiceMeta(t.dienst);
-                const deelnemers = Array.isArray(t.aangemeld) ? t.aangemeld.length : 0;
-                return `
-                    <tr>
-                        <td><code>${escapeHtml(t.id)}</code></td>
-                        <td><strong>${escapeHtml(t.onderwerp || 'Training')}</strong><div class="table-note">${escapeHtml((t.notitie || '').substring(0, 60))}</div></td>
-                        <td><span class="pill ${service.pillClass}">${service.label}</span></td>
-                        <td>${escapeHtml(formatDateLabel(t.datum, t.tijd))}</td>
-                        <td>${escapeHtml(t.trainer || '-')}</td>
-                        <td><span class="pill ${status.pillClass}">${t.status_text || status.label}</span></td>
-                        <td>${deelnemers}/${t.maxDeelnemers || '-'}</td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="button button-small button-secondary" onclick='editTraining("${escapeHtml(t.id)}")'><i class="fa-solid fa-pen"></i></button>
-                                <button class="button button-small button-danger" onclick='deleteTraining("${escapeHtml(t.id)}")'><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        
-        async function loadManageData() {
+        async function loadTrainings() {
             const response = await fetch(API_URL);
             const data = await response.json();
             trainings = Array.isArray(data) ? data : [];
-            renderManageTable();
+            renderTable();
         }
         
-        async function saveTraining(event) {
-            event.preventDefault();
-            const payload = getTrainingPayload();
-            try {
-                if (!payload.onderwerp || !payload.datum || !payload.tijd || !payload.trainer) {
-                    throw new Error('Vul onderwerp, datum, tijd en trainer in.');
-                }
-                if (payload.id) {
-                    await apiRequest({ method: 'PUT', data: payload });
-                    alert('Training aangepast.');
-                } else {
-                    await apiRequest({ method: 'POST', data: payload });
-                    alert('Training toegevoegd.');
-                }
-                resetTrainingForm();
-                await loadManageData();
-            } catch (error) {
-                alert(error.message);
-            }
+        async function saveTraining(e) {
+            e.preventDefault();
+            const payload = {
+                id: document.getElementById('trainingId').value || undefined,
+                onderwerp: document.getElementById('onderwerp').value,
+                dienst: document.getElementById('dienst').value,
+                status: document.getElementById('status').value,
+                status_text: document.getElementById('status').options[document.getElementById('status').selectedIndex]?.text || '',
+                datum: document.getElementById('datum').value,
+                tijd: document.getElementById('tijd').value,
+                trainer: document.getElementById('trainer').value,
+                locatie: document.getElementById('locatie').value,
+                maxDeelnemers: parseInt(document.getElementById('maxDeelnemers').value),
+                notitie: document.getElementById('notitie').value,
+                toegevoegd_door: 'admin'
+            };
+            const method = payload.id ? 'PUT' : 'POST';
+            await fetch('/api/training', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            resetForm();
+            loadTrainings();
+            alert(payload.id ? 'Training aangepast' : 'Training toegevoegd');
         }
         
         window.editTraining = (id) => {
-            const training = trainings.find(t => t.id === id);
-            if (training) populateTrainingForm(training);
+            const t = trainings.find(t => t.id === id);
+            if (t) populateForm(t);
         };
         
         window.deleteTraining = async (id) => {
-            if (!confirm('Weet je zeker dat je deze training wilt verwijderen?')) return;
-            await apiRequest({ method: 'DELETE', data: { id } });
-            await loadManageData();
-            alert('Training verwijderd.');
+            if (!confirm('Verwijder deze training?')) return;
+            await fetch(`/api/training?id=${id}`, { method: 'DELETE' });
+            loadTrainings();
+            alert('Training verwijderd');
         };
         
         document.getElementById('trainingForm').addEventListener('submit', saveTraining);
-        document.getElementById('resetTrainingButton').addEventListener('click', resetTrainingForm);
-        document.getElementById('manageSearch').addEventListener('input', renderManageTable);
-        document.getElementById('manageStatusFilter').addEventListener('change', renderManageTable);
+        document.getElementById('resetBtn').onclick = resetForm;
+        document.getElementById('searchInput').addEventListener('input', renderTable);
+        document.getElementById('statusFilter').addEventListener('change', renderTable);
+        
+        if (checkAuth()) {
+            loadTrainings();
+        }
     </script>
 </body>
 </html>
