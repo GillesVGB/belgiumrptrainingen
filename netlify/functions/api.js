@@ -1,8 +1,18 @@
 // netlify/functions/api.js
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://tcixgcyxubtemkmbocwi.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_81B5-BEerJmUz7N49bSm4A_WbObTAX_';
+// 🔴 HAAL DIT WEG - gebruik environment variables!
+// const SUPABASE_URL = 'https://tcixgcyxubtemkmbocwi.supabase.co';
+// const SUPABASE_KEY = 'sb_publishable_81B5-BEerJmUz7N49bSm4A_WbObTAX_';
+
+// ✅ Gebruik environment variables (die je in Netlify hebt ingesteld)
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('❌ Supabase credentials missing! Set SUPABASE_URL and SUPABASE_ANON_KEY in Netlify environment variables.');
+}
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 exports.handler = async (event) => {
@@ -17,7 +27,7 @@ exports.handler = async (event) => {
         return { statusCode: 204, headers, body: '' };
     }
     
-    // GET - Haal ALLE trainingen op uit Supabase
+    // GET - Haal alle trainingen op uit Supabase
     if (event.httpMethod === 'GET') {
         const { data, error } = await supabase
             .from('trainingen')
