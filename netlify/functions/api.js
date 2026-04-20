@@ -1,8 +1,8 @@
 // netlify/functions/api.js
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://tcixgcyxubtemkmbocwi.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_81B5-BEerJmUz7N49bSm4A_WbObTAX_';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 exports.handler = async (event) => {
@@ -17,7 +17,7 @@ exports.handler = async (event) => {
         return { statusCode: 204, headers, body: '' };
     }
     
-    // GET - Alle trainingen ophalen
+    // GET - Haal ALLE trainingen op uit Supabase
     if (event.httpMethod === 'GET') {
         const { data, error } = await supabase
             .from('trainingen')
@@ -25,48 +25,18 @@ exports.handler = async (event) => {
             .order('aangemaakt', { ascending: false });
         
         if (error) {
+            console.error('Supabase error:', error);
             return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
         }
         
         return { statusCode: 200, headers, body: JSON.stringify(data || []) };
     }
     
-    // POST - Nieuwe training
+    // POST - Nieuwe training (via website)
     if (event.httpMethod === 'POST') {
         try {
             const body = JSON.parse(event.body);
             
-            // Sync van Discord bot (volledige lijst)
-            if (body.action === 'sync' && body.trainingen) {
-                // Verwijder alle bestaande trainingen en voeg nieuwe toe
-                await supabase.from('trainingen').delete().neq('id', '0');
-                
-                for (const t of body.trainingen) {
-                    await supabase.from('trainingen').insert([{
-                        id: t.id,
-                        dienst: t.dienst,
-                        dienst_naam: t.dienst_naam,
-                        datum: t.datum,
-                        tijd: t.tijd,
-                        onderwerp: t.onderwerp,
-                        trainer: t.trainer,
-                        locatie: t.locatie || '',
-                        max_deelnemers: t.maxDeelnemers,
-                        aangemeld: t.aangemeld || [],
-                        status: t.status,
-                        status_text: t.status_text,
-                        notitie: t.notitie || '',
-                        van_discord: t.van_discord || true,
-                        toegevoegd_door: t.toegevoegd_door,
-                        aangemaakt: t.aangemaakt || Date.now(),
-                        bericht_id: t.messageId || null
-                    }]);
-                }
-                
-                return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
-            }
-            
-            // Nieuwe training
             if (!body.id) body.id = Date.now().toString();
             if (!body.aangemaakt) body.aangemaakt = Date.now();
             
@@ -77,14 +47,16 @@ exports.handler = async (event) => {
                 tijd: body.tijd,
                 onderwerp: body.onderwerp,
                 trainer: body.trainer,
-                max_deelnemers: body.maxDeelnemers,
+                max_deelnemers: body.maxDeelnemers || body.max_deelnemers || 10,
+                locatie: body.locatie || '',
                 aangemeld: body.aangemeld || [],
                 status: body.status || 'aangekondigd',
-                status_text: body.status_text || '📢 Aangekondigd',
+                status_text: body.status_text || 'Aangekondigd',
                 notitie: body.notitie || '',
-                van_discord: true,
-                toegevoegd_door: body.toegevoegd_door,
-                aangemaakt: body.aangemaakt
+                van_discord: body.van_discord || false,
+                toegevoegd_door: body.toegevoegd_door || 'website',
+                aangemaakt: body.aangemaakt,
+                bericht_id: body.bericht_id || null
             }]);
             
             if (error) throw error;
@@ -92,11 +64,12 @@ exports.handler = async (event) => {
             return { statusCode: 201, headers, body: JSON.stringify({ success: true, id: body.id }) };
             
         } catch (error) {
+            console.error('POST error:', error);
             return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
         }
     }
     
-    // PUT - Update training
+    // PUT - Update training (via website)
     if (event.httpMethod === 'PUT') {
         try {
             const body = JSON.parse(event.body);
@@ -106,7 +79,14 @@ exports.handler = async (event) => {
                 .update({
                     status: body.status,
                     status_text: body.status_text,
-                    aangemeld: body.aangemeld
+                    aangemeld: body.aangemeld,
+                    max_deelnemers: body.maxDeelnemers || body.max_deelnemers,
+                    locatie: body.locatie,
+                    notitie: body.notitie,
+                    trainer: body.trainer,
+                    datum: body.datum,
+                    tijd: body.tijd,
+                    onderwerp: body.onderwerp
                 })
                 .eq('id', body.id);
             
@@ -115,11 +95,12 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
             
         } catch (error) {
+            console.error('PUT error:', error);
             return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
         }
     }
     
-    // DELETE - Verwijder training
+    // DELETE - Verwijder training (via website)
     if (event.httpMethod === 'DELETE') {
         try {
             const id = event.queryStringParameters?.id;
@@ -133,6 +114,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
             
         } catch (error) {
+            console.error('DELETE error:', error);
             return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
         }
     }
