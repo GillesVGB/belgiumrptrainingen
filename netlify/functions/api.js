@@ -1,14 +1,11 @@
 // netlify/functions/api.js
 const { createClient } = require('@supabase/supabase-js');
 
-// 🔴 HAAL DIT WEG - gebruik environment variables!
-// const SUPABASE_URL = 'https://tcixgcyxubtemkmbocwi.supabase.co';
-// const SUPABASE_KEY = 'sb_publishable_81B5-BEerJmUz7N49bSm4A_WbObTAX_';
-
-// ✅ Gebruik environment variables (die je in Netlify hebt ingesteld)
+// Gebruik environment variables - GEEN HARDCODED KEYS!
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
+// Check of de environment variables bestaan
 if (!SUPABASE_URL || !SUPABASE_KEY) {
     console.error('❌ Supabase credentials missing! Set SUPABASE_URL and SUPABASE_ANON_KEY in Netlify environment variables.');
 }
@@ -27,7 +24,7 @@ exports.handler = async (event) => {
         return { statusCode: 204, headers, body: '' };
     }
     
-    // GET - Haal alle trainingen op uit Supabase
+    // GET - Alle trainingen ophalen
     if (event.httpMethod === 'GET') {
         const { data, error } = await supabase
             .from('trainingen')
@@ -42,7 +39,7 @@ exports.handler = async (event) => {
         return { statusCode: 200, headers, body: JSON.stringify(data || []) };
     }
     
-    // POST - Nieuwe training (via website)
+    // POST - Nieuwe training
     if (event.httpMethod === 'POST') {
         try {
             const body = JSON.parse(event.body);
@@ -79,7 +76,7 @@ exports.handler = async (event) => {
         }
     }
     
-    // PUT - Update training (via website)
+    // PUT - Update training
     if (event.httpMethod === 'PUT') {
         try {
             const body = JSON.parse(event.body);
@@ -110,7 +107,7 @@ exports.handler = async (event) => {
         }
     }
     
-    // DELETE - Verwijder training (via website)
+    // DELETE - Verwijder training
     if (event.httpMethod === 'DELETE') {
         try {
             const id = event.queryStringParameters?.id;
