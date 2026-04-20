@@ -65,6 +65,7 @@
                         <a class="nav-link" href="/trainingen.html">Trainingen</a>
                         <a class="nav-link active" href="/admin/dashboard.html">Dashboard</a>
                         <a class="nav-link" href="/admin/beheer-trainingen.html">Beheer</a>
+                        <a class="nav-link" href="/admin/gebruikers-beheer.html">Gebruikers</a>
                         <a class="auth-link" href="#" id="logoutLink">Uitloggen</a>
                     </div>
                 </nav>
@@ -143,7 +144,7 @@
                 return true;
             } catch (e) {
                 console.error('Auth check error:', e);
-                return true; // Ga door, token is misschien nog geldig
+                return true;
             }
         }
         
@@ -173,7 +174,7 @@
                 
                 const tbody = document.getElementById('trainingsTable');
                 if (trainingsArray.length === 0) {
-                    tbody.innerHTML = '<td><td colspan="8"><div class="empty-state">Geen trainingen</div></td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">Geen trainingen</div></td></tr>';
                 } else {
                     tbody.innerHTML = trainingsArray.slice(0, 10).map(t => `
                         <tr>
