@@ -3,63 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Belgium Roleplay</title>
+    <title>Admin Login | Belgium Roleplay</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        .login-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        .login-card {
-            background: rgba(30,41,59,0.7);
-            border-radius: 1rem;
-            padding: 2rem;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .input-group {
-            margin-bottom: 1rem;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #94a3b8;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(15,23,42,0.8);
-            color: white;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 0.75rem;
-            background: linear-gradient(135deg, #1a237e, #283593);
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .login-btn:hover {
-            transform: translateY(-2px);
-        }
-        .error {
-            color: #f87171;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        .success {
-            color: #34d399;
-            margin-top: 1rem;
-            text-align: center;
-        }
+        .login-container { max-width: 400px; margin: 0 auto; padding: 2rem; }
+        .login-card { background: rgba(30,41,59,0.7); border-radius: 1rem; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); }
+        .input-group { margin-bottom: 1rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; color: #94a3b8; }
+        .input-group input { width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.2); background: rgba(15,23,42,0.8); color: white; }
+        .login-btn { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, #1a237e, #283593); color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; }
+        .login-btn:hover { transform: translateY(-2px); }
+        .message { margin-top: 1rem; padding: 0.75rem; border-radius: 0.5rem; display: none; }
+        .message.error { background: rgba(239,68,68,0.2); color: #f87171; display: block; }
+        .message.success { background: rgba(16,185,129,0.2); color: #34d399; display: block; }
     </style>
 </head>
 <body>
@@ -95,7 +55,7 @@
                         <input type="password" id="wachtwoord" placeholder="wachtwoord">
                     </div>
                     <button class="login-btn" id="loginBtn">Inloggen</button>
-                    <div id="message"></div>
+                    <div id="message" class="message"></div>
                 </div>
             </div>
         </main>
@@ -109,7 +69,7 @@
     </div>
 
     <script>
-        const API_URL = '/.netlify/functions/api-gebruikers';
+        const USERS_API_URL = '/.netlify/functions/api-gebruikers';
         
         async function login() {
             const gebruikersnaam = document.getElementById('gebruikersnaam').value;
@@ -117,12 +77,13 @@
             const messageDiv = document.getElementById('message');
             
             if (!gebruikersnaam || !wachtwoord) {
-                messageDiv.innerHTML = '<div class="error">Vul gebruikersnaam en wachtwoord in</div>';
+                messageDiv.textContent = 'Vul gebruikersnaam en wachtwoord in';
+                messageDiv.className = 'message error';
                 return;
             }
             
             try {
-                const response = await fetch(`${API_URL}/login`, {
+                const response = await fetch(`${USERS_API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ gebruikersnaam, wachtwoord })
@@ -133,15 +94,18 @@
                 if (data.success) {
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('adminNaam', data.naam);
-                    messageDiv.innerHTML = '<div class="success">Login succesvol! Doorverwijzen...</div>';
+                    messageDiv.textContent = 'Login succesvol! Doorverwijzen...';
+                    messageDiv.className = 'message success';
                     setTimeout(() => {
                         window.location.href = '/admin/dashboard.html';
                     }, 1000);
                 } else {
-                    messageDiv.innerHTML = '<div class="error">Ongeldige gebruikersnaam of wachtwoord</div>';
+                    messageDiv.textContent = 'Ongeldige gebruikersnaam of wachtwoord';
+                    messageDiv.className = 'message error';
                 }
             } catch (error) {
-                messageDiv.innerHTML = '<div class="error">Fout bij inloggen</div>';
+                messageDiv.textContent = 'Fout bij inloggen';
+                messageDiv.className = 'message error';
             }
         }
         
@@ -150,7 +114,6 @@
             if (e.key === 'Enter') login();
         });
         
-        // Check of al ingelogd
         const token = localStorage.getItem('adminToken');
         if (token) {
             window.location.href = '/admin/dashboard.html';

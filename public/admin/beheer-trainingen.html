@@ -14,6 +14,12 @@
         .field-full { grid-column: span 2; }
         .input, .select, .textarea { width: 100%; padding: 0.85rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; color: var(--text); }
         .textarea { min-height: 120px; resize: vertical; }
+        .toolbar { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+        .toolbar-grow { flex: 1; }
+        .table-actions { display: flex; gap: 0.5rem; }
+        .button-small { padding: 0.25rem 0.75rem; font-size: 0.8rem; }
+        .btn-danger { background: #dc2626; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 0.5rem; cursor: pointer; }
+        .btn-secondary { background: #4b5563; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 0.5rem; cursor: pointer; }
         @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .field-full { grid-column: span 1; } }
     </style>
 </head>
@@ -70,6 +76,7 @@
 
     <script>
         const API_URL = '/.netlify/functions/api';
+        const USERS_API_URL = '/.netlify/functions/api-gebruikers';
         
         // Auth check
         async function checkAuth() {
@@ -83,6 +90,7 @@
         
         function logout() {
             localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminNaam');
             window.location.href = '/';
         }
         
@@ -96,6 +104,7 @@
             document.getElementById('dienst').value = 'lokale_politie';
             document.getElementById('status').value = 'aangekondigd';
             document.getElementById('maxDeelnemers').value = '10';
+            document.getElementById('notitie').value = '';
         }
         
         function populateForm(t) {
@@ -109,6 +118,12 @@
             document.getElementById('locatie').value = t.locatie || '';
             document.getElementById('maxDeelnemers').value = t.maxDeelnemers || 10;
             document.getElementById('notitie').value = t.notitie || '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
         
         function renderTable() {
@@ -116,26 +131,34 @@
             const statusFilter = document.getElementById('statusFilter').value;
             const filtered = trainings.filter(t => (statusFilter === 'all' || t.status === statusFilter) && (!query || [t.onderwerp, t.trainer, t.id].join(' ').toLowerCase().includes(query)));
             const tbody = document.getElementById('trainingsTable');
-            if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8">Geen trainingen</td></tr>'; return; }
+            if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">Geen trainingen</div></td></tr>'; return; }
             tbody.innerHTML = filtered.map(t => `
                 <tr>
-                    <td><code>${t.id}</code></td>
-                    <td><strong>${t.onderwerp || '-'}</strong><div class="table-note">${(t.notitie || '').substring(0, 50)}</div></td>
-                    <td>${t.dienst || '-'}</td>
-                    <td>${t.datum || '-'} ${t.tijd || ''}</td>
-                    <td>${t.trainer || '-'}</td>
-                    <td><span class="pill pill-status-${t.status}">${t.status_text || t.status}</span></td>
+                    <td><code>${escapeHtml(t.id)}</code></td>
+                    <td><strong>${escapeHtml(t.onderwerp || '-')}</strong><div class="table-note">${escapeHtml((t.notitie || '').substring(0, 50))}</div></td>
+                    <td>${escapeHtml(t.dienst || '-')}</td>
+                    <td>${escapeHtml(t.datum || '-')} ${escapeHtml(t.tijd || '')}</td>
+                    <td>${escapeHtml(t.trainer || '-')}</td>
+                    <td><span class="pill pill-status-${escapeHtml(t.status)}">${escapeHtml(t.status_text || t.status)}</span></td>
                     <td>${t.aangemeld?.length || 0}/${t.maxDeelnemers || '-'}</td>
-                    <td><button class="button-small button-secondary" onclick='editTraining("${t.id}")'><i class="fa-solid fa-pen"></i></button> <button class="button-small button-danger" onclick='deleteTraining("${t.id}")'><i class="fa-solid fa-trash"></i></button></td>
+                    <td class="table-actions">
+                        <button class="button-small button-secondary" onclick='editTraining("${escapeHtml(t.id)}")'><i class="fa-solid fa-pen"></i> Bewerk</button>
+                        <button class="btn-danger" onclick='deleteTraining("${escapeHtml(t.id)}")'><i class="fa-solid fa-trash"></i> Verwijder</button>
+                    </td>
                 </tr>
             `).join('');
         }
         
         async function loadTrainings() {
-            const response = await fetch(API_URL);
-            const data = await response.json();
-            trainings = Array.isArray(data) ? data : [];
-            renderTable();
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                trainings = Array.isArray(data) ? data : [];
+                renderTable();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('trainingsTable').innerHTML = '<tr><td colspan="8">Fout bij laden</td></tr>';
+            }
         }
         
         async function saveTraining(e) {
@@ -152,13 +175,24 @@
                 locatie: document.getElementById('locatie').value,
                 maxDeelnemers: parseInt(document.getElementById('maxDeelnemers').value),
                 notitie: document.getElementById('notitie').value,
+                aangemeld: [],
                 toegevoegd_door: 'admin'
             };
             const method = payload.id ? 'PUT' : 'POST';
-            await fetch('/api/training', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            resetForm();
-            loadTrainings();
-            alert(payload.id ? 'Training aangepast' : 'Training toegevoegd');
+            const url = payload.id ? `/api/training` : `/api/training`;
+            
+            try {
+                await fetch(url, { 
+                    method, 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                resetForm();
+                loadTrainings();
+                alert(payload.id ? 'Training aangepast!' : 'Training toegevoegd!');
+            } catch (error) {
+                alert('Fout bij opslaan: ' + error.message);
+            }
         }
         
         window.editTraining = (id) => {
@@ -167,10 +201,14 @@
         };
         
         window.deleteTraining = async (id) => {
-            if (!confirm('Verwijder deze training?')) return;
-            await fetch(`/api/training?id=${id}`, { method: 'DELETE' });
-            loadTrainings();
-            alert('Training verwijderd');
+            if (!confirm('Weet je zeker dat je deze training wilt verwijderen?')) return;
+            try {
+                await fetch(`/api/training?id=${id}`, { method: 'DELETE' });
+                loadTrainings();
+                alert('Training verwijderd!');
+            } catch (error) {
+                alert('Fout bij verwijderen: ' + error.message);
+            }
         };
         
         document.getElementById('trainingForm').addEventListener('submit', saveTraining);

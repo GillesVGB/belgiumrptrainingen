@@ -18,11 +18,8 @@ exports.handler = async (event) => {
         return { statusCode: 204, headers, body: '' };
     }
     
-    const url = new URL(event.rawUrl);
-    const pad = url.pathname.replace('/.netlify/functions/api-gebruikers', '');
-    
-    // GET - Haal gebruikers op
-    if (event.httpMethod === 'GET' && pad === '') {
+    // GET - Haal alle gebruikers op
+    if (event.httpMethod === 'GET' && !event.queryStringParameters) {
         const authHeader = event.headers.authorization;
         const token = authHeader?.replace('Bearer ', '');
         
@@ -45,7 +42,7 @@ exports.handler = async (event) => {
     }
     
     // GET /check - Check token
-    if (event.httpMethod === 'GET' && pad === '/check') {
+    if (event.httpMethod === 'GET' && event.queryStringParameters?.check === 'true') {
         const authHeader = event.headers.authorization;
         const token = authHeader?.replace('Bearer ', '');
         
@@ -57,7 +54,7 @@ exports.handler = async (event) => {
     }
     
     // POST /login - Inloggen
-    if (event.httpMethod === 'POST' && pad === '/login') {
+    if (event.httpMethod === 'POST' && event.body.includes('"action":"login"')) {
         const body = JSON.parse(event.body);
         const { gebruikersnaam, wachtwoord } = body;
         const user = gebruikersCache[gebruikersnaam];
@@ -73,18 +70,21 @@ exports.handler = async (event) => {
         return { statusCode: 401, headers, body: JSON.stringify({ success: false, error: 'Ongeldige gegevens' }) };
     }
     
-    // POST - Nieuwe gebruiker (sync van Discord)
-    if (event.httpMethod === 'POST' && pad === '') {
-        const body = JSON.parse(event.body);
+    // POST - Nieuwe gebruiker toevoegen (via website)
+    if (event.httpMethod === 'POST') {
+        const authHeader = event.headers.authorization;
+        const token = authHeader?.replace('Bearer ', '');
         
-        // Sync volledige lijst
-        if (body.action === 'sync' && body.gebruikers) {
-            gebruikersCache = body.gebruikers;
-            console.log(`✅ Synced ${Object.keys(gebruikersCache).length} gebruikers`);
-            return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+        if (!token || !SESSIONS.has(token)) {
+            return { statusCode: 401, headers, body: JSON.stringify({ error: 'Niet ingelogd' }) };
         }
         
-        // Nieuwe gebruiker
+        const session = SESSIONS.get(token);
+        if (session.rol !== 'admin') {
+            return { statusCode: 403, headers, body: JSON.stringify({ error: 'Geen admin rechten' }) };
+        }
+        
+        const body = JSON.parse(event.body);
         const { gebruikersnaam, wachtwoord, naam, rol } = body;
         
         if (gebruikersCache[gebruikersnaam]) {
