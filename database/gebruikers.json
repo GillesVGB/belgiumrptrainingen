@@ -1,0 +1,7 @@
+{
+  "admin": {
+    "wachtwoord": "admin123",
+    "rol": "admin",
+    "naam": "Hoofdbeheerder"
+  }
+}
