@@ -10,17 +10,89 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-        .field-full { grid-column: span 2; }
-        .input, .select, .textarea { width: 100%; padding: 0.85rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; color: var(--text); }
-        .textarea { min-height: 120px; resize: vertical; }
-        .toolbar { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-        .toolbar-grow { flex: 1; }
-        .table-actions { display: flex; gap: 0.5rem; }
-        .button-small { padding: 0.25rem 0.75rem; font-size: 0.8rem; }
-        .btn-danger { background: #dc2626; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 0.5rem; cursor: pointer; }
-        .btn-secondary { background: #4b5563; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 0.5rem; cursor: pointer; }
-        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .field-full { grid-column: span 1; } }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .field-full {
+            grid-column: span 2;
+        }
+        .input, .select, .textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(15,23,42,0.8);
+            color: white;
+        }
+        .textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .toolbar-grow {
+            flex: 1;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-small {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            margin: 0 0.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+        }
+        .cta-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .field-full {
+                grid-column: span 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -28,7 +100,13 @@
         <header class="site-header">
             <div class="container">
                 <nav class="site-nav">
-                    <a class="brand" href="/"><span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span><span class="brand-copy"><strong>Belgium Roleplay</strong><span>Trainingbeheer</span></span></a>
+                    <a class="brand" href="/">
+                        <span class="brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span class="brand-copy">
+                            <strong>Belgium Roleplay</strong>
+                            <span>Trainingbeheer</span>
+                        </span>
+                    </a>
                     <div class="nav-group">
                         <a class="nav-link" href="/trainingen.html">Trainingen</a>
                         <a class="nav-link" href="/admin/dashboard.html">Dashboard</a>
@@ -46,39 +124,116 @@
                     <p class="page-copy">Voeg trainingen toe, pas ze aan of verwijder ze.</p>
                 </div>
 
-                <section class="section">
-                    <form class="form-shell" id="trainingForm">
-                        <input id="trainingId" type="hidden">
-                        <div class="form-grid">
-                            <div class="field field-full"><label>Onderwerp</label><input class="input" id="onderwerp" required></div>
-                            <div class="field"><label>Dienst</label><select class="select" id="dienst"><option value="lokale_politie">🚓 Lokale Politie</option><option value="federale_politie">⭐ Federale Politie</option><option value="militaire_politie">⚔️ Militaire Politie</option><option value="ambulance">🚑 Ambulance</option><option value="brandweer">🔥 Brandweer</option></select></div>
-                            <div class="field"><label>Status</label><select class="select" id="status"><option value="aangekondigd">📢 Aangekondigd</option><option value="inloop">🚪 Inloop</option><option value="bezig">🔄 Bezig</option><option value="afgerond">✅ Afgerond</option><option value="geannuleerd">❌ Geannuleerd</option><option value="uitgesteld">⏰ Uitgesteld</option></select></div>
-                            <div class="field"><label>Datum</label><input class="input" id="datum" placeholder="DD-MM-YYYY" required></div>
-                            <div class="field"><label>Tijd</label><input class="input" id="tijd" placeholder="20:00" required></div>
-                            <div class="field"><label>Trainer</label><input class="input" id="trainer" required></div>
-                            <div class="field"><label>Locatie</label><input class="input" id="locatie"></div>
-                            <div class="field"><label>Max deelnemers</label><input class="input" id="maxDeelnemers" type="number" value="10"></div>
-                            <div class="field field-full"><label>Notitie</label><textarea class="textarea" id="notitie"></textarea></div>
+                <form class="form-shell" id="trainingForm">
+                    <input id="trainingId" type="hidden">
+                    <div class="form-grid">
+                        <div class="field field-full">
+                            <label>Onderwerp</label>
+                            <input class="input" id="onderwerp" required>
                         </div>
-                        <div class="cta-row"><button class="button button-primary" type="submit">Opslaan</button><button class="button button-ghost" type="button" id="resetBtn">Nieuw formulier</button></div>
-                    </form>
-                </section>
+                        <div class="field">
+                            <label>Dienst</label>
+                            <select class="select" id="dienst">
+                                <option value="lokale_politie">🚓 Lokale Politie</option>
+                                <option value="federale_politie">⭐ Federale Politie</option>
+                                <option value="militaire_politie">⚔️ Militaire Politie</option>
+                                <option value="ambulance">🚑 Ambulance</option>
+                                <option value="brandweer">🔥 Brandweer</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Status</label>
+                            <select class="select" id="status">
+                                <option value="aangekondigd">📢 Aangekondigd</option>
+                                <option value="inloop">🚪 Inloop</option>
+                                <option value="bezig">🔄 Bezig</option>
+                                <option value="afgerond">✅ Afgerond</option>
+                                <option value="geannuleerd">❌ Geannuleerd</option>
+                                <option value="uitgesteld">⏰ Uitgesteld</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Datum (DD-MM-YYYY)</label>
+                            <input class="input" id="datum" required>
+                        </div>
+                        <div class="field">
+                            <label>Tijd (HH:MM)</label>
+                            <input class="input" id="tijd" required>
+                        </div>
+                        <div class="field">
+                            <label>Trainer</label>
+                            <input class="input" id="trainer" required>
+                        </div>
+                        <div class="field">
+                            <label>Locatie</label>
+                            <input class="input" id="locatie">
+                        </div>
+                        <div class="field">
+                            <label>Max deelnemers</label>
+                            <input class="input" id="maxDeelnemers" type="number" value="10">
+                        </div>
+                        <div class="field field-full">
+                            <label>Notitie</label>
+                            <textarea class="textarea" id="notitie" placeholder="Optionele notitie..."></textarea>
+                        </div>
+                    </div>
+                    <div class="cta-row">
+                        <button class="btn-primary" type="submit">Opslaan</button>
+                        <button class="btn-ghost" type="button" id="resetBtn">Nieuw formulier</button>
+                    </div>
+                </form>
 
-                <section class="section table-shell">
-                    <div class="toolbar"><div class="toolbar-grow"><input class="input" id="searchInput" placeholder="Zoeken..."></div><select class="select" id="statusFilter"><option value="all">Alle statussen</option><option value="aangekondigd">Aangekondigd</option><option value="inloop">Inloop</option><option value="bezig">Bezig</option><option value="afgerond">Afgerond</option><option value="geannuleerd">Geannuleerd</option><option value="uitgesteld">Uitgesteld</option></select></div>
-                    <div class="table-scroll"><table class="data-table"><thead><tr><th>ID</th><th>Onderwerp</th><th>Dienst</th><th>Datum</th><th>Trainer</th><th>Status</th><th>Deelnemers</th><th>Acties</th></tr></thead><tbody id="trainingsTable"><tr><td colspan="8">Laden...</td></tr></tbody></table></div>
-                </section>
+                <div class="toolbar" style="margin-top: 2rem;">
+                    <div class="toolbar-grow">
+                        <input class="input" id="searchInput" placeholder="Zoeken...">
+                    </div>
+                    <select class="select" id="statusFilter">
+                        <option value="all">Alle statussen</option>
+                        <option value="aangekondigd">Aangekondigd</option>
+                        <option value="inloop">Inloop</option>
+                        <option value="bezig">Bezig</option>
+                        <option value="afgerond">Afgerond</option>
+                        <option value="geannuleerd">Geannuleerd</option>
+                        <option value="uitgesteld">Uitgesteld</option>
+                    </select>
+                </div>
+
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Onderwerp</th>
+                                <th>Dienst</th>
+                                <th>Datum</th>
+                                <th>Trainer</th>
+                                <th>Status</th>
+                                <th>Deelnemers</th>
+                                <th>Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trainingsTable">
+                            <tr>
+                                <td colspan="8"><div class="empty-state">Laden...</div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
 
-        <footer class="footer"><div class="container footer__inner"><span>Beheercentrum</span><span>Trainingen beheren</span></div></footer>
+        <footer class="footer">
+            <div class="container footer__inner">
+                <span>Beheercentrum</span>
+                <span>Trainingen beheren</span>
+            </div>
+        </footer>
     </div>
 
     <script>
         const API_URL = '/.netlify/functions/api';
         const USERS_API_URL = '/.netlify/functions/api-gebruikers';
         
-        // Auth check
         async function checkAuth() {
             const token = localStorage.getItem('adminToken');
             if (!token) {
@@ -91,6 +246,7 @@
         function logout() {
             localStorage.removeItem('adminToken');
             localStorage.removeItem('adminNaam');
+            localStorage.removeItem('adminRol');
             window.location.href = '/';
         }
         
@@ -104,7 +260,6 @@
             document.getElementById('dienst').value = 'lokale_politie';
             document.getElementById('status').value = 'aangekondigd';
             document.getElementById('maxDeelnemers').value = '10';
-            document.getElementById('notitie').value = '';
         }
         
         function populateForm(t) {
@@ -118,12 +273,7 @@
             document.getElementById('locatie').value = t.locatie || '';
             document.getElementById('maxDeelnemers').value = t.maxDeelnemers || 10;
             document.getElementById('notitie').value = t.notitie || '';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            window.scrollTo({ top: 0 });
         }
         
         function renderTable() {
@@ -131,22 +281,30 @@
             const statusFilter = document.getElementById('statusFilter').value;
             const filtered = trainings.filter(t => (statusFilter === 'all' || t.status === statusFilter) && (!query || [t.onderwerp, t.trainer, t.id].join(' ').toLowerCase().includes(query)));
             const tbody = document.getElementById('trainingsTable');
-            if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">Geen trainingen</div></td></tr>'; return; }
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">Geen trainingen</div></td></tr>';
+                return;
+            }
             tbody.innerHTML = filtered.map(t => `
                 <tr>
                     <td><code>${escapeHtml(t.id)}</code></td>
-                    <td><strong>${escapeHtml(t.onderwerp || '-')}</strong><div class="table-note">${escapeHtml((t.notitie || '').substring(0, 50))}</div></td>
+                    <td><strong>${escapeHtml(t.onderwerp || '-')}</strong><br><small class="table-note">${escapeHtml((t.notitie || '').substring(0, 50))}</small></td>
                     <td>${escapeHtml(t.dienst || '-')}</td>
                     <td>${escapeHtml(t.datum || '-')} ${escapeHtml(t.tijd || '')}</td>
                     <td>${escapeHtml(t.trainer || '-')}</td>
                     <td><span class="pill pill-status-${escapeHtml(t.status)}">${escapeHtml(t.status_text || t.status)}</span></td>
                     <td>${t.aangemeld?.length || 0}/${t.maxDeelnemers || '-'}</td>
-                    <td class="table-actions">
-                        <button class="button-small button-secondary" onclick='editTraining("${escapeHtml(t.id)}")'><i class="fa-solid fa-pen"></i> Bewerk</button>
-                        <button class="btn-danger" onclick='deleteTraining("${escapeHtml(t.id)}")'><i class="fa-solid fa-trash"></i> Verwijder</button>
+                    <td>
+                        <button class="btn-small btn-secondary" onclick='editTraining("${t.id}")'><i class="fas fa-pen"></i></button>
+                        <button class="btn-small btn-danger" onclick='deleteTraining("${t.id}")'><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
         
         async function loadTrainings() {
@@ -157,7 +315,7 @@
                 renderTable();
             } catch (error) {
                 console.error(error);
-                document.getElementById('trainingsTable').innerHTML = '<tr><td colspan="8">Fout bij laden</td></tr>';
+                document.getElementById('trainingsTable').innerHTML = '<tr><td colspan="8"><div class="empty-state">Fout bij laden</div></td></tr>';
             }
         }
         
@@ -175,23 +333,27 @@
                 locatie: document.getElementById('locatie').value,
                 maxDeelnemers: parseInt(document.getElementById('maxDeelnemers').value),
                 notitie: document.getElementById('notitie').value,
-                aangemeld: [],
-                toegevoegd_door: 'admin'
+                toegevoegd_door: localStorage.getItem('adminNaam') || 'admin'
             };
-            const method = payload.id ? 'PUT' : 'POST';
-            const url = payload.id ? `/api/training` : `/api/training`;
             
+            const method = payload.id ? 'PUT' : 'POST';
             try {
-                await fetch(url, { 
-                    method, 
+                const response = await fetch('/api/training', {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                resetForm();
-                loadTrainings();
-                alert(payload.id ? 'Training aangepast!' : 'Training toegevoegd!');
+                
+                if (response.ok) {
+                    resetForm();
+                    loadTrainings();
+                    alert(payload.id ? 'Training aangepast!' : 'Training toegevoegd!');
+                } else {
+                    alert('Fout bij opslaan');
+                }
             } catch (error) {
-                alert('Fout bij opslaan: ' + error.message);
+                console.error(error);
+                alert('Fout bij opslaan');
             }
         }
         
@@ -203,11 +365,16 @@
         window.deleteTraining = async (id) => {
             if (!confirm('Weet je zeker dat je deze training wilt verwijderen?')) return;
             try {
-                await fetch(`/api/training?id=${id}`, { method: 'DELETE' });
-                loadTrainings();
-                alert('Training verwijderd!');
+                const response = await fetch(`/api/training?id=${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadTrainings();
+                    alert('Training verwijderd!');
+                } else {
+                    alert('Fout bij verwijderen');
+                }
             } catch (error) {
-                alert('Fout bij verwijderen: ' + error.message);
+                console.error(error);
+                alert('Fout bij verwijderen');
             }
         };
         

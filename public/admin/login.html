@@ -3,23 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | Belgium Roleplay</title>
+    <title>Admin Login - Belgium Roleplay</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        .login-container { max-width: 400px; margin: 0 auto; padding: 2rem; }
-        .login-card { background: rgba(30,41,59,0.7); border-radius: 1rem; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); }
-        .input-group { margin-bottom: 1rem; }
-        .input-group label { display: block; margin-bottom: 0.5rem; color: #94a3b8; }
-        .input-group input { width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.2); background: rgba(15,23,42,0.8); color: white; }
-        .login-btn { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, #1a237e, #283593); color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; }
-        .login-btn:hover { transform: translateY(-2px); }
-        .message { margin-top: 1rem; padding: 0.75rem; border-radius: 0.5rem; display: none; }
-        .message.error { background: rgba(239,68,68,0.2); color: #f87171; display: block; }
-        .message.success { background: rgba(16,185,129,0.2); color: #34d399; display: block; }
+        .login-container {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .login-card {
+            background: rgba(30,41,59,0.7);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        .login-card h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.85rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(15,23,42,0.8);
+            color: white;
+            font-size: 1rem;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            transition: all 0.3s;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26,35,126,0.4);
+        }
+        .message {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            display: none;
+        }
+        .message.error {
+            background: rgba(239,68,68,0.2);
+            color: #f87171;
+            border: 1px solid rgba(239,68,68,0.3);
+            display: block;
+        }
+        .message.success {
+            background: rgba(16,185,129,0.2);
+            color: #34d399;
+            border: 1px solid rgba(16,185,129,0.3);
+            display: block;
+        }
+        .footer-links {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .footer-links a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .footer-links a:hover {
+            color: #6366f1;
+        }
     </style>
 </head>
 <body>
@@ -45,17 +122,22 @@
         <main class="main-content">
             <div class="container login-container">
                 <div class="login-card">
-                    <h1 style="text-align: center; margin-bottom: 1.5rem;">Admin Login</h1>
+                    <h1><i class="fas fa-shield-alt"></i> Admin Login</h1>
                     <div class="input-group">
-                        <label>Gebruikersnaam</label>
-                        <input type="text" id="gebruikersnaam" placeholder="gebruikersnaam">
+                        <label><i class="fas fa-user"></i> Gebruikersnaam</label>
+                        <input type="text" id="gebruikersnaam" placeholder="Voer je gebruikersnaam in">
                     </div>
                     <div class="input-group">
-                        <label>Wachtwoord</label>
-                        <input type="password" id="wachtwoord" placeholder="wachtwoord">
+                        <label><i class="fas fa-lock"></i> Wachtwoord</label>
+                        <input type="password" id="wachtwoord" placeholder="Voer je wachtwoord in">
                     </div>
-                    <button class="login-btn" id="loginBtn">Inloggen</button>
+                    <button class="login-btn" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Inloggen
+                    </button>
                     <div id="message" class="message"></div>
+                    <div class="footer-links">
+                        <a href="/">Terug naar website</a>
+                    </div>
                 </div>
             </div>
         </main>
@@ -94,17 +176,18 @@
                 if (data.success) {
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('adminNaam', data.naam);
+                    localStorage.setItem('adminRol', data.rol);
                     messageDiv.textContent = 'Login succesvol! Doorverwijzen...';
                     messageDiv.className = 'message success';
                     setTimeout(() => {
                         window.location.href = '/admin/dashboard.html';
                     }, 1000);
                 } else {
-                    messageDiv.textContent = 'Ongeldige gebruikersnaam of wachtwoord';
+                    messageDiv.textContent = data.error || 'Ongeldige gebruikersnaam of wachtwoord';
                     messageDiv.className = 'message error';
                 }
             } catch (error) {
-                messageDiv.textContent = 'Fout bij inloggen';
+                messageDiv.textContent = 'Fout bij inloggen. Probeer opnieuw.';
                 messageDiv.className = 'message error';
             }
         }
@@ -114,6 +197,7 @@
             if (e.key === 'Enter') login();
         });
         
+        // Check of al ingelogd
         const token = localStorage.getItem('adminToken');
         if (token) {
             window.location.href = '/admin/dashboard.html';

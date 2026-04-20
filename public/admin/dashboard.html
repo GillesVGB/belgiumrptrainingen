@@ -40,6 +40,10 @@
             text-align: left;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
+        .data-table th {
+            color: #94a3b8;
+            font-weight: 600;
+        }
         .empty-state {
             text-align: center;
             padding: 2rem;
@@ -110,7 +114,7 @@
                                     <th>ID</th>
                                     <th>Onderwerp</th>
                                     <th>Dienst</th>
-                                    <th>Moment</th>
+                                    <th>Datum/Tijd</th>
                                     <th>Trainer</th>
                                     <th>Status</th>
                                     <th>Deelnemers</th>
@@ -140,7 +144,6 @@
         const API_URL = '/.netlify/functions/api';
         const USERS_API_URL = '/.netlify/functions/api-gebruikers';
         
-        // Auth check
         async function checkAuth() {
             const token = localStorage.getItem('adminToken');
             if (!token) {
@@ -155,6 +158,8 @@
                 const data = await response.json();
                 if (!data.valid) {
                     localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminNaam');
+                    localStorage.removeItem('adminRol');
                     window.location.href = '/admin/login.html';
                     return false;
                 }
@@ -168,18 +173,17 @@
         function logout() {
             localStorage.removeItem('adminToken');
             localStorage.removeItem('adminNaam');
+            localStorage.removeItem('adminRol');
             window.location.href = '/';
         }
         
         document.getElementById('logoutLink').onclick = logout;
         
-        // Escape HTML functie
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
         
-        // Data laden
         async function loadDashboard() {
             try {
                 const response = await fetch(API_URL);
